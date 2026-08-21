@@ -1,8 +1,7 @@
 /* ==========================================================================
-   INDRIVE CLONE - ALL EGYPT GOVERNORATES & LOCATIONS
+   INDRIVE CLONE - ADVANCED INTERACTIVE DRAGGABLE MAPS & GPS LOGIC
    ========================================================================== */
 
-// 1. Comprehensive Database for Egypt Regions
 const egyptData = {
     cairo: {
         center: [30.0444, 31.2357],
@@ -14,8 +13,7 @@ const egyptData = {
             "المهندسين، الجيزة": [30.0511, 31.1990],
             "الدقي، الجيزة": [30.0381, 31.2118],
             "الشيخ زايد، الجيزة": [30.0425, 30.9780],
-            "6 أكتوبر، الجيزة": [29.9723, 30.9496],
-            "المعادي، القاهرة": [29.9602, 31.2569]
+            "6 أكتوبر، الجيزة": [29.9723, 30.9496]
         }
     },
     alex: {
@@ -26,8 +24,7 @@ const egyptData = {
             "سموحة، الإسكندرية": [31.2155, 29.9553],
             "ميامي، الإسكندرية": [31.2683, 30.0105],
             "الشاطبي، الإسكندرية": [31.2118, 29.9161],
-            "العجمي، الإسكندرية": [31.1090, 29.7820],
-            "المنتزه، الإسكندرية": [31.2883, 30.0270]
+            "العجمي، الإسكندرية": [31.1090, 29.7820]
         }
     },
     mansoura: {
@@ -35,8 +32,7 @@ const egyptData = {
         locations: {
             "المشاية السفلية، المنصورة": [31.0409, 31.3785],
             "حي الجامعة، المنصورة": [31.0450, 31.3620],
-            "قناة السويس، المنصورة": [31.0330, 31.3900],
-            "ميدان أوم كلثوم، المنصورة": [31.0480, 31.3810]
+            "قناة السويس، المنصورة": [31.0330, 31.3900]
         }
     },
     tanta: {
@@ -44,30 +40,25 @@ const egyptData = {
         locations: {
             "شارع البحر، طنطا": [30.7865, 31.0004],
             "شارع النحاس، طنطا": [30.7920, 31.0030],
-            "ميدان السيد البدوي، طنطا": [30.7880, 30.9980],
-            "حي الاستاد، طنطا": [30.8010, 31.0080]
+            "ميدان السيد البدوي، طنطا": [30.7880, 30.9980]
         }
     },
     asyut: {
         center: [27.1783, 31.1859],
         locations: {
             "شارع النميس، أسيوط": [27.1783, 31.1859],
-            "شارع يسري راغب، أسيوط": [27.1820, 31.1890],
-            "جامعة أسيوط، أسيوط": [27.1890, 31.1710],
-            "حي شطب، أسيوط": [27.1650, 31.2000]
+            "جامعة أسيوط، أسيوط": [27.1890, 31.1710]
         }
     },
     ismailia: {
         center: [30.5965, 32.2715],
         locations: {
             "شارع محمد علي، الإسماعيلية": [30.5965, 32.2715],
-            "حي الأشجار، الإسماعيلية": [30.6020, 32.2810],
-            "ميدان الفردوس، الإسماعيلية": [30.5890, 32.2650]
+            "حي الأشجار، الإسماعيلية": [30.6020, 32.2810]
         }
     }
 };
 
-// 2. Initialize Leaflet Map
 let currentGov = 'alex';
 const map = L.map('real-map', { zoomControl: false }).setView(egyptData[currentGov].center, 13);
 
@@ -76,17 +67,48 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-// Markers
-let pickupMarker = L.marker(egyptData[currentGov].center).addTo(map);
-let dropoffMarker = L.marker([egyptData[currentGov].center[0] + 0.02, egyptData[currentGov].center[1] + 0.02]).addTo(map);
+// Draggable Markers & Route Line
+let pickupMarker = L.marker(egyptData[currentGov].center, { draggable: true }).addTo(map).bindPopup("اسحب لتحديد مكان الانطلاق");
+let dropoffMarker = L.marker([egyptData[currentGov].center[0] + 0.02, egyptData[currentGov].center[1] + 0.02], { draggable: true }).addTo(map).bindPopup("اسحب لتحديد جهة الوصول");
+let routeLine = L.polyline([], { color: '#00e676', weight: 4, dashArray: '8, 8' }).addTo(map);
 
-// Driver Markers
+// Live Moving Drivers
 let driverMarkers = [
     L.marker([egyptData[currentGov].center[0] + 0.005, egyptData[currentGov].center[1] + 0.005]).addTo(map),
     L.marker([egyptData[currentGov].center[0] - 0.005, egyptData[currentGov].center[1] - 0.005]).addTo(map)
 ];
 
-// Update Governorate Function
+function updateRoute() {
+    const pPos = pickupMarker.getLatLng();
+    const dPos = dropoffMarker.getLatLng();
+    routeLine.setLatLngs([pPos, dPos]);
+
+    // Recalculate Distance & Price
+    const distInKm = (pPos.distanceTo(dPos) / 1000).toFixed(1);
+    const calculatedFare = Math.max(20, Math.round(distInKm * 8 + 15));
+    currentFare = calculatedFare;
+    document.getElementById('fare-amount').textContent = currentFare;
+}
+
+pickupMarker.on('dragend', updateRoute);
+dropoffMarker.on('dragend', updateRoute);
+
+// GPS User Location Button
+document.getElementById('locate-btn').addEventListener('click', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const userLatLng = [pos.coords.latitude, pos.coords.longitude];
+            map.setView(userLatLng, 15);
+            pickupMarker.setLatLng(userLatLng);
+            updateRoute();
+            playSound('success');
+        }, () => {
+            alert("تعذر الوصول لموقعك الحالي، يرجى تفعيل الـ GPS في متصفحك.");
+        });
+    }
+});
+
+// Load Governorate Options
 function loadGovernorate(govKey) {
     currentGov = govKey;
     const govData = egyptData[govKey];
@@ -108,24 +130,20 @@ function loadGovernorate(govKey) {
     pickupSelect.selectedIndex = 0;
     dropoffSelect.selectedIndex = Math.min(1, locationNames.length - 1);
     
-    // Update map markers
     const pCoords = govData.locations[pickupSelect.value];
     const dCoords = govData.locations[dropoffSelect.value];
     
     if (pCoords) pickupMarker.setLatLng(pCoords);
     if (dCoords) dropoffMarker.setLatLng(dCoords);
 
-    // Reposition drivers
     driverMarkers[0].setLatLng([govData.center[0] + 0.005, govData.center[1] + 0.005]);
     driverMarkers[1].setLatLng([govData.center[0] - 0.005, govData.center[1] - 0.005]);
+
+    updateRoute();
 }
 
-// Governorate Change Listener
-document.getElementById('governorate-select').addEventListener('change', (e) => {
-    loadGovernorate(e.target.value);
-});
+document.getElementById('governorate-select').addEventListener('change', (e) => loadGovernorate(e.target.value));
 
-// Select Listeners
 const pickupSelect = document.getElementById('pickup-select');
 const dropoffSelect = document.getElementById('dropoff-select');
 
@@ -134,6 +152,7 @@ pickupSelect.addEventListener('change', (e) => {
     if (coords) {
         pickupMarker.setLatLng(coords);
         map.panTo(coords);
+        updateRoute();
     }
 });
 
@@ -141,24 +160,24 @@ dropoffSelect.addEventListener('change', (e) => {
     const coords = egyptData[currentGov].locations[e.target.value];
     if (coords) {
         dropoffMarker.setLatLng(coords);
+        updateRoute();
     }
 });
 
-// Drivers Animation
+// Animate Drivers
 setInterval(() => {
     driverMarkers.forEach(m => {
         const latLng = m.getLatLng();
         m.setLatLng([
-            latLng.lat + (Math.random() - 0.5) * 0.0015,
-            latLng.lng + (Math.random() - 0.5) * 0.0015
+            latLng.lat + (Math.random() - 0.5) * 0.0012,
+            latLng.lng + (Math.random() - 0.5) * 0.0012
         ]);
     });
 }, 2000);
 
-// Initial Load
 loadGovernorate('alex');
 
-// 3. Audio & UX Flow Logic
+// Sound Effects
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -187,7 +206,7 @@ function triggerHaptic() {
     if (navigator.vibrate) navigator.vibrate(40);
 }
 
-// App Logic
+// App Logic & Steps
 let currentFare = 50;
 let searchTimer = null;
 let etaInterval = null;
@@ -280,7 +299,7 @@ function showBids() {
             <div class="driver-info">
                 <img src="${driver.img}" class="driver-img" alt="${driver.name}">
                 <div class="driver-details">
-                    ##### ${driver.name}
+                    <h5>${driver.name}</h5>
                     <span class="rating">${driver.rating}</span>
                     <p class="car-details">${driver.car}</p>
                 </div>
