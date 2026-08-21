@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InDrive - إنـدرايف مصر</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- الهيدر -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-car-side logo-icon"></i>
+                <span>إنـدرايف <strong>مصر</strong></span>
+            </div>
+            <div class="city-badge">
+                <i class="fa-solid fa-location-crosshairs"></i>
+                <span id="current-city-name">الإسكندرية</span>
+            </div>
+        </header>
+
+        <!-- الخريطة -->
+        <div class="map-view">
+            <div class="map-grid"></div>
+            <div class="driver-marker d1"><i class="fa-solid fa-car"></i></div>
+            <div class="driver-marker d2"><i class="fa-solid fa-car"></i></div>
+            <div class="driver-marker d3"><i class="fa-solid fa-motorcycle"></i></div>
+            <div class="pin pickup-pin"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="pin dropoff-pin"><i class="fa-solid fa-flag-checkered"></i></div>
+        </div>
+
+        <!-- اللوحة السفلية -->
+        <div class="bottom-sheet">
+            
+            <!-- الخطوة 1: طلب الرحلة بآلية اختيار المناطق -->
+            <div id="step-request" class="step-content">
+                
+                <div class="address-card">
+                    <!-- نقطة الانطلاق -->
+                    <div class="input-row">
+                        <span class="dot green-dot"></span>
+                        <div class="select-wrapper">
+                            <label>منين؟</label>
+                            <select id="pickup-select"></select>
+                        </div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <!-- نقطة الوصول -->
+                    <div class="input-row">
+                        <span class="dot red-dot"></span>
+                        <div class="select-wrapper">
+                            <label>على فين؟</label>
+                            <select id="dropoff-select"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اختيار الفئة -->
+                <div class="vehicle-selector">
+                    <div class="vehicle-card active" data-type="economy">
+                        <i class="fa-solid fa-car"></i>
+                        <span class="v-name">اقتصادي</span>
+                        <span class="v-price">من 35 ج.م</span>
+                    </div>
+                    <div class="vehicle-card" data-type="comfort">
+                        <i class="fa-solid fa-car-side"></i>
+                        <span class="v-name">كومفورت</span>
+                        <span class="v-price">من 60 ج.م</span>
+                    </div>
+                    <div class="vehicle-card" data-type="bike">
+                        <i class="fa-solid fa-motorcycle"></i>
+                        <span class="v-name">موتوسيكل</span>
+                        <span class="v-price">من 18 ج.م</span>
+                    </div>
+                </div>
+
+                <!-- المزايدة -->
+                <div class="fare-card">
+                    <span class="fare-label">السعر المقترح للرحلة</span>
+                    <div class="fare-controls">
+                        <button class="btn-circle" id="minus-btn"><i class="fa-solid fa-minus"></i></button>
+                        <div class="fare-display">
+                            <span id="fare-amount">50</span>
+                            <small>ج.م</small>
+                        </div>
+                        <button class="btn-circle" id="plus-btn"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <button id="search-btn" class="main-btn">
+                    <span>ابحث عن سواقين</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </div>
+
+            <!-- الخطوة 2: الرادار -->
+            <div id="step-searching" class="step-content hidden text-center">
+                <div class="radar-pulse">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <h3>جاري البحث عن كابتن قَرِيب...</h3>
+                <p>بنبعت طلبك للسواقين في نطاق المنطقة</p>
+                <button id="cancel-search-btn" class="secondary-btn">إلغاء البحث</button>
+            </div>
+
+            <!-- الخطوة 3: قائمة عروض السواقين (تستوعب سواقين كتير) -->
+            <div id="step-bids" class="step-content hidden">
+                <div class="bids-header">
+                    <h4>عروض الكباتن المتاحة (<span id="bids-count">0</span>)</h4>
+                    <span class="user-price-tag">عرضك: <strong id="current-user-price">50</strong> ج.م</span>
+                </div>
+
+                <div id="bids-list" class="bids-list">
+                    <!-- كروت السواقين الـ 10 ينزلوا هنا -->
+                </div>
+            </div>
+
+            <!-- الخطوة 4: شاشة التتبع -->
+            <div id="step-tracking" class="step-content hidden">
+                <div class="status-banner">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div>
+                        <span class="status-title">تم قبول العرض!</span>
+                        <span class="status-eta">الكابتن يوصل خلال <strong id="eta-timer">03:30</strong> دقيقة</span>
+                    </div>
+                </div>
+
+                <div id="accepted-driver-card" class="driver-profile-card">
+                    <!-- الكابتن المقبول -->
+                </div>
+
+                <div class="contact-actions">
+                    <button class="action-btn call-btn"><i class="fa-solid fa-phone"></i> اتصال</button>
+                    <button class="action-btn chat-btn"><i class="fa-solid fa-comment-dots"></i> محادثة</button>
+                </div>
+
+                <button id="cancel-trip-btn" class="danger-btn">إلغاء الرحلة</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
