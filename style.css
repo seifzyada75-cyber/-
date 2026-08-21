@@ -1,11 +1,76 @@
-/* أزرار الهيدر */
+:root {
+    --bg-dark: #090d16;
+    --card-bg: #131b2e;
+    --input-bg: #1c273e;
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --accent: #38bdf8;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --danger: #f43f5e;
+    --border: #1e293b;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* الموبايل / الفريم الرئيسي */
+.app-container {
+    width: 100%;
+    max-width: 410px;
+    height: 100vh;
+    max-height: 850px;
+    background-color: #0d1322;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+
+/* الهيدر */
+.app-header {
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    right: 0;
+    z-index: 10;
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(9,13,22,0.95) 0%, rgba(9,13,22,0) 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo { 
+    font-size: 18px; 
+    font-weight: 800; 
+}
+
+.logo strong { color: var(--primary); }
+.logo-icon { color: var(--primary); margin-left: 6px; }
+
 .header-actions {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* زرار تغيير اللغة */
 .lang-btn {
     background-color: var(--primary);
     color: #000;
@@ -22,7 +87,239 @@
     transform: scale(1.05);
 }
 
-/* دعم اتجاه السهم في اللغة الإنجليزية */
+.city-badge {
+    background-color: rgba(30, 41, 59, 0.85);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+/* الخريطة */
+.map-view {
+    flex: 1;
+    background-color: #0b1120;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-grid {
+    width: 100%; 
+    height: 100%;
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.5;
+}
+
+.pin { position: absolute; font-size: 22px; }
+.pickup-pin { top: 30%; right: 30%; color: var(--primary); }
+.dropoff-pin { top: 55%; right: 70%; color: var(--danger); }
+
+.driver-marker {
+    position: absolute;
+    background-color: var(--accent);
+    color: #000;
+    padding: 6px;
+    border-radius: 50%;
+    font-size: 11px;
+    box-shadow: 0 0 10px var(--accent);
+}
+.d1 { top: 25%; right: 20%; }
+.d2 { top: 45%; right: 60%; }
+.d3 { top: 60%; right: 25%; background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+
+/* اللوحة السفلية */
+.bottom-sheet {
+    background-color: var(--card-bg);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 18px;
+    border-top: 1px solid var(--border);
+    max-height: 72%;
+    overflow-y: auto;
+}
+
+.hidden { display: none !important; }
+
+/* إدخال العناوين */
+.address-card {
+    background-color: var(--input-bg);
+    border-radius: 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.select-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.select-wrapper label {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.select-wrapper select {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.select-wrapper select option {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+}
+
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.green-dot { background-color: var(--primary); }
+.red-dot { background-color: var(--danger); }
+
+.divider {
+    height: 1px;
+    background-color: var(--border);
+    margin: 6px 0 6px 20px;
+}
+
+/* اختيار نوع العربية */
+.vehicle-selector { display: flex; gap: 8px; margin: 12px 0; }
+
+.vehicle-card {
+    flex: 1;
+    background-color: var(--input-bg);
+    padding: 10px 6px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.vehicle-card.active {
+    border-color: var(--primary);
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.vehicle-card i { font-size: 16px; color: var(--text-muted); }
+.vehicle-card.active i { color: var(--primary); }
+.v-name { font-size: 11px; font-weight: bold; }
+.v-price { font-size: 9px; color: var(--text-muted); }
+
+/* المزايدة والسعر */
+.fare-card {
+    background-color: var(--input-bg);
+    border-radius: 16px;
+    padding: 10px 14px;
+    text-align: center;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+}
+
+.fare-label { font-size: 11px; color: var(--text-muted); }
+.fare-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+.btn-circle {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.fare-display { font-size: 24px; font-weight: 800; color: var(--primary); }
+
+.main-btn {
+    width: 100%; padding: 12px;
+    border-radius: 14px; border: none;
+    background-color: var(--primary); color: #000;
+    font-weight: 800; font-size: 14px; cursor: pointer;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+}
+
+.secondary-btn {
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 18px; border-radius: 20px;
+    cursor: pointer; margin-top: 15px; font-size: 12px;
+}
+
+/* الرادار والبحث */
+.radar-pulse { font-size: 36px; color: var(--primary); margin: 15px 0; animation: spin 2.5s infinite linear; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.text-center { text-align: center; }
+
+/* قائمة عروض السواقين */
+.bids-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.user-price-tag { font-size: 11px; background-color: rgba(16, 185, 129, 0.15); color: var(--primary); padding: 4px 8px; border-radius: 8px; }
+
+.bids-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 380px;
+    overflow-y: auto;
+    padding-left: 4px;
+}
+
+.bid-card {
+    background-color: var(--input-bg);
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.driver-info { display: flex; gap: 10px; align-items: center; }
+.driver-img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+.driver-details h5 { font-size: 13px; margin-bottom: 2px; }
+.rating { font-size: 11px; color: #f59e0b; }
+.car-details { font-size: 10px; color: var(--text-muted); }
+
+.bid-price { margin-right: auto; text-align: left; }
+.price-val { font-size: 16px; font-weight: 800; color: var(--primary); }
+.counter-tag { font-size: 9px; color: #f59e0b; display: block; }
+
+.bid-actions { display: flex; gap: 8px; margin-top: 10px; }
+.btn-accept { flex: 2; background-color: var(--primary); border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
+.btn-decline { flex: 1; background-color: transparent; border: 1px solid var(--border); color: var(--danger); padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+
+/* شاشة التتبع */
+.status-banner {
+    background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.status-banner i { font-size: 22px; color: var(--primary); }
+.status-title { font-size: 11px; color: var(--primary); display: block; font-weight: bold; }
+.status-eta { font-size: 12px; }
+
+.driver-profile-card { background-color: var(--input-bg); padding: 12px; border-radius: 14px; margin-bottom: 10px; }
+.contact-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+.action-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background-color: var(--input-bg); color: var(--text-main); font-size: 12px; cursor: pointer; }
+.danger-btn { width: 100%; padding: 8px; background: none; border: none; color: var(--danger); font-size: 12px; cursor: pointer; }
+
+/* اتجاهات اللغة الإنجليزية (LTR) */
 html[dir="ltr"] .arrow-icon {
     transform: rotate(180deg);
 }
