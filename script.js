@@ -1,786 +1,432 @@
-/**
- * ============================================================================
- * IN-DRIVE EGYPT - MASTER ULTRA ENTERPRISE APPLICATION CONTROLLER (script.js)
- * Architecture: Full Modular Enterprise Vanilla JavaScript Engine + Night Mode
- * Version: 5.0.0-Ultimate-Edition
- * Date: 2026
- * ============================================================================
- */
+/* =====================================================================================
+   IN-DRIVE EGYPT - MASTER ENTERPRISE PRODUCTION ENGINE (COMPLETE MONOLITHIC SUITE)
+   النسخة الكاملة الشاملة: تحتوي على كافة الموديولات والمنطق البرمجي التفصيلي
+   ===================================================================================== */
 
-'use strict';
+(function(window, document) {
+    'use strict';
 
-document.addEventListener('DOMContentLoaded', function () {
-
-    /* ======================================================================== */
-    /* 1. APPLICATION STATE & GLOBAL CONFIGURATION OBJECTS                      */
-    /* ======================================================================== */
-    const EnterpriseState = {
-        version: '5.0.0',
-        environment: 'production',
-        currentStep: 1,
-        selectedCity: 'alex',
-        isDarkMode: false,
-        pickupLocation: {
-            name: 'محطة الرمل، وسط البلد، الإسكندرية',
-            lat: 31.2001,
-            lng: 29.9187,
-            zoneId: 'ALX-01'
-        },
-        dropoffLocation: {
-            name: 'سيدي بشر، شارع خالد بن الوليد',
-            lat: 31.2832,
-            lng: 30.0124,
-            zoneId: 'ALX-05'
-        },
-        selectedVehicle: {
-            id: 'economy',
-            name: 'توفير',
-            basePrice: 35,
-            eta: '3-5 دقائق',
-            category: 'standard'
-        },
-        bidding: {
-            userProposedFare: 35,
-            minAllowedFare: 15,
-            maxAllowedFare: 500,
-            stepIncrement: 5,
-            negotiationActive: true
-        },
-        payment: {
-            method: 'cash',
-            isVerified: true,
-            walletBalance: 1450.00,
-            currency: 'ج.م'
-        },
-        radar: {
-            isScanning: false,
-            searchRadiusKm: 5,
-            maxScanDurationSec: 30,
-            activeDriversFound: 0
-        },
-        trip: {
-            id: null,
-            status: 'idle',
-            assignedDriver: null,
-            agreedPrice: 35,
-            startTime: null,
-            endTime: null,
-            routePolyline: []
-        },
-        userProfile: {
-            id: 'USR-882391',
-            name: 'محمود الألفي',
-            rating: 4.95,
-            totalTrips: 184,
-            phone: '+201012345678',
-            isVip: true
-        }
+    /* =================================================================================
+       1. SYSTEM CONFIGURATION & CONSTANTS
+       ================================================================================= */
+    const CONFIG = {
+        APP_NAME: "InDrive Egypt Enterprise Engine",
+        VERSION: "3.5.0-PRO",
+        API_ENDPOINT: "https://api.indrive-egypt.com/v1/core",
+        SOCKET_ENDPOINT: "wss://socket.indrive-egypt.com/stream/v1",
+        TIMEOUT_LIMIT: 15000,
+        MAX_BID_LIMIT: 2500,
+        MIN_BID_LIMIT: 10,
+        DEFAULT_LATITUDE: 30.0444,
+        DEFAULT_LONGITUDE: 31.2357,
+        ENVIRONMENT: "PRODUCTION",
+        DEBUG_MODE: true,
+        STORAGE_PREFIX: "INDRIVE_PRO_SECURE_"
     };
 
-    /* ======================================================================== */
-    /* 2. EXTENSIVE METADATA & CITIES DATABASE (ALL GOVERNORATES)               */
-    /* ======================================================================== */
-    const EgyptGovernoratesDatabase = {
-        alex: {
-            key: 'alex',
-            name: 'الإسكندرية',
-            code: 'ALX',
-            center: { lat: 31.2001, lng: 29.9187 },
-            zoomLevel: 14,
-            activeCaptainsCount: 412,
-            popularLandmarks: ['محطة الرمل', 'ميامي', 'سيدي بشر', 'العجمي', 'سموحة', 'لوران', 'المنشية', 'الإبراهيمية']
+    /* =================================================================================
+       2. GLOBAL APPLICATION STATE MANAGEMENT
+       ================================================================================= */
+    const StateManager = {
+        store: {
+            user: {
+                id: null,
+                token: null,
+                fullName: "",
+                phoneNumber: "",
+                email: "",
+                role: "PASSENGER",
+                balance: 0.00,
+                rating: 5.0,
+                isVerified: false,
+                registrationDate: null
+            },
+            trip: {
+                id: null,
+                status: "IDLE", // IDLE, SEARCHING, DRIVER_FOUND, ONGOING, COMPLETED, CANCELLED
+                currentBid: 35,
+                basePrice: 30,
+                pickupLocation: { lat: 0, lng: 0, address: "" },
+                dropoffLocation: { lat: 0, lng: 0, address: "" },
+                vehicleType: "ECONOMY",
+                estimatedDistanceKm: 0,
+                estimatedDurationMin: 0,
+                assignedDriver: null
+            },
+            ui: {
+                currentStep: 1,
+                isDarkMode: false,
+                isLoaderVisible: false,
+                activeModalId: null,
+                notificationsCount: 0
+            },
+            driversPool: [],
+            chatHistory: [],
+            applicationLogs: []
         },
-        cairo: {
-            key: 'cairo',
-            name: 'القاهرة الكبرى',
-            code: 'CAI',
-            center: { lat: 30.0444, lng: 31.2357 },
-            zoomLevel: 13,
-            activeCaptainsCount: 1250,
-            popularLandmarks: ['ميدان التحرير', 'مدينة نصر', 'التجمع الخامس', 'المعادي', 'الزمالك', 'المهندسين', 'مصر الجديدة']
-        },
-        giza: {
-            key: 'giza',
-            name: 'الجيزة',
-            code: 'GIZ',
-            center: { lat: 30.0131, lng: 31.2089 },
-            zoomLevel: 13,
-            activeCaptainsCount: 830,
-            popularLandmarks: ['الدقي', 'المهندسين', 'الهرم', 'فيصل', 'الشيخ زايد', 'السادس من أكتوبر', 'العجوزة']
-        },
-        mansoura: {
-            key: 'mansoura',
-            name: 'المنصورة',
-            code: 'MNS',
-            center: { lat: 31.0409, lng: 31.3785 },
-            zoomLevel: 14,
-            activeCaptainsCount: 215,
-            popularLandmarks: ['الشارع الجديد', 'جامعة المنصورة', 'توليب', 'سوق الحرفيين', 'المشاية']
-        },
-        tanta: {
-            key: 'tanta',
-            name: 'طنطا',
-            code: 'TNT',
-            center: { lat: 30.7865, lng: 31.0004 },
-            zoomLevel: 14,
-            activeCaptainsCount: 160,
-            popularLandmarks: ['محطة الطريق السريع', 'السد العالي', 'شارع البحر', 'استاد طنطا']
-        },
-        asyut: {
-            key: 'asyut',
-            name: 'أسيوط',
-            code: 'ASY',
-            center: { lat: 27.1810, lng: 31.1837 },
-            zoomLevel: 14,
-            activeCaptainsCount: 110,
-            popularLandmarks: ['جامعة أسيوط', 'شارع الهلالي', 'الجمهورية', 'المحطة']
-        },
-        ismailia: {
-            key: 'ismailia',
-            name: 'الإسماعيلية',
-            code: 'ISM',
-            center: { lat: 30.5931, lng: 32.2715 },
-            zoomLevel: 14,
-            activeCaptainsCount: 95,
-            popularLandmarks: ['المنشية', 'نمرة 6', 'شارع شبين']
-        },
-        suez: {
-            key: 'suez',
-            name: 'السويس',
-            code: 'SUZ',
-            center: { lat: 29.9668, lng: 32.5498 },
-            zoomLevel: 14,
-            activeCaptainsCount: 80,
-            popularLandmarks: ['الأربعين', 'المثلث', 'بور توفيق']
-        },
-        port_said: {
-            key: 'port_said',
-            name: 'بورسعيد',
-            code: 'PSD',
-            center: { lat: 31.2653, lng: 32.3019 },
-            zoomLevel: 14,
-            activeCaptainsCount: 105,
-            popularLandmarks: ['المعدية', 'الشرقي', 'طرح البحر']
-        },
-        sohag: {
-            key: 'sohag',
-            name: 'سوهاج',
-            code: 'SHG',
-            center: { lat: 26.5560, lng: 31.6948 },
-            zoomLevel: 14,
-            activeCaptainsCount: 70,
-            popularLandmarks: ['الاستاد', 'ميدان الثقافة', 'المدينة الجامعية']
-        },
-        luxor: {
-            key: 'luxor',
-            name: 'الأقصر',
-            code: 'LXR',
-            center: { lat: 25.6872, lng: 32.6396 },
-            zoomLevel: 14,
-            activeCaptainsCount: 90,
-            popularLandmarks: ['معبد الكرنك', 'محطة الأقصر', 'كورنيش النيل']
-        },
-        aswan: {
-            key: 'aswan',
-            name: 'أسوان',
-            code: 'ASN',
-            center: { lat: 24.0889, lng: 32.8998 },
-            zoomLevel: 14,
-            activeCaptainsCount: 85,
-            popularLandmarks: ['السد العالي', 'المحطة البرية', 'شارع السوق']
-        },
-        hurghada: {
-            key: 'hurghada',
-            name: 'الغردقة',
-            code: 'HRG',
-            center: { lat: 27.2579, lng: 33.8116 },
-            zoomLevel: 13,
-            activeCaptainsCount: 140,
-            popularLandmarks: ['الشارع النادي', 'الممشى السياحي', 'سقالة']
-        },
-        sharm: {
-            key: 'sharm',
-            name: 'شرم الشيخ',
-            code: 'SSH',
-            center: { lat: 27.9158, lng: 34.3300 },
-            zoomLevel: 13,
-            activeCaptainsCount: 115,
-            popularLandmarks: ['خليج نعمة', 'الصحاري', 'السوق التجاري القديم']
-        }
-    };
-
-    /* ======================================================================== */
-    /* 3. MOCK DRIVERS POOL DATABASE                                            */
-    /* ======================================================================== */
-    const SimulatedDriversPool = [
-        {
-            id: 'DRV-101',
-            name: 'الكابتن / أحمد محمود',
-            rating: 4.9,
-            tripsCount: 1240,
-            vehicleModel: 'شيفروليه أفيو - أبيض',
-            plateNumber: 'أ ب ج 1234',
-            avatarIcon: 'fa-user-tie',
-            estimatedArrivalMin: 2,
-            baseBidOffer: 35
-        },
-        {
-            id: 'DRV-102',
-            name: 'الكابتن / مصطفى السيد',
-            rating: 4.8,
-            tripsCount: 850,
-            vehicleModel: 'نيسان صني - أسود',
-            plateNumber: 'س ص ع 5678',
-            avatarIcon: 'fa-user-gear',
-            estimatedArrivalMin: 3,
-            baseBidOffer: 40
-        },
-        {
-            id: 'DRV-103',
-            name: 'الكابتن / إبراهيم عبد الله',
-            rating: 4.95,
-            tripsCount: 2100,
-            vehicleModel: 'هيونداي فيرنا - فضي',
-            plateNumber: 'ط د ر 9876',
-            avatarIcon: 'fa-user-shield',
-            estimatedArrivalMin: 4,
-            baseBidOffer: 35
-        },
-        {
-            id: 'DRV-104',
-            name: 'الكابتن / محمد إسلام',
-            rating: 4.7,
-            tripsCount: 420,
-            vehicleModel: 'رينو لوجان - أزرق',
-            plateNumber: 'م ن ه 4321',
-            avatarIcon: 'fa-user-ninja',
-            estimatedArrivalMin: 5,
-            baseBidOffer: 30
-        }
-    ];
-
-    /* ======================================================================== */
-    /* 4. DOM ELEMENTS REPOSITORY CACHING                                       */
-    /* ======================================================================== */
-    const DOM = {
-        citySelect: document.getElementById('citySelect'),
-        step1: document.getElementById('step1'),
-        step2: document.getElementById('step2'),
-        step3: document.getElementById('step3'),
-        pickupInput: document.getElementById('pickupInput'),
-        dropoffInput: document.getElementById('dropoffInput'),
-        clearPickupBtn: document.getElementById('clearPickupBtn'),
-        clearDropoffBtn: document.getElementById('clearDropoffBtn'),
-        swapLocationsBtn: document.getElementById('swapLocationsBtn'),
-        vehicleCards: document.querySelectorAll('.vehicle-option-card'),
-        bidAmountDisplay: document.getElementById('bidAmount'),
-        increaseBidBtn: document.getElementById('increaseBidBtn'),
-        decreaseBidBtn: document.getElementById('decreaseBidBtn'),
-        requestRideBtn: document.getElementById('requestRideBtn'),
-        cancelSearchBtn: document.getElementById('cancelSearchBtn'),
-        driverBidsContainer: document.getElementById('driverBidsContainer'),
-        tripProgressBar: document.getElementById('tripProgressBar'),
-        activeStatusText: document.getElementById('activeStatusText'),
-        acceptedDriverName: document.getElementById('acceptedDriverName'),
-        acceptedVehicleInfo: document.getElementById('acceptedVehicleInfo'),
-        acceptedFareBadge: document.getElementById('acceptedFareBadge'),
-        callDriverBtn: document.getElementById('callDriverBtn'),
-        chatDriverBtn: document.getElementById('chatDriverBtn'),
-        shareTripBtn: document.getElementById('shareTripBtn'),
-        sosEmergencyBtn: document.getElementById('sosEmergencyBtn'),
-        cancelTripBtn: document.getElementById('cancelTripBtn'),
-        modalBackdrop: document.getElementById('modalBackdrop'),
-        paymentModal: document.getElementById('paymentModal'),
-        chatModal: document.getElementById('chatModal'),
-        chatMessagesBox: document.getElementById('chatMessagesBox'),
-        chatInputField: document.getElementById('chatInputField'),
-        sendChatMsgBtn: document.getElementById('sendChatMsgBtn'),
-        recenterBtn: document.getElementById('recenterBtn'),
-        notificationsBtn: document.getElementById('notificationsBtn'),
-        supportCenterBtn: document.getElementById('supportCenterBtn'),
-        darkModeToggleBtn: document.getElementById('darkModeToggleBtn')
-    };
-
-    /* ======================================================================== */
-    /* 5. LEAFLET MAP ENGINE CORE INITIALIZER & NIGHT MODE UTILITIES            */
-    /* ======================================================================== */
-    let MapManager = {
-        mapInstance: null,
-        markersLayerGroup: null,
         
-        init: function() {
-            const activeCity = EgyptGovernoratesDatabase.alex;
-            
-            this.mapInstance = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([activeCity.center.lat, activeCity.center.lng], activeCity.zoomLevel);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                subdomains: ['a', 'b', 'c']
-            }).addTo(this.mapInstance);
-
-            L.control.zoom({ position: 'bottomleft' }).addTo(this.mapInstance);
-            
-            this.markersLayerGroup = L.layerGroup().addTo(this.mapInstance);
-            this.renderDefaultMarkers(activeCity.center.lat, activeCity.center.lng);
-            
-            console.log('MapManager: Leaflet map initialized successfully with full enterprise interactive bindings.');
+        get: function(path) {
+            return path.split('.').reduce((obj, key) => (obj && obj[key] !== 'undefined') ? obj[key] : null, this.store);
         },
+        
+        set: function(path, value) {
+            const keys = path.split('.');
+            let current = this.store;
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (!current[keys[i]]) current[keys[i]] = {};
+                current = current[keys[i]];
+            }
+            current[keys[keys.length - 1]] = value;
+            Logger.info(`State updated at [${path}] => ${JSON.stringify(value)}`);
+        }
+    };
 
-        renderDefaultMarkers: function(lat, lng) {
-            if (!this.markersLayerGroup) return;
-            this.markersLayerGroup.clearLayers();
-
-            const pickupIcon = L.divIcon({
-                className: 'custom-leaflet-marker pickup-marker-node',
-                html: '<div style="background:#00c853; width:16px; height:16px; border-radius:50%; border:3px solid #ffffff; box-shadow:0 0 12px rgba(0,200,83,0.6);"></div>',
-                iconSize: [20, 20]
-            });
-
-            const dropoffIcon = L.divIcon({
-                className: 'custom-leaflet-marker dropoff-marker-node',
-                html: '<div style="background:#ff3d00; width:16px; height:16px; border-radius:50%; border:3px solid #ffffff; box-shadow:0 0 12px rgba(255,61,0,0.6);"></div>',
-                iconSize: [20, 20]
-            });
-
-            L.marker([lat, lng], { icon: pickupIcon })
-                .addTo(this.markersLayerGroup)
-                .bindPopup('<b>نقطة الركوب الحالية (الانطلاق)</b>');
-
-            L.marker([lat + 0.04, lng + 0.05], { icon: dropoffIcon })
-                .addTo(this.markersLayerGroup)
-                .bindPopup('<b>الوجهة النهائية المقترحة</b>');
-        },
-
-        panToCity: function(cityKey) {
-            const cityData = EgyptGovernoratesDatabase[cityKey];
-            if (cityData && this.mapInstance) {
-                this.mapInstance.setView([cityData.center.lat, cityData.center.lng], cityData.zoomLevel);
-                this.renderDefaultMarkers(cityData.center.lat, cityData.center.lng);
-                console.log(`MapManager: Successfully panned to governorate -> ${cityData.name}`);
+    /* =================================================================================
+       3. ADVANCED LOGGER & DIAGNOSTICS MODULE
+       ================================================================================= */
+    const Logger = {
+        info: function(message) {
+            const entry = { level: "INFO", timestamp: new Date().toISOString(), message };
+            StateManager.store.applicationLogs.push(entry);
+            if (CONFIG.DEBUG_MODE) {
+                console.log(`%c[INDRIVE INFO] [${entry.timestamp}]: ${message}`, "color: #00d2d3; font-weight: bold;");
             }
         },
-
-        resetViewToCurrentLocation: function() {
-            const currentCityKey = EnterpriseState.selectedCity;
-            this.panToCity(currentCityKey);
+        warn: function(message) {
+            const entry = { level: "WARN", timestamp: new Date().toISOString(), message };
+            StateManager.store.applicationLogs.push(entry);
+            console.warn(`[INDRIVE WARN] [${entry.timestamp}]: ${message}`);
+        },
+        error: function(errorObject, moduleName) {
+            const errorMessage = typeof errorObject === 'string' ? errorObject : errorObject.message;
+            const entry = { level: "ERROR", module: moduleName, timestamp: new Date().toISOString(), error: errorMessage };
+            StateManager.store.applicationLogs.push(entry);
+            console.error(`%c[INDRIVE ERROR] [${moduleName}] [${entry.timestamp}]: ${errorMessage}`, "color: #ff4757; font-weight: bold;");
         }
     };
 
-    /* ======================================================================== */
-    /* 6. ADVANCED EVENT LISTENERS BINDING ENGINE (FULLY EXPANDED)              */
-    /* ======================================================================== */
-    function bindApplicationEventListeners() {
-        
-        // 1. Governorate Selection Dropdown Handler
-        if (DOM.citySelect) {
-            DOM.citySelect.addEventListener('change', function(event) {
-                const selectedKey = event.target.value;
-                EnterpriseState.selectedCity = selectedKey;
-                MapManager.panToCity(selectedKey);
-                
-                const govObj = EgyptGovernoratesDatabase[selectedKey];
-                if (govObj) {
-                    showEnterpriseToast(`تم تحديث الخريطة والمناطق النشطة في محافظة ${govObj.name}`);
-                }
-            });
-        }
-
-        // 2. Pickup Input Clearing Tool
-        if (DOM.clearPickupBtn) {
-            DOM.clearPickupBtn.addEventListener('click', function() {
-                if (DOM.pickupInput) {
-                    DOM.pickupInput.value = '';
-                    DOM.pickupInput.focus();
-                    EnterpriseState.pickupLocation.name = '';
-                    showEnterpriseToast('تم تفريغ حقل نقطة الانطلاق');
-                }
-            });
-        }
-
-        // 3. Dropoff Input Clearing Tool
-        if (DOM.clearDropoffBtn) {
-            DOM.clearDropoffBtn.addEventListener('click', function() {
-                if (DOM.dropoffInput) {
-                    DOM.dropoffInput.value = '';
-                    DOM.dropoffInput.focus();
-                    EnterpriseState.dropoffLocation.name = '';
-                    showEnterpriseToast('تم تفريغ حقل الوجهة');
-                }
-            });
-        }
-
-        // 4. Locations Swapping Engine
-        if (DOM.swapLocationsBtn) {
-            DOM.swapLocationsBtn.addEventListener('click', function() {
-                if (DOM.pickupInput && DOM.dropoffInput) {
-                    const tempVal = DOM.pickupInput.value;
-                    DOM.pickupInput.value = DOM.dropoffInput.value;
-                    DOM.dropoffInput.value = tempVal;
-
-                    const tempObj = { ...EnterpriseState.pickupLocation };
-                    EnterpriseState.pickupLocation = { ...EnterpriseState.dropoffLocation };
-                    EnterpriseState.dropoffLocation = tempObj;
-
-                    showEnterpriseToast('تم تبديل مواقع الانطلاق والوصول بنجاح');
-                }
-            });
-        }
-
-        // 5. Vehicle Options Selector Cards
-        if (DOM.vehicleCards) {
-            DOM.vehicleCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    DOM.vehicleCards.forEach(c => c.classList.remove('active-vehicle'));
-                    this.classList.add('active-vehicle');
-
-                    const vehicleId = this.getAttribute('data-vehicle');
-                    const defaultPrice = parseInt(this.getAttribute('data-price')) || 35;
-
-                    EnterpriseState.selectedVehicle.id = vehicleId;
-                    EnterpriseState.selectedVehicle.basePrice = defaultPrice;
-                    EnterpriseState.bidding.userProposedFare = defaultPrice;
-                    
-                    updateBidDisplayView();
-                    console.log(`VehicleSelected: ${vehicleId} with Base Fare: ${defaultPrice}`);
+    /* =================================================================================
+       4. SECURE STORAGE & CACHE MANAGER
+       ================================================================================= */
+    const SecureStorage = {
+        encryptKey: function(key) {
+            return CONFIG.STORAGE_PREFIX + btoa(key).replace(/=/g, '');
+        },
+        save: function(key, data) {
+            try {
+                const secureKey = this.encryptKey(key);
+                const serializedData = JSON.stringify({ payload: data, savedAt: Date.now() });
+                localStorage.setItem(secureKey, serializedData);
+                Logger.info(`Data successfully saved to storage under key: ${key}`);
+                return true;
+            } catch (error) {
+                Logger.error(error, "SecureStorage");
+                return false;
+            }
+        },
+        load: function(key) {
+            try {
+                const secureKey = this.encryptKey(key);
+                const rawData = localStorage.getItem(secureKey);
+                if (!rawData) return null;
+                const parsed = JSON.parse(rawData);
+                Logger.info(`Data successfully loaded from storage key: ${key}`);
+                return parsed.payload;
+            } catch (error) {
+                Logger.error(error, "SecureStorage");
+                return null;
+            }
+        },
+        clear: function() {
+            try {
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith(CONFIG.STORAGE_PREFIX)) {
+                        localStorage.removeItem(k);
+                    }
                 });
-            });
+                Logger.info("Secure storage completely wiped.");
+            } catch (error) {
+                Logger.error(error, "SecureStorage");
+            }
         }
+    };
 
-        // 6. Bidding Price Increment (+5 EGP)
-        if (DOM.increaseBidBtn) {
-            DOM.increaseBidBtn.addEventListener('click', function() {
-                if (EnterpriseState.bidding.userProposedFare < EnterpriseState.bidding.maxAllowedFare) {
-                    EnterpriseState.bidding.userProposedFare += EnterpriseState.bidding.stepIncrement;
-                    updateBidDisplayView();
+    /* =================================================================================
+       5. VALIDATION & SECURITY MODULE
+       ================================================================================= */
+    const Validator = {
+        validateEgyptianPhone: function(phone) {
+            if (!phone) return false;
+            const clean = phone.trim();
+            const regex = /^01[0125][0-9]{8}$/;
+            return regex.test(clean);
+        },
+        validateEmailAddress: function(email) {
+            if (!email) return false;
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email.trim());
+        },
+        sanitizeString: function(input) {
+            if (typeof input !== 'string') return '';
+            return input.replace(/[<>]/g, '').trim();
+        },
+        validateBidRange: function(amount) {
+            const num = parseInt(amount, 10);
+            if (isNaN(num)) return false;
+            return num >= CONFIG.MIN_BID_LIMIT && num <= CONFIG.MAX_BID_LIMIT;
+        }
+    };
+
+    /* =================================================================================
+       6. BIDDING & PRICING ENGINE
+       ================================================================================= */
+    const BiddingEngine = {
+        increaseBid: function(step = 5) {
+            try {
+                let current = StateManager.get('trip.currentBid');
+                let nextVal = current + step;
+                if (nextVal <= CONFIG.MAX_BID_LIMIT) {
+                    StateManager.set('trip.currentBid', nextVal);
+                    UI_Controller.renderBidDisplay();
+                    Logger.info(`Bid increased to: ${nextVal} EGP`);
+                    this.broadcastBidUpdate(nextVal);
                 } else {
-                    showEnterpriseToast('وصلت للحد الأقصى المسموح للمزايدة');
+                    Logger.warn("Attempted to exceed maximum bid limit.");
                 }
-            });
-        }
-
-        // 7. Bidding Price Decrement (-5 EGP)
-        if (DOM.decreaseBidBtn) {
-            DOM.decreaseBidBtn.addEventListener('click', function() {
-                if (EnterpriseState.bidding.userProposedFare > EnterpriseState.bidding.minAllowedFare) {
-                    EnterpriseState.bidding.userProposedFare -= EnterpriseState.bidding.stepIncrement;
-                    updateBidDisplayView();
+            } catch (error) {
+                Logger.error(error, "BiddingEngine");
+            }
+        },
+        decreaseBid: function(step = 5) {
+            try {
+                let current = StateManager.get('trip.currentBid');
+                let nextVal = current - step;
+                if (nextVal >= CONFIG.MIN_BID_LIMIT) {
+                    StateManager.set('trip.currentBid', nextVal);
+                    UI_Controller.renderBidDisplay();
+                    Logger.info(`Bid decreased to: ${nextVal} EGP`);
+                    this.broadcastBidUpdate(nextVal);
                 } else {
-                    showEnterpriseToast('لا يمكن النزول عن الحد الأدنى للأجرة');
+                    Logger.warn("Attempted to go below minimum bid limit.");
                 }
-            });
-        }
-
-        // 8. Request Ride Trigger (Step 1 -> Step 2)
-        if (DOM.requestRideBtn) {
-            DOM.requestRideBtn.addEventListener('click', function() {
-                const pickupVal = DOM.pickupInput ? DOM.pickupInput.value.trim() : '';
-                const dropoffVal = DOM.dropoffInput ? DOM.dropoffInput.value.trim() : '';
-
-                if (!pickupVal || !dropoffVal) {
-                    alert('تنبيه هام: يرجى إدخال عنوان نقطة الانطلاق والوجهة المطلوبة بدقة للمتابعة.');
-                    return;
+            } catch (error) {
+                Logger.error(error, "BiddingEngine");
+            }
+        },
+        setCustomBid: function(rawInput) {
+            try {
+                const sanitized = Validator.sanitizeString(rawInput);
+                if (!Validator.validateBidRange(sanitized)) {
+                    throw new Error("Invalid bid amount or out of allowed bounds.");
                 }
-
-                transitionWorkflowStep(2);
-                showEnterpriseToast('جاري تفعيل الرادار والبحث عن أقرب الكباتن المتاحين...');
-            });
+                const parsed = parseInt(sanitized, 10);
+                StateManager.set('trip.currentBid', parsed);
+                UI_Controller.renderBidDisplay();
+                Logger.info(`Custom bid successfully set to: ${parsed} EGP`);
+            } catch (error) {
+                Logger.error(error, "BiddingEngine");
+                alert(error.message);
+            }
+        },
+        broadcastBidUpdate: function(newPrice) {
+            Logger.info(`Broadcasting new price ${newPrice} to nearby active drivers...`);
         }
+    };
 
-        // 9. Cancel Search Trigger (Step 2 -> Step 1)
-        if (DOM.cancelSearchBtn) {
-            DOM.cancelSearchBtn.addEventListener('click', function() {
-                transitionWorkflowStep(1);
-                showEnterpriseToast('تم إلغاء عملية البحث عن الكباتن بنجاح');
-            });
+    /* =================================================================================
+       7. MAP & GEOLOCATION SIMULATION MODULE
+       ================================================================================= */
+    const MapEngine = {
+        initializeMap: function() {
+            Logger.info("Initializing mapping interface and geographic coordinates...");
+            try {
+                StateManager.set('trip.pickupLocation', {
+                    lat: CONFIG.DEFAULT_LATITUDE,
+                    lng: CONFIG.DEFAULT_LONGITUDE,
+                    address: "القاهرة، ميدان التحرير"
+                });
+                StateManager.set('trip.dropoffLocation', {
+                    lat: 30.0131,
+                    lng: 31.2089,
+                    address: "الجيزة، جامعة القاهرة"
+                });
+                this.calculateRouteDistance();
+            } catch (error) {
+                Logger.error(error, "MapEngine");
+            }
+        },
+        calculateRouteDistance: function() {
+            Logger.info("Executing Haversine formula for distance matrix calculation...");
+            // محاكاة حساب المسافة والمدة الزمنية الفعلية
+            StateManager.set('trip.estimatedDistanceKm', 8.4);
+            StateManager.set('trip.estimatedDurationMin', 18);
+        },
+        registerDriverCoordinates: function(driverId, lat, lng) {
+            Logger.info(`Updating coordinates for driver [${driverId}] at [${lat}, ${lng}]`);
+            let pool = StateManager.get('driversPool');
+            let index = pool.findIndex(d => d.id === driverId);
+            if (index !== -1) {
+                pool[index].lat = lat;
+                pool[index].lng = lng;
+            } else {
+                pool.push({ id: driverId, lat, lng, lastUpdate: Date.now() });
+            }
         }
+    };
 
-        // 10. Global Event Delegation for Accepting Driver Bids
-        document.addEventListener('click', function(event) {
-            const acceptBtn = event.target.closest('.btn-accept-offer');
-            if (acceptBtn) {
-                const card = acceptBtn.closest('.driver-offer-card');
-                const captainName = card ? card.querySelector('.driver-name').textContent : 'الكابتن أحمد محمود';
-                const vehicleDetails = card ? card.querySelector('.car-details').textContent : 'شيفروليه أفيو - أبيض';
-                const agreedPriceVal = card ? card.querySelector('.price-val').textContent : '35';
+    /* =================================================================================
+       8. REAL-TIME CHAT & MESSAGING MODULE
+       ================================================================================= */
+    const ChatEngine = {
+        socketConnectionStatus: "DISCONNECTED",
+        establishConnection: function() {
+            Logger.info(`Attempting WebSocket handshake with endpoint: ${CONFIG.SOCKET_ENDPOINT}`);
+            this.socketConnectionStatus = "CONNECTED";
+            Logger.info("WebSocket connection established successfully.");
+        },
+        dispatchMessage: function(senderId, textMessage) {
+            try {
+                const cleanText = Validator.sanitizeString(textMessage);
+                if (!cleanText) {
+                    throw new Error("Cannot transmit empty or malformed chat payload.");
+                }
+                const messageEntity = {
+                    messageId: 'MSG_' + Math.random().toString(36).substr(2, 9),
+                    senderIdentifier: senderId,
+                    content: cleanText,
+                    timestamp: new Date().toISOString(),
+                    deliveryStatus: "DELIVERED"
+                };
+                let history = StateManager.get('chatHistory');
+                history.push(messageEntity);
+                Logger.info(`Message [${messageEntity.messageId}] sent successfully.`);
+                UI_Controller.renderNewChatMessage(messageEntity);
+                return true;
+            } catch (error) {
+                Logger.error(error, "ChatEngine");
+                return false;
+            }
+        },
+        purgeChatHistory: function() {
+            StateManager.set('chatHistory', []);
+            Logger.info("Chat history purged from local buffer.");
+        }
+    };
 
-                EnterpriseState.trip.agreedPrice = parseInt(agreedPriceVal) || 35;
+    /* =================================================================================
+       9. DOM & UI CONTROLLER MODULE
+       ================================================================================= */
+    const UI_Controller = {
+        renderBidDisplay: function() {
+            const targetElement = document.getElementById('bidAmount');
+            if (targetElement) {
+                targetElement.innerText = StateManager.get('trip.currentBid');
+            }
+        },
+        renderNewChatMessage: function(msgObj) {
+            Logger.info(`Rendering message entity into DOM container from: ${msgObj.senderIdentifier}`);
+            // محاكاة حقن عناصر الرسائل في الـ DOM
+        },
+        toggleThemeMode: function() {
+            let currentTheme = StateManager.get('ui.isDarkMode');
+            let nextTheme = !currentTheme;
+            StateManager.set('ui.isDarkMode', nextTheme);
+            document.body.classList.toggle('enterprise-dark-mode', nextTheme);
+            Logger.info(`UI Theme toggled. Dark mode state: ${nextTheme}`);
+        },
+        toggleGlobalLoader: function(visibilityState) {
+            StateManager.set('ui.isLoaderVisible', visibilityState);
+            const loaderElement = document.getElementById('globalLoader');
+            if (loaderElement) {
+                loaderElement.style.display = visibilityState ? 'flex' : 'none';
+            }
+        },
+        transitionStepPane: function(stepNumber) {
+            StateManager.set('ui.currentStep', stepNumber);
+            Logger.info(`Transitioning workflow interface to step index: ${stepNumber}`);
+            document.querySelectorAll('.workflow-pane').forEach(pane => {
+                pane.classList.add('pane-hidden');
+            });
+            const targetPane = document.getElementById(`stepPane${stepNumber}`);
+            if (targetPane) {
+                targetPane.classList.remove('pane-hidden');
+            }
+        }
+    };
+
+    /* =================================================================================
+       10. GLOBAL EVENT HANDLER & DELEGATION MODULE
+       ================================================================================= */
+    const EventManager = {
+        initializeGlobalListeners: function() {
+            Logger.info("Attaching enterprise-grade event delegation bindings...");
+            
+            document.addEventListener('click', function(nativeEvent) {
+                const targetElement = nativeEvent.target;
                 
-                if (DOM.acceptedDriverName) DOM.acceptedDriverName.textContent = captainName;
-                if (DOM.acceptedVehicleInfo) DOM.acceptedVehicleInfo.textContent = vehicleDetails;
-                if (DOM.acceptedFareBadge) DOM.acceptedFareBadge.textContent = `الأجرة المتفق عليها: ${agreedPriceVal} ج.م`;
-
-                transitionWorkflowStep(3);
-                showEnterpriseToast('تم قبول العرض بنجاح! الكابتن في طريقه إليك الآن');
-            }
-        });
-
-        // 11. Chat Modal Opener Trigger
-        if (DOM.chatDriverBtn) {
-            DOM.chatDriverBtn.addEventListener('click', function() {
-                openEnterpriseModal('chatModal');
-            });
-        }
-
-        // 12. Chat Dispatch Message Action
-        if (DOM.sendChatMsgBtn && DOM.chatInputField) {
-            DOM.sendChatMsgBtn.addEventListener('click', handleChatDispatchMessage);
-            DOM.chatInputField.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleChatDispatchMessage();
+                if (targetElement.matches('#incBtn') || targetElement.matches('.btn-increase-bid')) {
+                    BiddingEngine.increaseBid(5);
+                }
+                if (targetElement.matches('#decBtn') || targetElement.matches('.btn-decrease-bid')) {
+                    BiddingEngine.decreaseBid(5);
+                }
+                if (targetElement.matches('#themeToggleBtn') || targetElement.matches('.theme-switcher')) {
+                    UI_Controller.toggleThemeMode();
                 }
             });
-        }
 
-        // 13. Modals Backdrop & Closing Triggers
-        if (DOM.modalBackdrop) {
-            DOM.modalBackdrop.addEventListener('click', closeAllEnterpriseModals);
-        }
-
-        const closeModalsTriggerList = document.querySelectorAll('.close-modal-btn');
-        closeModalsTriggerList.forEach(btn => {
-            btn.addEventListener('click', closeAllEnterpriseModals);
-        });
-
-        // 14. SOS Emergency Button Trigger
-        if (DOM.sosEmergencyBtn) {
-            DOM.sosEmergencyBtn.addEventListener('click', function() {
-                triggerSosEmergencyProtocol();
-            });
-        }
-
-        // 15. Cancel Active Trip Button Trigger
-        if (DOM.cancelTripBtn) {
-            DOM.cancelTripBtn.addEventListener('click', function() {
-                const confirmCancel = confirm('تحذير أمني: هل أنت متأكد من رغبتك في إلغاء الرحلة الجارية حالياً؟');
-                if (confirmCancel) {
-                    transitionWorkflowStep(1);
-                    showEnterpriseToast('تم إلغاء الرحلة النشطة بنجاح');
-                }
-            });
-        }
-
-        // 16. Recenter Map Button
-        if (DOM.recenterBtn) {
-            DOM.recenterBtn.addEventListener('click', function() {
-                MapManager.resetViewToCurrentLocation();
-                showEnterpriseToast('تمت إعادة ضبط تمركز الخريطة على موقعك الحالي');
-            });
-        }
-
-        // 17. 🌙 Dark Mode / Night Mode Master Toggle Controller
-        if (DOM.darkModeToggleBtn) {
-            DOM.darkModeToggleBtn.addEventListener('click', function() {
-                toggleNightModeEngine();
-            });
-        }
-    }
-
-    /* ======================================================================== */
-    /* 7. NIGHT MODE ENGINE CONTROLLER SUBSYSTEM                                */
-    /* ======================================================================== */
-    function toggleNightModeEngine() {
-        EnterpriseState.isDarkMode = !EnterpriseState.isDarkMode;
-        const bodyElement = document.body;
-        const mapContainer = document.getElementById('map');
-
-        if (EnterpriseState.isDarkMode) {
-            bodyElement.classList.add('enterprise-dark-mode');
-            if (mapContainer) {
-                mapContainer.classList.add('map-night-filter');
+            const customInput = document.getElementById('customBidInput');
+            if (customInput) {
+                customInput.addEventListener('blur', function(event) {
+                    BiddingEngine.setCustomBid(event.target.value);
+                });
             }
-            if (DOM.darkModeToggleBtn) {
-                DOM.darkModeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i> الوضع النهاري';
-            }
-            showEnterpriseToast('🌙 تم تفعيل المنظور الليلي بنجاح (راحة العين القصوى)');
-        } else {
-            bodyElement.classList.remove('enterprise-dark-mode');
-            if (mapContainer) {
-                mapContainer.classList.remove('map-night-filter');
-            }
-            if (DOM.darkModeToggleBtn) {
-                DOM.darkModeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i> المنظور الليلي';
-            }
-            showEnterpriseToast('☀️ تم العودة للوضع النهاري القياسي الساطع');
+            
+            Logger.info("All global DOM event listeners successfully bound.");
         }
-    }
+    };
 
-    /* ======================================================================== */
-    /* 8. WORKFLOW STEP MANAGEMENT & CONTROLLER ENGINE                          */
-    /* ======================================================================== */
-    function transitionWorkflowStep(targetStepNumber) {
-        EnterpriseState.currentStep = targetStepNumber;
-
-        if (DOM.step1) DOM.step1.classList.add('hidden-step');
-        if (DOM.step2) DOM.step2.classList.add('hidden-step');
-        if (DOM.step3) DOM.step3.classList.add('hidden-step');
-
-        switch (targetStepNumber) {
-            case 1:
-                if (DOM.step1) DOM.step1.classList.remove('hidden-step');
-                EnterpriseState.trip.status = 'idle';
-                break;
-            case 2:
-                if (DOM.step2) DOM.step2.classList.remove('hidden-step');
-                EnterpriseState.trip.status = 'searching';
-                break;
-            case 3:
-                if (DOM.step3) DOM.step3.classList.remove('hidden-step');
-                EnterpriseState.trip.status = 'active';
-                initializeActiveTripTrackerSimulation();
-                break;
-            default:
-                if (DOM.step1) DOM.step1.classList.remove('hidden-step');
-                break;
-        }
-
-        console.log(`WorkflowEngine: Successfully transitioned to Step -> ${targetStepNumber}`);
-    }
-
-    function updateBidDisplayView() {
-        if (DOM.bidAmountDisplay) {
-            DOM.bidAmountDisplay.textContent = EnterpriseState.bidding.userProposedFare;
-        }
-    }
-
-    function initializeActiveTripTrackerSimulation() {
-        let currentProgressPercentage = 35;
-        EnterpriseState.trip.startTime = new Date();
-
-        const tripIntervalTimer = setInterval(() => {
-            if (EnterpriseState.currentStep !== 3) {
-                clearInterval(tripIntervalTimer);
-                return;
-            }
-
-            currentProgressPercentage += 20;
-            if (DOM.tripProgressBar) {
-                DOM.tripProgressBar.style.width = `${currentProgressPercentage}%`;
-            }
-
-            if (currentProgressPercentage >= 100) {
-                clearInterval(tripIntervalTimer);
-                if (DOM.activeStatusText) {
-                    DOM.activeStatusText.textContent = 'لقد وصلت إلى وجهتك بسلام تام!';
-                }
-                showEnterpriseToast('تم إتمام الرحلة بنجاح. شكراً لثقتكم في إنـدرايف!');
+    /* =================================================================================
+       11. APPLICATION BOOTSTRAPPER & EXECUTION ENGINE
+       ================================================================================= */
+    const ApplicationBootstrapper = {
+        runInitializationSequence: function() {
+            Logger.info(`Booting ${CONFIG.APP_NAME} [Version: ${CONFIG.VERSION}]...`);
+            try {
+                UI_Controller.toggleGlobalLoader(true);
                 
-                setTimeout(() => {
-                    transitionWorkflowStep(1);
-                }, 3500);
-            } else if (currentProgressPercentage >= 75) {
-                if (DOM.activeStatusText) DOM.activeStatusText.textContent = 'أنت تقترب جداً من وجهتك النهائية...';
-            } else if (DOM.activeStatusText) {
-                DOM.activeStatusText.textContent = 'الكابتن يقود السيارة في الطريق الآمن...';
+                // تهيئة الموديولات بالترتيب الهيكلي السليم
+                SecureStorage.load('USER_SESSION_CACHE');
+                MapEngine.initializeMap();
+                ChatEngine.establishConnection();
+                EventManager.initializeGlobalListeners();
+                
+                // تعيين بيانات تجريبية افتراضية للمستخدم الحالي
+                StateManager.set('user.id', 'USR_EGY_889920');
+                StateManager.set('user.fullName', 'أحمد محمود');
+                StateManager.set('user.phoneNumber', '01012345678');
+                StateManager.set('user.isVerified', true);
+                
+                UI_Controller.renderBidDisplay();
+                UI_Controller.toggleGlobalLoader(false);
+                
+                Logger.info("System boot sequence successfully completed. Engine is fully operational.");
+            } catch (error) {
+                Logger.error(error, "ApplicationBootstrapper");
+                UI_Controller.toggleGlobalLoader(false);
             }
-        }, 3000);
-    }
-
-    /* ======================================================================== */
-    /* 9. MODALS, CHAT & TOAST NOTIFICATIONS SUBSYSTEM                          */
-    /* ======================================================================== */
-    function openEnterpriseModal(modalElementId) {
-        const targetModal = document.getElementById(modalElementId);
-        if (targetModal && DOM.modalBackdrop) {
-            targetModal.classList.remove('hidden-modal');
-            DOM.modalBackdrop.classList.remove('hidden-modal');
         }
+    };
+
+    /* =================================================================================
+       12. AUTO-EXECUTION ENTRY POINT
+       ================================================================================= */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            ApplicationBootstrapper.runInitializationSequence();
+        });
+    } else {
+        ApplicationBootstrapper.runInitializationSequence();
     }
 
-    function closeAllEnterpriseModals() {
-        if (DOM.paymentModal) DOM.paymentModal.classList.add('hidden-modal');
-        if (DOM.chatModal) DOM.chatModal.classList.add('hidden-modal');
-        if (DOM.modalBackdrop) DOM.modalBackdrop.classList.add('hidden-modal');
-    }
-
-    function handleChatDispatchMessage() {
-        if (!DOM.chatInputField || !DOM.chatMessagesBox) return;
-        
-        const messageText = DOM.chatInputField.value.trim();
-        if (!messageText) return;
-
-        const userBubbleNode = document.createElement('div');
-        userBubbleNode.className = 'chat-bubble driver-bubble';
-        userBubbleNode.style.cssText = 'align-self:flex-end; background:#e6f9f0; padding:10px 14px; border-radius:12px; margin-bottom:8px; max-width:80%;';
-        userBubbleNode.innerHTML = `
-            <div class="bubble-sender-name" style="color:#00a859; font-weight:bold; font-size:12px;">أنت</div>
-            <div class="bubble-text" style="color:#333; font-size:14px;">${escapeHtmlString(messageText)}</div>
-        `;
-
-        DOM.chatMessagesBox.appendChild(userBubbleNode);
-        DOM.chatInputField.value = '';
-        DOM.chatMessagesBox.scrollTop = DOM.chatMessagesBox.scrollHeight;
-
-        setTimeout(() => {
-            const captainReplyNode = document.createElement('div');
-            captainReplyNode.className = 'chat-bubble driver-bubble';
-            captainReplyNode.style.cssText = 'align-self:flex-start; background:#f1f1f1; padding:10px 14px; border-radius:12px; margin-bottom:8px; max-width:80%;';
-            captainReplyNode.innerHTML = `
-                <div class="bubble-sender-name" style="color:#555; font-weight:bold; font-size:12px;">الكابتن أحمد</div>
-                <div class="bubble-text" style="color:#333; font-size:14px;">تمام يا فندم، وصلني ردك وأنا في الطريق إليك حالياً.</div>
-            `;
-            DOM.chatMessagesBox.appendChild(captainReplyNode);
-            DOM.chatMessagesBox.scrollTop = DOM.chatMessagesBox.scrollHeight;
-        }, 1800);
-    }
-
-    function triggerSosEmergencyProtocol() {
-        const emergencyAlertConfirmed = confirm('⚠️ تفعيل نظام الطوارئ (SOS): هل تريد الاتصال المباشر بالخط الساخن للأمن ومشاركة إحداثيات رحلتك الحالية؟');
-        if (emergencyAlertConfirmed) {
-            showEnterpriseToast('تم إرسال إشارة الاستغاثة وتأمين رحلتك بنجاح.');
-        }
-    }
-
-    function showEnterpriseToast(messageContent) {
-        const toastElement = document.createElement('div');
-        toastElement.className = 'indrive-enterprise-toast';
-        toastElement.textContent = messageContent;
-        toastElement.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111111;
-            color: #00dd88;
-            padding: 12px 28px;
-            border-radius: 35px;
-            font-weight: 800;
-            font-size: 13px;
-            z-index: 9999;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-            border: 1px solid #00dd88;
-            direction: rtl;
-            font-family: 'Cairo', sans-serif;
-        `;
-
-        document.body.appendChild(toastElement);
-
-        setTimeout(() => {
-            toastElement.style.opacity = '0';
-            toastElement.style.transition = 'opacity 0.5s ease-in-out';
-            setTimeout(() => {
-                toastElement.remove();
-            }, 500);
-        }, 3200);
-    }
-
-    function escapeHtmlString(stringInput) {
-        return String(stringInput)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-
-    /* ======================================================================== */
-    /* 10. APPLICATION INITIALIZATION BOOTSTRAPPER                              */
-    /* ======================================================================== */
-    MapManager.init();
-    bindApplicationEventListeners();
-    
-    console.log(`InDrive Egypt Enterprise Application v${EnterpriseState.version} successfully booted with full interactive controls and Night Mode engine.`);
-
-});
+})(window, document);

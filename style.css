@@ -1,277 +1,396 @@
-/* ========================================================================== */
-/* 1. CSS VARIABLES & ROOT CONFIGURATIONS                                     */
-/* ========================================================================== */
+/* ============================================================================
+   IN-DRIVE EGYPT - ENTERPRISE MASTER CSS SYSTEM
+   الملف الكامل والتفصيلي لشاشة التطبيق بالكامل
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   1. المتغيرات العامة والتصميم الأساسي (Root Variables)
+   ---------------------------------------------------------------------------- */
 :root {
     --primary-color: #00dd88;
-    --primary-hover: #00c87a;
-    --primary-light: #e6f9f0;
-    --dark-bg: #111111;
-    --dark-card: #1a202c;
-    --text-main: #2d3748;
-    --text-muted: #718096;
-    --text-light: #a0aec0;
-    --border-color: #e2e8f0;
-    --bg-main: #f4f6f9;
-    --white: #ffffff;
-    --danger-color: #e53e3e;
-    --danger-bg: #fff5f5;
-    --warning-color: #ecc94b;
-    --success-color: #00a859;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-    --transition-fast: all 0.2s ease-in-out;
-    --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --border-radius-sm: 8px;
-    --border-radius-md: 12px;
-    --border-radius-lg: 16px;
-    --border-radius-full: 9999px;
+    --primary-color-hover: #00c478;
+    --primary-color-active: #00a866;
+    --primary-color-light: rgba(0, 221, 136, 0.12);
+    
+    --secondary-color: #1a1a24;
+    --secondary-color-hover: #2a2a38;
+    
+    --danger-color: #ff3b30;
+    --danger-color-hover: #d72b21;
+    --danger-color-light: rgba(255, 59, 48, 0.12);
+    
+    --warning-color: #ffcc00;
+    --info-color: #007aff;
+    
+    --bg-light-body: #f4f6f9;
+    --bg-light-card: #ffffff;
+    --bg-light-input: #f8f9fa;
+    --border-light: #e2e8f0;
+    --text-light-main: #1e293b;
+    --text-light-muted: #64748b;
+    
+    --bg-dark-body: #0f172a;
+    --bg-dark-card: #1e293b;
+    --bg-dark-input: #334155;
+    --border-dark: #334155;
+    --text-dark-main: #f8fafc;
+    --text-dark-muted: #94a3b8;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 40px -15px rgba(0, 0, 0, 0.2);
+    
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 9999px;
+    
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 
-/* ========================================================================== */
-/* 2. GLOBAL RESET & BASE STYLES                                              */
-/* ========================================================================== */
-* {
-    box-sizing: border-box;
+/* ----------------------------------------------------------------------------
+   2. إعادة الضبط الشاملة (Reset & Global Base Styles)
+   ---------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
-    font-family: 'Cairo', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg-main);
-    color: var(--text-main);
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
     direction: rtl;
+}
+
+body {
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-light-body);
+    color: var(--text-light-main);
+    line-height: 1.5;
+    min-height: 100vh;
     overflow-x: hidden;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-::selection {
-    background-color: var(--primary-color);
-    color: var(--dark-bg);
+a {
+    text-decoration: none;
+    color: inherit;
 }
 
-/* Scrollbar Customization */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+button {
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
 }
 
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
+input,
+select,
+textarea {
+    font-family: inherit;
+    outline: none;
+    border: none;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
-    border-radius: var(--border-radius-full);
+ul,
+ol {
+    list-style: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-/* ========================================================================== */
-/* 3. HEADER & NAVIGATION BAR STYLING                                         */
-/* ========================================================================== */
-.main-header {
-    background: var(--dark-bg);
-    color: var(--white);
-    padding: 12px 25px;
+/* ----------------------------------------------------------------------------
+   3. نظام الوضع الليلي الشامل (Dark Mode Engine)
+   ---------------------------------------------------------------------------- */
+body.enterprise-dark-mode {
+    background-color: var(--bg-dark-body);
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .enterprise-navbar {
+    background-color: var(--bg-dark-card);
+    border-bottom-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .navbar-action-btn {
+    background-color: var(--bg-dark-input);
+    color: var(--text-dark-main);
+    border-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .navbar-action-btn:hover {
+    background-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .user-profile-badge {
+    background-color: var(--bg-dark-input);
+    border-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .user-info-text .name {
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .main-workflow-hub {
+    background-color: var(--bg-dark-card);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+body.enterprise-dark-mode .control-card-block {
+    background-color: var(--bg-dark-card);
+    border-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .block-label,
+body.enterprise-dark-mode .block-section-title {
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .enterprise-select-dropdown,
+body.enterprise-dark-mode .enterprise-text-input {
+    background-color: var(--bg-dark-input);
+    border-color: var(--border-dark);
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .vehicle-option-card {
+    background-color: var(--bg-dark-input);
+    border-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .vehicle-option-card .title {
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .vehicle-option-card .eta {
+    color: var(--text-dark-muted);
+}
+
+body.enterprise-dark-mode .vehicle-option-card.active-vehicle {
+    background-color: rgba(0, 221, 136, 0.15);
+    border-color: var(--primary-color);
+}
+
+body.enterprise-dark-mode .bidding-control-card {
+    background-color: var(--bg-dark-input);
+}
+
+body.enterprise-dark-mode .bid-adjust-btn {
+    background-color: var(--border-dark);
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .bid-adjust-btn:hover {
+    background-color: #475569;
+}
+
+body.enterprise-dark-mode .driver-offer-card {
+    background-color: var(--bg-dark-input);
+    border-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .driver-name {
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .car-details {
+    color: var(--text-dark-muted);
+}
+
+body.enterprise-dark-mode .active-trip-status-card {
+    background-color: var(--bg-dark-input);
+    border-color: var(--border-dark);
+}
+
+body.enterprise-dark-mode .captain-title-lg {
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .enterprise-modal-dialog {
+    background-color: var(--bg-dark-card);
+    color: var(--text-dark-main);
+}
+
+body.enterprise-dark-mode .chat-messages-container-box {
+    background-color: var(--bg-dark-body);
+}
+
+body.enterprise-dark-mode .chat-text-input {
+    background-color: var(--bg-dark-input);
+    border-color: var(--border-dark);
+    color: var(--text-dark-main);
+}
+
+/* ----------------------------------------------------------------------------
+   4. الهيدر وشريط التنقل (Enterprise Navbar)
+   ---------------------------------------------------------------------------- */
+.enterprise-navbar {
+    height: 75px;
+    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     z-index: 1000;
-    box-shadow: var(--shadow-md);
-    border-bottom: 1px solid #222;
-}
-
-.header-container {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    max-width: 1600px;
-    margin: 0 auto;
+    padding: 0 1.5rem;
+    background-color: var(--bg-light-card);
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition-normal);
 }
 
-.brand-identity {
+.navbar-brand-section {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 0.75rem;
 }
 
-.brand-logo-wrapper {
-    width: 48px;
-    height: 48px;
-    background: var(--primary-color);
-    border-radius: var(--border-radius-md);
+.brand-logo-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    color: var(--dark-bg);
+    color: #ffffff;
+    font-size: 1.25rem;
     box-shadow: 0 4px 12px rgba(0, 221, 136, 0.3);
 }
 
-.brand-text .brand-name {
-    font-size: 20px;
+.brand-text-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-size: 1.15rem;
     font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--white);
+    line-height: 1.2;
+    color: var(--primary-color-active);
 }
 
-.highlight-egypt {
-    color: var(--primary-color);
+.brand-subtitle {
+    font-size: 0.72rem;
+    color: var(--text-light-muted);
+    font-weight: 600;
 }
 
-.brand-tagline {
-    font-size: 11px;
-    color: var(--text-light);
-    display: block;
-    margin-top: -2px;
-}
-
-/* City Dropdown Selector */
-.city-selector-wrapper {
+.navbar-actions-panel {
     display: flex;
     align-items: center;
-    background: #1f2937;
-    padding: 6px 16px;
-    border-radius: var(--border-radius-full);
-    border: 1px solid #374151;
-    transition: var(--transition-fast);
+    gap: 0.75rem;
 }
 
-.city-selector-wrapper:hover {
-    border-color: var(--primary-color);
-}
-
-.city-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: #9ca3af;
-    margin-left: 12px;
-    white-space: nowrap;
-}
-
-.city-header-icon {
-    color: var(--primary-color);
-}
-
-.custom-select-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.city-dropdown-select {
-    background: transparent;
-    border: none;
-    color: var(--white);
-    font-size: 14px;
-    font-weight: 700;
-    outline: none;
-    cursor: pointer;
-    padding-left: 15px;
-}
-
-.city-dropdown-select option {
-    background: var(--dark-card);
-    color: var(--white);
-    padding: 10px;
-}
-
-/* User Utilities Bar */
-.user-utilities-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.icon-utility-btn {
-    background: #1f2937;
-    border: 1px solid #374151;
-    width: 42px;
+.navbar-action-btn {
     height: 42px;
-    border-radius: 50%;
-    color: var(--white);
+    padding: 0 0.9rem;
+    border-radius: var(--radius-full);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    color: var(--text-light-main);
+    font-size: 0.9rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    gap: 0.5rem;
     position: relative;
-    transition: var(--transition-fast);
-    font-size: 16px;
+    transition: all var(--transition-fast);
 }
 
-.icon-utility-btn:hover {
-    background: var(--primary-color);
-    color: var(--dark-bg);
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
+.navbar-action-btn:hover {
+    background-color: var(--border-light);
+    transform: translateY(-1px);
+}
+
+.navbar-action-btn:active {
+    transform: translateY(0);
 }
 
 .badge-dot {
     position: absolute;
     top: 8px;
-    right: 8px;
-    width: 9px;
-    height: 9px;
-    background: var(--danger-color);
+    right: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    border: 2px solid var(--dark-bg);
+    background-color: var(--danger-color);
 }
 
-.user-profile-avatar {
-    width: 42px;
-    height: 42px;
+.night-mode-btn {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+    border: none;
+}
+
+.night-mode-btn:hover {
+    background-color: var(--secondary-color-hover);
+}
+
+.user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.3rem 0.8rem 0.3rem 0.4rem;
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+}
+
+.avatar-wrapper {
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: #374151;
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-active);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    color: var(--primary-color);
-    cursor: pointer;
-    border: 2px solid var(--primary-color);
-    transition: var(--transition-fast);
+    font-size: 1.1rem;
 }
 
-.user-profile-avatar:hover {
-    transform: scale(1.05);
-}
-
-/* ========================================================================== */
-/* 4. MAIN DASHBOARD LAYOUT & PANELS                                          */
-/* ========================================================================== */
-.app-dashboard-layout {
+.user-info-text {
     display: flex;
-    margin-top: 73px;
-    height: calc(100vh - 73px);
-    width: 100vw;
-    position: relative;
+    flex-direction: column;
 }
 
-.sidebar-control-panel {
-    width: 480px;
-    background: var(--white);
-    height: 100%;
-    overflow-y: auto;
-    padding: 24px;
-    box-shadow: var(--shadow-lg);
-    z-index: 10;
-    border-left: 1px solid var(--border-color);
+.user-info-text .name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.1;
 }
 
-.map-viewport-area {
-    flex: 1;
-    height: 100%;
+.user-info-text .status-vip {
+    font-size: 0.65rem;
+    color: var(--primary-color-active);
+    font-weight: 800;
+}
+
+/* ----------------------------------------------------------------------------
+   5. حاوية الخريطة (Leaflet Map Viewport & Controls)
+   ---------------------------------------------------------------------------- */
+.map-viewport-wrapper {
     position: relative;
+    width: 100%;
+    height: 52vh;
+    margin-top: 75px;
+    z-index: 1;
 }
 
 .leaflet-map-canvas {
@@ -280,850 +399,683 @@ html, body {
     z-index: 1;
 }
 
-/* Workflow Steps Management */
-.workflow-card-step {
-    display: block;
-    animation: fadeInStep 0.4s ease forwards;
+.map-night-filter {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
-.hidden-step {
+.map-floating-controls {
+    position: absolute;
+    bottom: 45px;
+    left: 20px;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.floating-map-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--bg-light-card);
+    color: var(--text-light-main);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all var(--transition-fast);
+}
+
+.floating-map-btn:hover {
+    transform: scale(1.08);
+    box-shadow: var(--shadow-lg);
+}
+
+.floating-map-btn:active {
+    transform: scale(0.95);
+}
+
+/* ----------------------------------------------------------------------------
+   6. لوحة التحكم الرئيسية والخطوات (Main Workflow Hub)
+   ---------------------------------------------------------------------------- */
+.main-workflow-hub {
+    position: relative;
+    z-index: 600;
+    max-width: 650px;
+    margin: -35px auto 40px auto;
+    padding: 1.5rem;
+    background-color: var(--bg-light-card);
+    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-md) var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    transition: background-color var(--transition-normal);
+}
+
+.workflow-step-pane {
+    display: block;
+}
+
+.hidden-step-pane {
     display: none !important;
 }
 
-@keyframes fadeInStep {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.control-card-block {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background-color: var(--bg-light-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
 }
 
-.step-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #f7fafc;
-    padding-bottom: 12px;
-}
-
-.step-title-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.step-header-icon {
-    font-size: 20px;
-    color: var(--primary-color);
-}
-
-.step-title-group h2 {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-.step-indicator-badge {
-    background: var(--primary-light);
-    color: var(--success-color);
-    font-size: 11px;
+.block-label {
+    display: block;
+    font-size: 0.85rem;
     font-weight: 700;
-    padding: 4px 12px;
-    border-radius: var(--border-radius-full);
+    margin-bottom: 0.5rem;
+    color: var(--text-light-main);
 }
 
-.step-indicator-badge.badge-active {
-    background: #d1fae5;
-    color: #065f46;
-    animation: pulseBadge 1.5s infinite;
+.block-section-title {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-light-main);
 }
 
-@keyframes pulseBadge {
-    0% { opacity: 1; }
-    50% { opacity: 0.6; }
-    100% { opacity: 1; }
-}
-
-/* ========================================================================== */
-/* 5. ROUTE SELECTOR INPUTS BOX                                               */
-/* ========================================================================== */
-.route-selector-box {
-    background: #f8fafc;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: 16px;
-    margin-bottom: 22px;
+/* ----------------------------------------------------------------------------
+   7. القوائم المنسدلة وحقول الإدخال (Inputs & Dropdowns)
+   ---------------------------------------------------------------------------- */
+.select-wrapper-box {
     position: relative;
-    box-shadow: var(--shadow-sm);
-}
-
-.route-input-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 6px 0;
-}
-
-.input-icon-wrapper {
-    width: 28px;
-    display: flex;
-    justify-content: center;
-    font-size: 16px;
-}
-
-.color-green { color: #00c853; }
-.color-red { color: #ff3d00; }
-
-.input-field-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.input-field-wrapper label {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 700;
-    margin-bottom: 2px;
-}
-
-.input-field-wrapper input {
-    border: none;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 700;
-    color: #1a202c;
-    outline: none;
     width: 100%;
 }
 
-.clear-input-btn {
-    background: none;
-    border: none;
-    color: #cbd5e0;
+.enterprise-select-dropdown {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    color: var(--text-light-main);
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 14px;
-    padding: 5px;
-    transition: var(--transition-fast);
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-.clear-input-btn:hover {
+.locations-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.location-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0;
+}
+
+.icon-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.pickup-dot {
+    background-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 221, 136, 0.2);
+}
+
+.dropoff-dot {
+    background-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2);
+}
+
+.input-field-container {
+    flex: 1;
+}
+
+.enterprise-text-input {
+    width: 100%;
+    padding: 0.65rem 0.8rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    color: var(--text-light-main);
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: border-color var(--transition-fast);
+}
+
+.enterprise-text-input:focus {
+    border-color: var(--primary-color);
+}
+
+.input-action-btn {
+    color: var(--text-light-muted);
+    font-size: 0.9rem;
+    padding: 0.4rem;
+    border-radius: 50%;
+    transition: color var(--transition-fast);
+}
+
+.input-action-btn:hover {
     color: var(--danger-color);
 }
 
-.swap-locations-wrapper {
+.location-divider-line {
     position: relative;
-    height: 2px;
-    background: var(--border-color);
-    margin: 10px 28px;
+    height: 1px;
+    background-color: var(--border-light);
+    margin: 0.25rem 0 0.25rem 2rem;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
-.swap-circle-btn {
+.swap-locations-action-btn {
     position: absolute;
-    background: var(--white);
-    border: 1px solid #cbd5e0;
-    width: 32px;
-    height: 32px;
+    top: -14px;
+    left: 20px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
+    background-color: var(--bg-light-card);
+    border: 1px solid var(--border-light);
+    color: var(--text-light-muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    color: #4a5568;
-    font-size: 12px;
+    font-size: 0.75rem;
     box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
-.swap-circle-btn:hover {
-    background: var(--primary-color);
-    color: var(--dark-bg);
+.swap-locations-action-btn:hover {
+    color: var(--primary-color-active);
     border-color: var(--primary-color);
-    transform: rotate(180deg) scale(1.1);
+    transform: rotate(180deg);
 }
 
-/* ========================================================================== */
-/* 6. VEHICLES GRID SELECTION                                                 */
-/* ========================================================================== */
-.vehicle-selection-section {
-    margin-bottom: 22px;
-}
-
-.section-title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.section-title-icon {
-    color: var(--text-muted);
-    font-size: 14px;
-}
-
-.section-title-wrapper h3 {
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-.vehicles-grid-container {
+/* ----------------------------------------------------------------------------
+   8. كروت وسائل النقل والمزايدة (Vehicles & Bidding)
+   ---------------------------------------------------------------------------- */
+.vehicle-options-grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 0.75rem;
 }
 
 .vehicle-option-card {
-    background: #fdfdfe;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    padding: 14px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-light-input);
+    border: 2px solid var(--border-light);
+    cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
 .vehicle-option-card:hover {
-    border-color: #a0aec0;
-    background: var(--white);
+    border-color: var(--primary-color);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
 }
 
 .vehicle-option-card.active-vehicle {
+    background-color: var(--primary-color-light);
     border-color: var(--primary-color);
-    background: var(--primary-light);
-    box-shadow: 0 4px 15px rgba(0, 221, 136, 0.15);
-}
-
-.vehicle-card-badge {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-size: 9px;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 6px;
-}
-
-.tag-fast {
-    background: var(--danger-bg);
-    color: var(--danger-color);
-}
-
-.tag-popular {
-    background: #e6f9f0;
-    color: var(--success-color);
 }
 
 .vehicle-icon-box {
-    font-size: 24px;
-    color: var(--text-main);
-    margin-bottom: 4px;
-}
-
-.vehicle-meta-info .vehicle-title {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-.vehicle-eta {
-    font-size: 11px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 2px;
-}
-
-.vehicle-price-estimate {
-    font-size: 15px;
-    font-weight: 900;
-    color: var(--success-color);
-    margin-top: auto;
-}
-
-/* ========================================================================== */
-/* 7. BIDDING PRICE CONTROLS                                                  */
-/* ========================================================================== */
-.bidding-price-box {
-    background: var(--dark-card);
-    color: var(--white);
-    border-radius: var(--border-radius-lg);
-    padding: 16px;
-    margin-bottom: 22px;
-    box-shadow: var(--shadow-md);
-}
-
-.bidding-header-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--text-light);
-    margin-bottom: 12px;
-    font-weight: 700;
-}
-
-.bidding-icon {
-    color: var(--primary-color);
-}
-
-.bidding-controls-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #2d3748;
-    border-radius: var(--border-radius-md);
-    padding: 8px 16px;
-    border: 1px solid #4a5568;
-}
-
-.bid-adjust-btn {
-    background: #4a5568;
-    border: none;
-    color: var(--white);
+    font-size: 1.4rem;
+    color: var(--primary-color-active);
     width: 36px;
-    height: 36px;
-    border-radius: var(--border-radius-sm);
-    font-size: 14px;
-    cursor: pointer;
     display: flex;
-    align-items: center;
     justify-content: center;
-    transition: var(--transition-fast);
 }
 
-.bid-adjust-btn:hover {
-    background: var(--primary-color);
-    color: var(--dark-bg);
-    transform: scale(1.05);
-}
-
-.bid-display-container {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
-.bid-number {
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--primary-color);
-}
-
-.bid-currency {
-    font-size: 13px;
-    font-weight: 800;
-    color: #cbd5e0;
-}
-
-/* ========================================================================== */
-/* 8. ADDITIONAL OPTIONS & BUTTONS                                            */
-/* ========================================================================== */
-.additional-options-grid {
+.vehicle-details-box {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 22px;
-}
-
-.option-pill-button {
-    background: #f8fafc;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.option-pill-button:hover {
-    background: #edf2f7;
-    border-color: #cbd5e0;
-}
-
-.pill-left-part {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.pill-icon {
-    color: var(--primary-color);
-    font-size: 16px;
-}
-
-.pill-arrow {
-    color: var(--text-light);
-    font-size: 12px;
-}
-
-.action-button-wrapper {
-    margin-top: 10px;
-}
-
-.btn-primary-action {
-    width: 100%;
-    background: var(--primary-color);
-    color: var(--dark-bg);
-    border: none;
-    border-radius: var(--border-radius-md);
-    padding: 15px;
-    font-size: 16px;
-    font-weight: 900;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: var(--transition-fast);
-    box-shadow: 0 4px 20px rgba(0, 221, 136, 0.4);
-}
-
-.btn-primary-action:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 221, 136, 0.5);
-}
-
-/* ========================================================================== */
-/* 9. STEP 2: RADAR & BIDS FEED                                               */
-/* ========================================================================== */
-.radar-searching-banner {
-    text-align: center;
-    padding: 25px 10px;
-    background: #f8fafc;
-    border-radius: var(--border-radius-lg);
-    margin-bottom: 20px;
-    border: 1px dashed var(--border-color);
-}
-
-.radar-waves-container {
-    position: relative;
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 15px;
-    background: var(--primary-light);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--success-color);
-    font-size: 26px;
-    box-shadow: 0 0 0 rgba(0, 168, 89, 0.4);
-    animation: radarPulse 2s infinite;
-}
-
-@keyframes radarPulse {
-    0% { box-shadow: 0 0 0 0 rgba(0, 168, 89, 0.4); }
-    70% { box-shadow: 0 0 0 20px rgba(0, 168, 89, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 168, 89, 0); }
-}
-
-.radar-searching-banner h3 {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--text-main);
-    margin-bottom: 4px;
-}
-
-.radar-searching-banner p {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.bids-feed-section .feed-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--text-main);
-    margin-bottom: 12px;
-}
-
-.bids-list-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 380px;
-    overflow-y: auto;
-}
-
-.driver-offer-card {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    padding: 16px;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
-}
-
-.driver-offer-card:hover {
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-md);
-}
-
-.driver-profile-row {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.driver-avatar-box {
-    width: 48px;
-    height: 48px;
-    background: #edf2f7;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: #4a5568;
-    border: 1px solid var(--border-color);
-}
-
-.driver-info {
     flex: 1;
 }
 
-.driver-name {
-    font-size: 14px;
+.vehicle-details-box .title {
+    font-size: 0.85rem;
     font-weight: 800;
-    color: var(--text-main);
 }
 
-.driver-rating {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin: 2px 0;
+.vehicle-details-box .eta {
+    font-size: 0.7rem;
+    color: var(--text-light-muted);
+}
+
+.price-tag {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary-color-active);
+}
+
+.bidding-control-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background-color: var(--bg-light-input);
+}
+
+.bidding-header-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.bidding-header-info .label {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.bidding-header-info .sub-hint {
+    font-size: 0.72rem;
+    color: var(--text-light-muted);
+}
+
+.bidding-counter-wrapper {
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
 }
 
-.gold-star {
+.bid-adjust-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: var(--border-light);
+    color: var(--text-light-main);
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.bid-adjust-btn:hover {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.bid-amount-display-box {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+}
+
+.amount-val {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--primary-color-active);
+}
+
+.currency-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* ----------------------------------------------------------------------------
+   9. الأزرار العامة والتفاعلية (Buttons System)
+   ---------------------------------------------------------------------------- */
+.enterprise-action-primary-btn {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 15px rgba(0, 221, 136, 0.3);
+    transition: all var(--transition-fast);
+}
+
+.enterprise-action-primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 221, 136, 0.4);
+}
+
+.enterprise-action-primary-btn:active {
+    transform: translateY(0);
+}
+
+.enterprise-action-secondary-btn {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    color: var(--text-light-main);
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all var(--transition-fast);
+}
+
+.enterprise-action-secondary-btn:hover {
+    background-color: var(--border-light);
+}
+
+.enterprise-action-danger-btn {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius-md);
+    background-color: var(--danger-color-light);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    font-size: 0.9rem;
+    font-weight: 800;
+    transition: all var(--transition-fast);
+}
+
+.enterprise-action-danger-btn:hover {
+    background-color: var(--danger-color);
+    color: #ffffff;
+}
+
+/* ----------------------------------------------------------------------------
+   10. الخطوة الثانية: البحث وعروض الكباتن (Radar & Driver Offers)
+   ---------------------------------------------------------------------------- */
+.searching-radar-header {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.radar-pulsing-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    animation: radarPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes radarPulse {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.9);
+        opacity: 0.6;
+    }
+}
+
+.searching-radar-header h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.searching-radar-header p {
+    font-size: 0.78rem;
+    color: var(--text-light-muted);
+}
+
+.driver-bids-scroller-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 1rem 0;
+    padding-left: 0.3rem;
+}
+
+.driver-offer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.driver-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.driver-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-light-muted);
+}
+
+.driver-text-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.driver-name {
+    font-size: 0.88rem;
+    font-weight: 800;
+}
+
+.rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    color: var(--text-light-muted);
+}
+
+.rating-row i {
     color: var(--warning-color);
 }
 
 .car-details {
-    font-size: 11px;
-    color: var(--text-light);
-    display: block;
+    font-size: 0.7rem;
+    color: var(--text-light-muted);
 }
 
-.offer-price-tag {
-    text-align: left;
-}
-
-.offer-price-tag .price-val {
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--success-color);
-    display: block;
-}
-
-.offer-price-tag .price-curr {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 700;
-}
-
-.offer-actions-row {
+.offer-price-action {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+}
+
+.offer-price-action .price-val {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--primary-color-active);
 }
 
 .btn-accept-offer {
-    flex: 1;
-    background: var(--success-color);
-    color: var(--white);
-    border: none;
-    padding: 9px;
-    border-radius: var(--border-radius-sm);
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-size: 0.78rem;
     font-weight: 800;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: var(--transition-fast);
+    transition: background-color var(--transition-fast);
 }
 
 .btn-accept-offer:hover {
-    background: #008c4a;
+    background-color: var(--primary-color-hover);
 }
 
-.btn-decline-offer {
-    flex: 1;
-    background: var(--danger-bg);
-    color: var(--danger-color);
-    border: 1px solid #fed7d7;
-    padding: 9px;
-    border-radius: var(--border-radius-sm);
-    font-weight: 800;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
+/* ----------------------------------------------------------------------------
+   11. الخطوة الثالثة: الرحلة النشطة (Active Trip Step)
+   ---------------------------------------------------------------------------- */
+.active-trip-status-card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    margin-bottom: 1rem;
+}
+
+.trip-header-badge {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: var(--transition-fast);
-}
-
-.btn-decline-offer:hover {
-    background: #fed7d7;
-}
-
-.btn-secondary-cancel {
-    width: 100%;
-    background: #edf2f7;
-    color: #4a5568;
-    border: none;
-    padding: 12px;
-    border-radius: var(--border-radius-md);
+    gap: 0.4rem;
+    font-size: 0.72rem;
     font-weight: 800;
-    font-size: 13px;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: var(--transition-fast);
+    color: var(--primary-color-active);
+    margin-bottom: 0.4rem;
 }
 
-.btn-secondary-cancel:hover {
-    background: #e2e8f0;
+.captain-title-lg {
+    font-size: 1.1rem;
+    font-weight: 900;
 }
 
-/* ========================================================================== */
-/* 10. STEP 3: ACTIVE TRIP & TRACKING CONTROLS                                */
-/* ========================================================================== */
-.trip-status-tracker {
-    background: #f8fafc;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    padding: 14px;
-    margin-bottom: 16px;
+.vehicle-title-sm {
+    font-size: 0.8rem;
+    color: var(--text-light-muted);
 }
 
-.status-badge-row {
-    margin-bottom: 8px;
-    text-align: center;
-}
-
-.status-text-pulse {
-    font-size: 13px;
+.fare-agreed-badge {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
     font-weight: 800;
-    color: var(--success-color);
-    animation: textPulse 1.5s infinite;
+    color: var(--primary-color-active);
 }
 
-@keyframes textPulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+.trip-progress-container-box {
+    margin: 1.25rem 0;
 }
 
-.progress-bar-bg {
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-light-muted);
+    margin-bottom: 0.4rem;
+}
+
+.progress-bar-shell {
     width: 100%;
     height: 8px;
-    background: #e2e8f0;
-    border-radius: 4px;
+    border-radius: var(--radius-full);
+    background-color: var(--border-light);
     overflow: hidden;
 }
 
 .progress-bar-fill {
     height: 100%;
-    background: var(--success-color);
-    border-radius: 4px;
-    transition: width 0.5s ease;
+    background-color: var(--primary-color);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
 }
 
-.active-driver-card {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow-sm);
+.status-description-text {
+    font-size: 0.78rem;
+    text-align: center;
+    color: var(--text-light-muted);
+    margin-top: 0.5rem;
+    font-weight: 600;
 }
 
-.driver-card-header {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 12px;
-}
-
-.driver-avatar-large {
-    width: 56px;
-    height: 56px;
-    background: var(--primary-light);
-    color: var(--success-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border: 2px solid var(--success-color);
-}
-
-.driver-main-meta h3 {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-.driver-main-meta p {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin: 2px 0;
-}
-
-.fare-agreed-tag {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--success-color);
-    margin-top: 4px;
-}
-
-.driver-contact-actions {
+.active-trip-action-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
 }
 
-.contact-btn {
-    border: none;
-    border-radius: var(--border-radius-sm);
-    padding: 10px;
-    font-weight: 800;
-    font-size: 12px;
-    cursor: pointer;
+.trip-control-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    transition: var(--transition-fast);
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    font-size: 0.75rem;
+    font-weight: 800;
+    transition: all var(--transition-fast);
 }
 
-.btn-call {
-    background: #ebf8ff;
-    color: #3182ce;
-}
-.btn-call:hover { background: #bee3f8; }
-
-.btn-chat {
-    background: var(--primary-light);
-    color: var(--success-color);
-}
-.btn-chat:hover { background: #c6f6d5; }
-
-.btn-share {
-    background: #f7fafc;
-    color: #4a5568;
-    border: 1px solid #cbd5e0;
-}
-.btn-share:hover { background: #edf2f7; }
-
-.safety-and-cancel-wrapper {
-    display: flex;
-    gap: 10px;
+.trip-control-btn i {
+    font-size: 1.1rem;
 }
 
-.btn-sos-danger {
-    flex: 1;
-    background: var(--danger-bg);
+.call-btn {
+    color: var(--info-color);
+}
+
+.chat-btn {
+    color: var(--primary-color-active);
+}
+
+.sos-btn {
     color: var(--danger-color);
-    border: 1px solid #feb2b2;
-    padding: 12px;
-    border-radius: var(--border-radius-md);
-    font-weight: 800;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: var(--transition-fast);
+    background-color: var(--danger-color-light);
+    border-color: var(--danger-color);
 }
 
-.btn-sos-danger:hover {
-    background: #feb2b2;
-    color: #9b2c2c;
+.trip-control-btn:hover {
+    transform: translateY(-2px);
 }
 
-.btn-cancel-active-trip {
-    flex: 1;
-    background: #1a202c;
-    color: var(--white);
-    border: none;
-    padding: 12px;
-    border-radius: var(--border-radius-md);
-    font-weight: 800;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: var(--transition-fast);
-}
-
-.btn-cancel-active-trip:hover {
-    background: #2d3748;
-}
-
-/* ========================================================================== */
-/* 11. MODALS & POPUP WINDOWS                                                 */
-/* ========================================================================== */
-.modal-backdrop-overlay {
+/* ----------------------------------------------------------------------------
+   12. النوافذ المنبثقة والشات (Modals & Chat Box)
+   ---------------------------------------------------------------------------- */
+.enterprise-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     z-index: 2000;
-    transition: var(--transition-normal);
 }
 
-.custom-modal-window {
+.enterprise-modal-dialog {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--white);
-    width: 90%;
-    max-width: 450px;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--bg-light-card);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 1.25rem;
     z-index: 2001;
-    overflow: hidden;
-    animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    box-shadow: var(--shadow-xl);
+    animation: modalSlideUp 0.3s ease-out;
 }
 
-@keyframes modalPopIn {
-    from { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
 }
 
 .hidden-modal {
@@ -1132,230 +1084,116 @@ html, body {
 
 .modal-header-bar {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border-color);
-    background: #f8fafc;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 0.75rem;
 }
 
-.modal-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
+.modal-header-bar h4 {
+    font-size: 0.95rem;
     font-weight: 800;
-    color: var(--text-main);
-}
-
-.modal-title i {
-    color: var(--primary-color);
 }
 
 .close-modal-btn {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: var(--text-muted);
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition-fast);
+    font-size: 1.1rem;
+    color: var(--text-light-muted);
+    padding: 0.3rem;
 }
 
 .close-modal-btn:hover {
-    background: var(--danger-bg);
     color: var(--danger-color);
 }
 
-.modal-content-body {
-    padding: 20px;
-}
-
-/* Payment Modal Options */
-.payment-option-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.payment-option-card:hover {
-    border-color: #cbd5e0;
-}
-
-.payment-option-card.active-payment {
-    border-color: var(--primary-color);
-    background: var(--primary-light);
-}
-
-.payment-icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--border-radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: var(--white);
-}
-
-.color-cash { background: #319795; }
-.color-wallet { background: #805ad5; }
-
-.payment-text {
-    flex: 1;
-}
-
-.payment-text h4 {
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-.payment-text p {
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
-.check-icon {
-    font-size: 18px;
-    color: var(--border-color);
-}
-
-.active-payment .check-icon {
-    color: var(--success-color);
-}
-
-/* Chat Modal styling */
-.chat-modal-window {
-    max-width: 480px;
-    height: 550px;
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-body-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    background: #f4f6f9;
-}
-
-.chat-messages-scroll-area {
-    flex: 1;
-    padding: 16px;
+.chat-messages-container-box {
+    height: 250px;
     overflow-y: auto;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0.6rem;
+    background-color: var(--bg-light-input);
+    border-radius: var(--radius-sm);
 }
 
 .chat-bubble {
-    max-width: 75%;
-    padding: 10px 14px;
-    border-radius: var(--border-radius-md);
-    font-size: 13px;
-    box-shadow: var(--shadow-sm);
+    max-width: 80%;
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius-md);
+    font-size: 0.82rem;
 }
 
-.driver-bubble {
-    background: var(--white);
-    color: var(--text-main);
+.captain-bubble {
     align-self: flex-start;
-    border-top-right-radius: 2px;
+    background-color: var(--bg-light-card);
+    border: 1px solid var(--border-light);
+    border-bottom-right-radius: 2px;
 }
 
 .bubble-sender-name {
-    font-size: 10px;
+    font-size: 0.68rem;
     font-weight: 800;
-    color: var(--text-muted);
-    margin-bottom: 2px;
+    color: var(--primary-color-active);
+    margin-bottom: 0.1rem;
 }
 
-.chat-input-bar {
+.chat-input-footer-box {
     display: flex;
-    padding: 12px;
-    background: var(--white);
-    border-top: 1px solid var(--border-color);
-    gap: 10px;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
 }
 
-.chat-input-bar input {
+.chat-text-input {
     flex: 1;
-    border: 1px solid var(--border-color);
-    background: #f8fafc;
-    padding: 10px 14px;
-    border-radius: var(--border-radius-full);
-    outline: none;
-    font-size: 13px;
+    padding: 0.65rem 0.8rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-light-input);
+    border: 1px solid var(--border-light);
+    font-size: 0.85rem;
 }
 
-.chat-send-btn {
-    background: var(--primary-color);
-    color: var(--dark-bg);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+.chat-send-action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    background-color: var(--primary-color);
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: var(--transition-fast);
 }
 
-.chat-send-btn:hover {
-    background: var(--primary-hover);
-}
-
-/* ========================================================================== */
-/* 12. RESPONSIVE MEDIA QUERIES FOR MOBILE AND TABLETS                        */
-/* ========================================================================== */
-@media (max-width: 992px) {
-    .app-dashboard-layout {
-        flex-direction: column-reverse;
-        height: auto;
+/* ----------------------------------------------------------------------------
+   13. التوافق مع الشاشات المختلفة (Responsive Media Queries)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .enterprise-navbar {
+        padding: 0 0.8rem;
     }
     
-    .sidebar-control-panel {
-        width: 100%;
-        height: auto;
-        max-height: none;
-        box-shadow: none;
-        border-left: none;
+    .brand-title {
+        font-size: 1rem;
     }
-
-    .map-viewport-area {
-        height: 350px;
-        width: 100%;
+    
+    .brand-subtitle {
+        display: none;
     }
-
-    .header-container {
-        padding: 0 10px;
+    
+    .user-info-text {
+        display: none;
     }
-
-    .city-selector-wrapper {
-        display: none; /* إخفاء قائمة المدن في الشاشات الصغيرة جداً لتوفير المساحة */
+    
+    .btn-text-label {
+        display: none;
     }
-}
-
-@media (max-width: 576px) {
-    .vehicles-grid-container {
+    
+    .vehicle-options-grid-container {
         grid-template-columns: 1fr;
     }
     
-    .brand-text .tagline {
-        display: none;
+    .main-workflow-hub {
+        padding: 1rem;
     }
 }
