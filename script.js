@@ -1,62 +1,136 @@
 /* ==========================================================================
-   INDRIVE CLONE - PRODUCTION LEVEL WITH LEAFLET INTERACTIVE MAPS & AUDIO
+   INDRIVE CLONE - ALL EGYPT GOVERNORATES & LOCATIONS
    ========================================================================== */
 
-// 1. Locations Coordinates (Alexandria)
-const locationsData = {
-    "محطة الرمل، الإسكندرية": [31.2001, 29.8997],
-    "سيدي بشر، الإسكندرية": [31.2642, 30.0028],
-    "سموحة، الإسكندرية": [31.2155, 29.9553],
-    "ميامي، الإسكندرية": [31.2683, 30.0105],
-    "الشاطبي، الإسكندرية": [31.2118, 29.9161],
-    "العجمي، الإسكندرية": [31.1090, 29.7820]
+// 1. Comprehensive Database for Egypt Regions
+const egyptData = {
+    cairo: {
+        center: [30.0444, 31.2357],
+        locations: {
+            "ميدان التحرير، القاهرة": [30.0444, 31.2357],
+            "مدينة نصر، القاهرة": [30.0561, 31.3301],
+            "مصر الجديدة، القاهرة": [30.0910, 31.3230],
+            "التجمع الخامس، القاهرة الجديدة": [30.0074, 31.4290],
+            "المهندسين، الجيزة": [30.0511, 31.1990],
+            "الدقي، الجيزة": [30.0381, 31.2118],
+            "الشيخ زايد، الجيزة": [30.0425, 30.9780],
+            "6 أكتوبر، الجيزة": [29.9723, 30.9496],
+            "المعادي، القاهرة": [29.9602, 31.2569]
+        }
+    },
+    alex: {
+        center: [31.2001, 29.8997],
+        locations: {
+            "محطة الرمل، الإسكندرية": [31.2001, 29.8997],
+            "سيدي بشر، الإسكندرية": [31.2642, 30.0028],
+            "سموحة، الإسكندرية": [31.2155, 29.9553],
+            "ميامي، الإسكندرية": [31.2683, 30.0105],
+            "الشاطبي، الإسكندرية": [31.2118, 29.9161],
+            "العجمي، الإسكندرية": [31.1090, 29.7820],
+            "المنتزه، الإسكندرية": [31.2883, 30.0270]
+        }
+    },
+    mansoura: {
+        center: [31.0409, 31.3785],
+        locations: {
+            "المشاية السفلية، المنصورة": [31.0409, 31.3785],
+            "حي الجامعة، المنصورة": [31.0450, 31.3620],
+            "قناة السويس، المنصورة": [31.0330, 31.3900],
+            "ميدان أوم كلثوم، المنصورة": [31.0480, 31.3810]
+        }
+    },
+    tanta: {
+        center: [30.7865, 31.0004],
+        locations: {
+            "شارع البحر، طنطا": [30.7865, 31.0004],
+            "شارع النحاس، طنطا": [30.7920, 31.0030],
+            "ميدان السيد البدوي، طنطا": [30.7880, 30.9980],
+            "حي الاستاد، طنطا": [30.8010, 31.0080]
+        }
+    },
+    asyut: {
+        center: [27.1783, 31.1859],
+        locations: {
+            "شارع النميس، أسيوط": [27.1783, 31.1859],
+            "شارع يسري راغب، أسيوط": [27.1820, 31.1890],
+            "جامعة أسيوط، أسيوط": [27.1890, 31.1710],
+            "حي شطب، أسيوط": [27.1650, 31.2000]
+        }
+    },
+    ismailia: {
+        center: [30.5965, 32.2715],
+        locations: {
+            "شارع محمد علي، الإسماعيلية": [30.5965, 32.2715],
+            "حي الأشجار، الإسماعيلية": [30.6020, 32.2810],
+            "ميدان الفردوس، الإسماعيلية": [30.5890, 32.2650]
+        }
+    }
 };
 
-// 2. Initialize Leaflet Map (Dark Tile Style)
-const alexCoords = [31.2001, 29.8997];
-const map = L.map('real-map', { zoomControl: false }).setView(alexCoords, 13);
+// 2. Initialize Leaflet Map
+let currentGov = 'alex';
+const map = L.map('real-map', { zoomControl: false }).setView(egyptData[currentGov].center, 13);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
-    attribution: '&copy; OpenStreetMap & CartoDB'
+    attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-// Map Custom Markers
-let pickupMarker = L.marker([31.2001, 29.8997]).addTo(map).bindPopup("موقع الانطلاق");
-let dropoffMarker = L.marker([31.2642, 30.0028]).addTo(map).bindPopup("جهة الوصول");
+// Markers
+let pickupMarker = L.marker(egyptData[currentGov].center).addTo(map);
+let dropoffMarker = L.marker([egyptData[currentGov].center[0] + 0.02, egyptData[currentGov].center[1] + 0.02]).addTo(map);
 
-// Live Moving Drivers
-const driverMarkers = [
-    L.marker([31.2050, 29.9050]).addTo(map),
-    L.marker([31.2100, 29.8950]).addTo(map),
-    L.marker([31.1980, 29.9100]).addTo(map)
+// Driver Markers
+let driverMarkers = [
+    L.marker([egyptData[currentGov].center[0] + 0.005, egyptData[currentGov].center[1] + 0.005]).addTo(map),
+    L.marker([egyptData[currentGov].center[0] - 0.005, egyptData[currentGov].center[1] - 0.005]).addTo(map)
 ];
 
-// Move Drivers Randomly
-setInterval(() => {
-    driverMarkers.forEach(m => {
-        const latLng = m.getLatLng();
-        m.setLatLng([
-            latLng.lat + (Math.random() - 0.5) * 0.002,
-            latLng.lng + (Math.random() - 0.5) * 0.002
-        ]);
+// Update Governorate Function
+function loadGovernorate(govKey) {
+    currentGov = govKey;
+    const govData = egyptData[govKey];
+    
+    map.setView(govData.center, 13);
+    
+    const pickupSelect = document.getElementById('pickup-select');
+    const dropoffSelect = document.getElementById('dropoff-select');
+    
+    pickupSelect.innerHTML = '';
+    dropoffSelect.innerHTML = '';
+    
+    const locationNames = Object.keys(govData.locations);
+    locationNames.forEach(loc => {
+        pickupSelect.add(new Option(loc, loc));
+        dropoffSelect.add(new Option(loc, loc));
     });
-}, 2000);
 
-// Populate Location Options
+    pickupSelect.selectedIndex = 0;
+    dropoffSelect.selectedIndex = Math.min(1, locationNames.length - 1);
+    
+    // Update map markers
+    const pCoords = govData.locations[pickupSelect.value];
+    const dCoords = govData.locations[dropoffSelect.value];
+    
+    if (pCoords) pickupMarker.setLatLng(pCoords);
+    if (dCoords) dropoffMarker.setLatLng(dCoords);
+
+    // Reposition drivers
+    driverMarkers[0].setLatLng([govData.center[0] + 0.005, govData.center[1] + 0.005]);
+    driverMarkers[1].setLatLng([govData.center[0] - 0.005, govData.center[1] - 0.005]);
+}
+
+// Governorate Change Listener
+document.getElementById('governorate-select').addEventListener('change', (e) => {
+    loadGovernorate(e.target.value);
+});
+
+// Select Listeners
 const pickupSelect = document.getElementById('pickup-select');
 const dropoffSelect = document.getElementById('dropoff-select');
 
-Object.keys(locationsData).forEach(loc => {
-    pickupSelect.add(new Option(loc, loc));
-    dropoffSelect.add(new Option(loc, loc));
-});
-pickupSelect.selectedIndex = 0;
-dropoffSelect.selectedIndex = 1;
-
-// Update map markers when user changes select
 pickupSelect.addEventListener('change', (e) => {
-    const coords = locationsData[e.target.value];
+    const coords = egyptData[currentGov].locations[e.target.value];
     if (coords) {
         pickupMarker.setLatLng(coords);
         map.panTo(coords);
@@ -64,13 +138,27 @@ pickupSelect.addEventListener('change', (e) => {
 });
 
 dropoffSelect.addEventListener('change', (e) => {
-    const coords = locationsData[e.target.value];
+    const coords = egyptData[currentGov].locations[e.target.value];
     if (coords) {
         dropoffMarker.setLatLng(coords);
     }
 });
 
-// Sound Effects
+// Drivers Animation
+setInterval(() => {
+    driverMarkers.forEach(m => {
+        const latLng = m.getLatLng();
+        m.setLatLng([
+            latLng.lat + (Math.random() - 0.5) * 0.0015,
+            latLng.lng + (Math.random() - 0.5) * 0.0015
+        ]);
+    });
+}, 2000);
+
+// Initial Load
+loadGovernorate('alex');
+
+// 3. Audio & UX Flow Logic
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -99,7 +187,7 @@ function triggerHaptic() {
     if (navigator.vibrate) navigator.vibrate(40);
 }
 
-// App Logic & State
+// App Logic
 let currentFare = 50;
 let searchTimer = null;
 let etaInterval = null;
@@ -122,7 +210,6 @@ const mockDrivers = [
     { name: "محمود حسن", car: "هيونداي إلانتيرا • فضي", rating: "4.7 ★", priceOffset: -5, img: "https://i.pravatar.cc/100?img=13" }
 ];
 
-// Fare Controls
 plusBtn.addEventListener('click', () => {
     playSound('click');
     triggerHaptic();
@@ -139,7 +226,6 @@ minusBtn.addEventListener('click', () => {
     }
 });
 
-// Vehicle Selector
 document.querySelectorAll('.vehicle-card').forEach(card => {
     card.addEventListener('click', () => {
         playSound('click');
@@ -155,7 +241,6 @@ document.querySelectorAll('.vehicle-card').forEach(card => {
     });
 });
 
-// Steps Handlers
 searchBtn.addEventListener('click', () => {
     playSound('click');
     triggerHaptic();
@@ -195,7 +280,7 @@ function showBids() {
             <div class="driver-info">
                 <img src="${driver.img}" class="driver-img" alt="${driver.name}">
                 <div class="driver-details">
-                    <h5>${driver.name}</h5>
+                    ##### ${driver.name}
                     <span class="rating">${driver.rating}</span>
                     <p class="car-details">${driver.car}</p>
                 </div>
