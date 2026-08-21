@@ -2,462 +2,630 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0b0e14">
-    <meta name="description" content="تطبيق إنـدرايف مصر - المنصة الذكية المتكاملة لحجز الرحلات وتحديد الأسعار">
-    <meta name="keywords" content="إن درايف, مصر, رحلات, مواصلات, تاكسي, الإسكندرية, القاهرة, توصيل">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InDrive Egypt - منصة إنـدرايف مصر المتكاملة</title>
 
-    <title>InDrive Egypt - منصة الرحلات الذكية الذاتية</title>
-    
-    <!-- External Fonts (Cairo Font Family) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap">
-    
-    <!-- FontAwesome Complete Icons CSS (Strict Render Override) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <!-- Leaflet GIS Engine Stylesheet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    
-    <!-- Application Primary StyleSheet -->
+    <!-- مكتبة الأيقونات Font Awesome V6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- مكتبة الخرائط Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <!-- ملف الـ CSS الخاص بالتطبيق -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="dark-theme">
+<body>
 
-    <!-- Global Application Root Shell -->
-    <div id="app" class="app-root-wrapper">
-        
-        <!-- Application Top Navigation Header -->
-        <header class="app-header" role="banner">
-            <div class="header-brand-container">
-                <div class="logo-badge" title="إنـدرايف مصر">
-                    <i class="fa-solid fa-bolt logo-icon"></i>
-                </div>
-                <div class="title-meta-box">
-                    <h1 class="main-title">
-                        إنـدرايف
-                        <span class="badge-tag">مصر</span>
-                    </h1>
-                    <span class="subtitle-desc">منصة الرحلات الذكية الذاتية</span>
-                </div>
-            </div>
-
-            <div class="header-actions">
-                <div class="city-selector-box" title="اختر المحافظة">
-                    <i class="fa-solid fa-location-dot city-icon"></i>
-                    <select id="citySelect" class="city-dropdown" aria-label="اختر المدينة">
-                        <option value="alex" selected>الإسكندرية</option>
-                        <option value="cairo">القاهرة الكبرى</option>
-                        <option value="giza">الجيزة</option>
-                        <option value="mansoura">المنصورة</option>
-                        <option value="tanta">طنطا</option>
-                        <option value="asyut">أسيوط</option>
-                    </select>
-                </div>
-                
-                <button type="button" class="header-btn" id="notificationsBtn" aria-label="مركز الإشعارات">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="notification-dot"></span>
-                </button>
-
-                <button type="button" class="header-btn" id="historyBtn" aria-label="سجل الرحلات">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                </button>
-                
-                <button type="button" class="header-btn" id="userProfileBtn" aria-label="الملف الشخصي">
-                    <i class="fa-solid fa-user"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Dynamic Map Viewport Shell -->
-        <main class="map-viewport" role="main">
-            <div id="map" class="leaflet-map-container" aria-label="خريطة التفاعل المباشر"></div>
+    <!-- ============================================================================== -->
+    <!-- SECTION 1: GLOBAL NAVIGATION & TOP HEADER BAR                                  -->
+    <!-- ============================================================================== -->
+    <header class="main-header navbar-fixed">
+        <div class="header-container">
             
-            <!-- Map Overlay Controls - Right Top -->
-            <div class="map-overlay-controls top-right">
-                <button type="button" class="map-control-btn" id="recenterBtn" title="إعادة التمركز على موقعي الحالي">
-                    <i class="fa-solid fa-crosshairs"></i>
-                </button>
-                <button type="button" class="map-control-btn" id="toggleLayerBtn" title="تغيير نمط الخريطة">
-                    <i class="fa-solid fa-layer-group"></i>
-                </button>
-                <button type="button" class="map-control-btn" id="trafficToggleBtn" title="تفعيل طبقة الازدحام المروري">
-                    <i class="fa-solid fa-car-tunnel"></i>
-                </button>
-            </div>
-
-            <!-- Map Overlay Controls - Left Top -->
-            <div class="map-overlay-controls top-left">
-                <div class="traffic-indicator-pill">
-                    <span class="status-beacon"></span>
-                    <span id="trafficText">حركة المرور: هادئة وممتازة</span>
+            <!-- الهوية التجارية واللوجو -->
+            <div class="brand-identity">
+                <div class="brand-logo-wrapper">
+                    <i class="fa-solid fa-route brand-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-name">إنـدرايف <span class="highlight-egypt">مصر</span></h1>
+                    <span class="brand-tagline">منصة التنقل والشحن الذكية</span>
                 </div>
             </div>
-        </main>
 
-        <!-- Interactive Bottom Sheet Component -->
-        <aside class="interactive-bottom-sheet" id="bottomSheet" role="complementary">
-            <div class="drag-handle-bar" id="dragHandle">
-                <div class="handle-line"></div>
+            <!-- محول المحافظات والمدن -->
+            <div class="city-selector-wrapper">
+                <label for="citySelect" class="city-label">
+                    <i class="fa-solid fa-location-dot city-header-icon"></i>
+                    <span>المحافظة:</span>
+                </label>
+                <div class="custom-select-container">
+                    <select id="citySelect" class="city-dropdown-select">
+                        <option value="alex" selected>الإسكندرية (عروس البحر)</option>
+                        <option value="cairo">القاهرة الكبرى (العاصمة)</option>
+                        <option value="giza">الجيزة (الأهرامات)</option>
+                        <option value="mansoura">المنصورة (عروس الدلتا)</option>
+                        <option value="tanta">طنطا (عاصمة الغربية)</option>
+                        <option value="asyut">أسيوط (عاصمة الصعيد)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-arrow-icon"></i>
+                </div>
             </div>
 
-            <!-- STEP 1: ROUTE & VEHICLE SELECTION -->
-            <section class="workflow-step" id="step1" aria-labelledby="step1-heading">
-                <h2 id="step1-heading" class="sr-only">تحديد المسار والسيارة وسعر الرحلة</h2>
+            <!-- أدوات التحكم والملف الشخصي -->
+            <div class="user-utilities-bar">
+                <button type="button" class="icon-utility-btn" id="notificationsBtn" title="الإشعارات">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </button>
                 
-                <!-- Pickup & Dropoff Location Route Card -->
-                <div class="location-route-card">
-                    <div class="route-input-row">
-                        <span class="route-dot pickup" aria-hidden="true"></span>
-                        <div class="input-details-wrapper">
-                            <label for="pickupInput">موقع الانطلاق الحالي</label>
-                            <input type="text" id="pickupInput" class="route-select-input" value="محطة الرمل، وسط البلد، الإسكندرية" placeholder="حدد مكان الانطلاق...">
-                        </div>
-                        <button type="button" class="input-action-icon" id="clearPickupBtn" title="مسح الانطلاق">
-                            <i class="fa-solid fa-circle-xmark"></i>
-                        </button>
-                    </div>
+                <button type="button" class="icon-utility-btn" id="supportCenterBtn" title="الدعم الفني">
+                    <i class="fa-solid fa-headset"></i>
+                </button>
 
-                    <div class="route-connector-line">
-                        <button type="button" class="location-swap-btn" id="swapLocationsBtn" title="تبديل نقطة الانطلاق والوصول">
-                            <i class="fa-solid fa-arrow-up-down"></i>
-                        </button>
-                    </div>
+                <div class="user-profile-avatar" title="حسابك الشخصي">
+                    <i class="fa-solid fa-user-circle"></i>
+                </div>
+            </div>
 
-                    <div class="route-input-row">
-                        <span class="route-dot dropoff" aria-hidden="true"></span>
-                        <div class="input-details-wrapper">
-                            <label for="dropoffInput">وجهة الوصول المستهدفة</label>
-                            <input type="text" id="dropoffInput" class="route-select-input" value="سيدي بشر، شارع خالد بن الوليد" placeholder="إلى أين تريد الذهاب؟">
-                        </div>
-                        <button type="button" class="input-action-icon" id="clearDropoffBtn" title="مسح الوجهة">
-                            <i class="fa-solid fa-circle-xmark"></i>
-                        </button>
+        </div>
+    </header>
+
+    <!-- ============================================================================== -->
+    <!-- SECTION 2: MAIN DASHBOARD & MAP INTERFACE                                      -->
+    <!-- ============================================================================== -->
+    <div class="app-dashboard-layout">
+
+        <!-- لوحة التحكم الجانبية (Workflow Panel) -->
+        <aside class="sidebar-control-panel">
+            
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- WORKFLOW STEP 1: RIDE BOOKING & PRICE BIDDING                           -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="step1" class="workflow-card-step active-step">
+                
+                <!-- رأس بطاقة الطلب -->
+                <div class="step-card-header">
+                    <div class="step-title-group">
+                        <i class="fa-solid fa-car-side step-header-icon"></i>
+                        <h2>طلب رحلة جديدة</h2>
                     </div>
+                    <span class="step-indicator-badge">خطوة 1 من 3</span>
                 </div>
 
-                <!-- Vehicle Categories Selection Section -->
-                <div class="vehicle-selection-header">
-                    <span class="section-label">اختر وسيلة النقل المناسبة</span>
-                    <span class="section-sublabel" id="driverNearbyCount">4 سائقين بالقرب منك</span>
-                </div>
-
-                <div class="vehicle-options-grid" role="radiogroup" aria-label="خيارات وسائل النقل">
+                <!-- مربع تحديد نقاط الانطلاق والوصول -->
+                <div class="route-selector-box">
                     
-                    <!-- Motorcycle Card -->
-                    <div class="vehicle-option-card" role="radio" aria-checked="false" tabindex="0" data-vehicle="moto" data-price="18" data-eta="1-3 دقائق">
-                        <span class="v-badge-top">سريع جداً</span>
-                        <i class="fa-solid fa-motorcycle v-icon-box"></i>
-                        <span class="v-name">موتوسيكل</span>
-                        <span class="v-eta">1-3 دقائق</span>
-                        <div class="v-price-box">18 <span class="v-curr">ج.م</span></div>
+                    <!-- نقطة الركوب -->
+                    <div class="route-input-group pickup-group">
+                        <div class="input-icon-wrapper color-green">
+                            <i class="fa-solid fa-circle-dot"></i>
+                        </div>
+                        <div class="input-field-wrapper">
+                            <label for="pickupInput">موقع الانطلاق (نقطة الركوب)</label>
+                            <input type="text" id="pickupInput" placeholder="أين أنت الآن؟" value="محطة الرمل، وسط البلد، الإسكندرية" readonly>
+                        </div>
+                        <button type="button" class="clear-input-btn" id="clearPickupBtn" title="مسح">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
 
-                    <!-- Comfort Car Card -->
-                    <div class="vehicle-option-card" role="radio" aria-checked="false" tabindex="0" data-vehicle="comfort" data-price="60" data-eta="2-4 دقائق">
-                        <i class="fa-solid fa-car-side v-icon-box"></i>
-                        <span class="v-name">راحة</span>
-                        <span class="v-eta">2-4 دقائق</span>
-                        <div class="v-price-box">60 <span class="v-curr">ج.م</span></div>
+                    <!-- زر تبديل المواقع -->
+                    <div class="swap-locations-wrapper">
+                        <div class="connector-line"></div>
+                        <button type="button" id="swapLocationsBtn" class="swap-circle-btn" title="تبديل نقطة الانطلاق والوصول">
+                            <i class="fa-solid fa-arrow-down-up-across-line"></i>
+                        </button>
                     </div>
 
-                    <!-- Economy Car Card (Selected Default) -->
-                    <div class="vehicle-option-card active" role="radio" aria-checked="true" tabindex="0" data-vehicle="economy" data-price="35" data-eta="3-5 دقائق">
-                        <span class="badge-recommended">الأكثر طلباً</span>
-                        <i class="fa-solid fa-car v-icon-box"></i>
-                        <span class="v-name">توفير</span>
-                        <span class="v-eta">3-5 دقائق</span>
-                        <div class="v-price-box">35 <span class="v-curr">ج.م</span></div>
-                    </div>
-
-                    <!-- Intercity / Travel Card -->
-                    <div class="vehicle-option-card" role="radio" aria-checked="false" tabindex="0" data-vehicle="travel" data-price="150" data-eta="سفر المحافظات">
-                        <i class="fa-solid fa-route v-icon-box"></i>
-                        <span class="v-name">سفر</span>
-                        <span class="v-eta">بين المدن</span>
-                        <div class="v-price-box">150 <span class="v-curr">ج.م</span></div>
-                    </div>
-
-                    <!-- Delivery / Courier Card -->
-                    <div class="vehicle-option-card" role="radio" aria-checked="false" tabindex="0" data-vehicle="delivery" data-price="25" data-eta="شحن طرود">
-                        <i class="fa-solid fa-box-open v-icon-box"></i>
-                        <span class="v-name">شحن طرود</span>
-                        <span class="v-eta">توصيل سريع</span>
-                        <div class="v-price-box">25 <span class="v-curr">ج.م</span></div>
-                    </div>
-
-                    <!-- Freight / Truck Card -->
-                    <div class="vehicle-option-card" role="radio" aria-checked="false" tabindex="0" data-vehicle="truck" data-price="200" data-eta="نقل ثقيل">
-                        <i class="fa-solid fa-truck-ramp-box v-icon-box"></i>
-                        <span class="v-name">شحن ثقيل</span>
-                        <span class="v-eta">نقل بضائع</span>
-                        <div class="v-price-box">200 <span class="v-curr">ج.م</span></div>
+                    <!-- نقطة الوصول -->
+                    <div class="route-input-group dropoff-group">
+                        <div class="input-icon-wrapper color-red">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="input-field-wrapper">
+                            <label for="dropoffInput">وجهة الوصول (المقصد)</label>
+                            <input type="text" id="dropoffInput" placeholder="إلى أين تريد الذهاب؟" value="سيدي بشر، شارع خالد بن الوليد" readonly>
+                        </div>
+                        <button type="button" class="clear-input-btn" id="clearDropoffBtn" title="مسح">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
 
                 </div>
 
-                <!-- Fare Bidding Interactive Widget -->
-                <div class="fare-bidding-widget">
-                    <div class="bidding-info">
-                        <span class="bidding-title">سعر الرحلة الذي تقترحه</span>
-                        <span class="bidding-subtitle">يمكنك تغيير السعر بالزيادة أو النقصان لجلب أفضل السائقين</span>
+                <!-- شبكة اختيار أنواع المركبات (Vehicle Grid) -->
+                <div class="vehicle-selection-section">
+                    <div class="section-title-wrapper">
+                        <i class="fa-solid fa-taxi section-title-icon"></i>
+                        <h3>اختر نوع الوسيلة المناسبة</h3>
                     </div>
 
+                    <div class="vehicles-grid-container">
+                        
+                        <!-- 1. موتوسيكل -->
+                        <div class="vehicle-option-card" data-vehicle="moto" data-price="18">
+                            <div class="vehicle-card-badge tag-fast">سريع جداً</div>
+                            <div class="vehicle-icon-box">
+                                <i class="fa-solid fa-motorcycle"></i>
+                            </div>
+                            <div class="vehicle-meta-info">
+                                <h4 class="vehicle-title">موتوسيكل</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> 1-3 دقائق</span>
+                            </div>
+                            <div class="vehicle-price-estimate">18 ج.م</div>
+                        </div>
+
+                        <!-- 2. توفير (اقتصادي) -->
+                        <div class="vehicle-option-card active-vehicle" data-vehicle="economy" data-price="35">
+                            <div class="vehicle-card-badge tag-popular">الأكثر طلباً</div>
+                            <div class="vehicle-icon-box">
+                                <i class="fa-solid fa-car"></i>
+                            </div>
+                            <div class="vehicle-meta-info">
+                                <h4 class="vehicle-title">توفير</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> 3-5 دقائق</span>
+                            </div>
+                            <div class="vehicle-price-estimate">35 ج.م</div>
+                        </div>
+
+                        <!-- 3. راحة (كومفورت) -->
+                        <div class="vehicle-option-card" data-vehicle="comfort" data-price="60">
+                            <div class="vehicle-icon-box">
+                                <i class="fa-solid fa-car-side"></i>
+                            </div>
+                            <div class="vehicle-meta-info">
+                                <h4 class="vehicle-title">راحة</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> 2-4 دقائق</span>
+                            </div>
+                            <div class="vehicle-price-estimate">60 ج.م</div>
+                        </div>
+
+                        <!-- 4. سفر بين المحافظات -->
+                        <div class="vehicle-option-card" data-vehicle="travel" data-price="150">
+                            <div class="vehicle-icon-box">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                            <div class="vehicle-meta-info">
+                                <h4 class="vehicle-title">سفر</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> بين المدن</span>
+                            </div>
+                            <div class="vehicle-price-estimate">150 ج.م</div>
+                        </div>
+
+                        <!-- 5. شحن طرود -->
+                        <div class="vehicle-option-card" data-vehicle="delivery" data-price="25">
+                            <div class="vehicle-icon-box">
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <div class="vehicle-meta-info">
+                                <h4 class="vehicle-title">شحن طرود</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> توصيل سريع</span>
+                            </div>
+                            <div class="vehicle-price-estimate">25 ج.م</div>
+                        </div>
+
+                        <!-- 6. نقل بضائع ثقيل -->
+                        <div class="vehicle-option-card" data-vehicle="truck" data-price="200">
+                            <div class="vehicle-icon-box">
+                                <i class="fa-solid fa-truck-ramp-box"></i>
+                            </div>
+                            <div class="vehicle-meta-info">
+                                <h4 class="vehicle-title">شحن ثقيل</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> نقل بضائع</span>
+                            </div>
+                            <div class="vehicle-price-estimate">200 ج.م</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- لوحة المزايدة واقتراح السعر -->
+                <div class="bidding-price-box">
+                    <div class="bidding-header-row">
+                        <i class="fa-solid fa-hand-holding-dollar bidding-icon"></i>
+                        <span>اقترح سعرك للرحلة (قابل للمفاوضة):</span>
+                    </div>
                     <div class="bidding-controls-wrapper">
-                        <button type="button" class="bid-adjust-btn" id="decreaseBidBtn" aria-label="تخفيض السعر بمقدار 5 جنيهات">
+                        <button type="button" id="decreaseBidBtn" class="bid-adjust-btn btn-minus" title="إنقاص السعر">
                             <i class="fa-solid fa-minus"></i>
                         </button>
-                        
-                        <div class="bid-value-display">
-                            <span id="bidAmount">35</span>
-                            <span class="currency-label">جنيه</span>
+                        <div class="bid-display-container">
+                            <span id="bidAmount" class="bid-number">35</span>
+                            <span class="bid-currency">ج.م</span>
                         </div>
-                        
-                        <button type="button" class="bid-adjust-btn" id="increaseBidBtn" aria-label="زيادة السعر بمقدار 5 جنيهات">
+                        <button type="button" id="increaseBidBtn" class="bid-adjust-btn btn-plus" title="زيادة السعر">
                             <i class="fa-solid fa-plus"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Ride Extra Options Selection Row -->
-                <div class="options-extra-row">
-                    <button type="button" class="option-chip-btn" id="paymentMethodBtn">
-                        <div class="chip-left-meta">
-                            <i class="fa-solid fa-money-bill-wave chip-icon"></i>
-                            <span id="selectedPaymentText">الدفع كاش (نقدي)</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-
-                    <button type="button" class="option-chip-btn" id="rideCommentsBtn">
-                        <div class="chip-left-meta">
-                            <i class="fa-solid fa-comment-dots chip-icon"></i>
-                            <span id="selectedCommentText">تعليقات خاصة بالرحلة</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                </div>
-
-                <!-- Primary CTA Action Button -->
-                <button type="button" class="cta-primary-btn" id="requestRideBtn">
-                    <span>طلب الرحلة بالأسعار المقترحة</span>
-                    <i class="fa-solid fa-arrow-left btn-icon-arrow"></i>
-                </button>
-
-            </section>
-
-            <!-- STEP 2: DRIVER OFFERS & BIDDING RADAR -->
-            <section class="workflow-step hidden" id="step2" aria-labelledby="step2-heading">
-                <div class="modal-header-row">
-                    <div class="searching-status-box">
-                        <span class="radar-ping-dot"></span>
-                        <h2 id="step2-heading" class="modal-title">عروض السائقين المتاحة حالياً...</h2>
-                    </div>
-                    <button type="button" class="modal-close-btn" id="cancelSearchBtn" title="إلغاء البحث">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <!-- Driver Bids List Engine Container -->
-                <div class="driver-bids-list" id="driverBidsContainer">
+                <!-- الخيارات الإضافية (طريقة الدفع وملاحظات السائق) -->
+                <div class="additional-options-grid">
                     
-                    <!-- Offer 1 -->
-                    <div class="driver-offer-card">
-                        <div class="driver-info-meta">
-                            <div class="driver-avatar-circle">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                            <div class="driver-details">
-                                <span class="driver-name">الكابتن / أحمد محمود</span>
-                                <div class="driver-rating-row">
-                                    <i class="fa-solid fa-star star-icon"></i>
-                                    <span class="rating-val">4.9</span>
-                                    <span class="trips-count">(1,240 رحلة مكتملة)</span>
-                                </div>
-                                <span class="driver-vehicle-info">شيفروليه أفيو - أبيض | (أ ب ج 1234)</span>
-                                <span class="driver-distance-eta"><i class="fa-solid fa-clock"></i> يبعد 2 دقيقة عنك</span>
-                            </div>
-                            <div class="offer-price-tag">
-                                <span>35</span>
-                                <span class="curr">ج.م</span>
-                            </div>
+                    <button type="button" id="paymentMethodBtn" class="option-pill-button">
+                        <div class="pill-left-part">
+                            <i class="fa-solid fa-wallet pill-icon"></i>
+                            <span id="selectedPaymentText">نقداً (كاش)</span>
                         </div>
-                        <div class="offer-action-buttons">
-                            <button type="button" class="accept-bid-btn" onclick="acceptDriverBid('أحمد محمود', '35 ج.م', 'شيفروليه أفيو - أبيض', 'أ ب ج 1234', '01012345678')">قبول العرض</button>
-                            <button type="button" class="decline-bid-btn" onclick="declineBid(this)">رفض</button>
-                        </div>
-                    </div>
+                        <i class="fa-solid fa-chevron-left pill-arrow"></i>
+                    </button>
 
-                    <!-- Offer 2 -->
-                    <div class="driver-offer-card">
-                        <div class="driver-info-meta">
-                            <div class="driver-avatar-circle">
-                                <i class="fa-solid fa-user-tie"></i>
-                            </div>
-                            <div class="driver-details">
-                                <span class="driver-name">الكابتن / محمد علي</span>
-                                <div class="driver-rating-row">
-                                    <i class="fa-solid fa-star star-icon"></i>
-                                    <span class="rating-val">4.8</span>
-                                    <span class="trips-count">(850 رحلة مكتملة)</span>
-                                </div>
-                                <span class="driver-vehicle-info">نيسان صني - أسود | (س ص ع 5678)</span>
-                                <span class="driver-distance-eta"><i class="fa-solid fa-clock"></i> يبعد 4 دقائق عنك</span>
-                            </div>
-                            <div class="offer-price-tag">
-                                <span>40</span>
-                                <span class="curr">ج.م</span>
-                            </div>
+                    <button type="button" id="rideCommentsBtn" class="option-pill-button">
+                        <div class="pill-left-part">
+                            <i class="fa-solid fa-comment-dots pill-icon"></i>
+                            <span id="selectedCommentText">إضافة ملاحظات للسائق</span>
                         </div>
-                        <div class="offer-action-buttons">
-                            <button type="button" class="accept-bid-btn" onclick="acceptDriverBid('محمد علي', '40 ج.م', 'نيسان صني - أسود', 'س ص ع 5678', '01198765432')">قبول العرض</button>
-                            <button type="button" class="decline-bid-btn" onclick="declineBid(this)">رفض</button>
-                        </div>
-                    </div>
-
-                    <!-- Offer 3 -->
-                    <div class="driver-offer-card">
-                        <div class="driver-info-meta">
-                            <div class="driver-avatar-circle">
-                                <i class="fa-solid fa-id-badge"></i>
-                            </div>
-                            <div class="driver-details">
-                                <span class="driver-name">الكابتن / حسن السيد</span>
-                                <div class="driver-rating-row">
-                                    <i class="fa-solid fa-star star-icon"></i>
-                                    <span class="rating-val">4.95</span>
-                                    <span class="trips-count">(2,100 رحلة مكتملة)</span>
-                                </div>
-                                <span class="driver-vehicle-info">هيونداي فيرنا - فضي | (ر ط ي 9012)</span>
-                                <span class="driver-distance-eta"><i class="fa-solid fa-clock"></i> يبعد 1 دقيقة عنك</span>
-                            </div>
-                            <div class="offer-price-tag">
-                                <span>38</span>
-                                <span class="curr">ج.م</span>
-                            </div>
-                        </div>
-                        <div class="offer-action-buttons">
-                            <button type="button" class="accept-bid-btn" onclick="acceptDriverBid('حسن السيد', '38 ج.م', 'هيونداي فيرنا - فضي', 'ر ط ي 9012', '01234567890')">قبول العرض</button>
-                            <button type="button" class="decline-bid-btn" onclick="declineBid(this)">رفض</button>
-                        </div>
-                    </div>
+                        <i class="fa-solid fa-chevron-left pill-arrow"></i>
+                    </button>
 
                 </div>
+
+                <!-- زر الإرسال الرئيسي -->
+                <div class="action-button-wrapper">
+                    <button type="button" id="requestRideBtn" class="btn-primary-action">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>طلب الرحلة الآن</span>
+                    </button>
+                </div>
+
             </section>
 
-            <!-- STEP 3: ACTIVE TRIP MONITOR & TRACKING -->
-            <section class="workflow-step hidden" id="step3" aria-labelledby="step3-heading">
-                <div class="active-trip-card">
-                    <div class="trip-status-header">
-                        <div class="status-meta">
-                            <span class="status-beacon active"></span>
-                            <span class="status-text-main" id="activeStatusText">السائق في طريقه لإقلالك</span>
-                        </div>
-                        <span class="eta-countdown" id="tripEta">وصول خلال 3 دقائق</span>
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- WORKFLOW STEP 2: LIVE BIDDING RADAR & DRIVER OFFERS                    -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="step2" class="workflow-card-step hidden-step">
+                
+                <div class="step-card-header">
+                    <div class="step-title-group">
+                        <i class="fa-solid fa-satellite-dish step-header-icon radar-pulse"></i>
+                        2. العروض المباشرة
+                    </div>
+                    <span class="step-indicator-badge">خطوة 2 من 3</span>
+                </div>
+
+                <!-- رادار جاري البحث -->
+                <div class="radar-searching-banner">
+                    <div class="radar-waves-container">
+                        <div class="wave wave1"></div>
+                        <div class="wave wave2"></div>
+                        <div class="wave wave3"></div>
+                        <i class="fa-solid fa-car-side radar-center-icon"></i>
+                    </div>
+                    <h3>جاري البحث عن كباتن بالقرب منك...</h3>
+                    <p>السائقون القريبون يراجعون سعر المقترح الآن.</p>
+                </div>
+
+                <!-- قائمة العروض المستلمة من السائقين -->
+                <div class="bids-feed-section">
+                    <div class="feed-header">
+                        <i class="fa-solid fa-list-check"></i>
+                        <h4>عروض السائقين المتاحة:</h4>
                     </div>
 
-                    <div class="active-driver-summary">
-                        <div class="driver-avatar-circle large">
+                    <div id="driverBidsContainer" class="bids-list-wrapper">
+                        
+                        <!-- كارت عرض سائق (نموذج معايير) -->
+                        <div class="driver-offer-card">
+                            <div class="driver-profile-row">
+                                <div class="driver-avatar-box">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
+                                <div class="driver-info">
+                                    <h4 class="driver-name">الكابتن / أحمد محمود العبد</h4>
+                                    <div class="driver-rating">
+                                        <i class="fa-solid fa-star gold-star"></i>
+                                        <span class="rating-val">4.9</span>
+                                        <span class="trips-count">(1,240 رحلة)</span>
+                                    </div>
+                                    <span class="car-details">شيفروليه أفيو - أبيض (أ ب ج 1234)</span>
+                                </div>
+                                <div class="offer-price-tag">
+                                    <span class="price-val">35</span>
+                                    <span class="price-curr">ج.م</span>
+                                </div>
+                            </div>
+                            <div class="offer-actions-row">
+                                <button type="button" class="btn-accept-offer"><i class="fa-solid fa-check"></i> قبول العرض</button>
+                                <button type="button" class="btn-decline-offer"><i class="fa-solid fa-xmark"></i> رفض</button>
+                            </div>
+                        </div>
+
+                        <!-- كارت عرض سائق ثانٍ -->
+                        <div class="driver-offer-card">
+                            <div class="driver-profile-row">
+                                <div class="driver-avatar-box">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="driver-info">
+                                    <h4 class="driver-name">الكابتن / محمد علي السيد</h4>
+                                    <div class="driver-rating">
+                                        <i class="fa-solid fa-star gold-star"></i>
+                                        <span class="rating-val">4.8</span>
+                                        <span class="trips-count">(850 رحلة)</span>
+                                    </div>
+                                    <span class="car-details">نيسان صني - أسود (س ص ع 5678)</span>
+                                </div>
+                                <div class="offer-price-tag">
+                                    <span class="price-val">40</span>
+                                    <span class="price-curr">ج.م</span>
+                                </div>
+                            </div>
+                            <div class="offer-actions-row">
+                                <button type="button" class="btn-accept-offer"><i class="fa-solid fa-check"></i> قبول العرض</button>
+                                <button type="button" class="btn-decline-offer"><i class="fa-solid fa-xmark"></i> رفض</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- زر إلغاء البحث -->
+                <div class="cancel-search-wrapper">
+                    <button type="button" id="cancelSearchBtn" class="btn-secondary-cancel">
+                        <i class="fa-solid fa-ban"></i> إلغاء البحث والعودة
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- ---------------------------------------------------------------------- -->
+            <!-- WORKFLOW STEP 3: ACTIVE TRIP & REAL-TIME TRACKING                      -->
+            <!-- ---------------------------------------------------------------------- -->
+            <section id="step3" class="workflow-card-step hidden-step">
+                
+                <div class="step-card-header">
+                    <div class="step-title-group">
+                        <i class="fa-solid fa-circle-location-arrow step-header-icon color-green"></i>
+                        3. الرحلة قائمة الان
+                    </div>
+                    <span class="step-indicator-badge badge-active">رحلة جارية</span>
+                </div>
+
+                <!-- شريط تقدم حالة الرحلة -->
+                <div class="trip-status-tracker">
+                    <div class="status-badge-row">
+                        <span id="activeStatusText" class="status-text-pulse">السائق في طريقه لإقلالك...</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="tripProgressBar" class="progress-bar-fill" style="width: 25%;"></div>
+                    </div>
+                </div>
+
+                <!-- بطاقة السائق المقبول -->
+                <div class="active-driver-card">
+                    <div class="driver-card-header">
+                        <div class="driver-avatar-large">
                             <i class="fa-solid fa-user-check"></i>
                         </div>
-                        <div class="driver-summary-details">
-                            <h3 id="acceptedDriverName" class="driver-name-title">الكابتن / أحمد محمود</h3>
-                            <p id="acceptedVehicleInfo" class="vehicle-details-text">شيفروليه أفيو - أبيض (أ ب ج 1234)</p>
-                            <div class="fare-badge" id="acceptedFareBadge">المبلغ المتفق عليه: 35 ج.م</div>
+                        <div class="driver-main-meta">
+                            <h3 id="acceptedDriverName">الكابتن / أحمد محمود</h3>
+                            <p id="acceptedVehicleInfo">شيفروليه أفيو - أبيض (أ ب ج 1234)</p>
+                            <div class="fare-agreed-tag">
+                                <i class="fa-solid fa-shield-check"></i>
+                                <span id="acceptedFareBadge">المبلغ المتفق عليه: 35 ج.م</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="trip-driver-actions-row">
-                        <button type="button" class="action-icon-btn call-btn" id="callDriverBtn">
+                    <!-- أزرار التفاعل والتواصل -->
+                    <div class="driver-contact-actions">
+                        
+                        <button type="button" id="callDriverBtn" class="contact-btn btn-call">
                             <i class="fa-solid fa-phone"></i>
-                            <span>اتصال تلفوني</span>
+                            <span>اتصال</span>
                         </button>
-                        <button type="button" class="action-icon-btn" id="chatDriverBtn">
-                            <i class="fa-solid fa-comment-dots"></i>
-                            <span>مراسلة فورية</span>
+
+                        <button type="button" id="chatDriverBtn" class="contact-btn btn-chat">
+                            <i class="fa-solid fa-comments"></i>
+                            <span>محادثة</span>
                         </button>
-                        <button type="button" class="action-icon-btn" id="shareTripBtn">
+
+                        <button type="button" id="shareTripBtn" class="contact-btn btn-share">
                             <i class="fa-solid fa-share-nodes"></i>
-                            <span>مشاركة الرحلة</span>
+                            <span>مشاركة</span>
                         </button>
-                    </div>
 
-                    <div class="trip-progress-bar-container">
-                        <div class="trip-progress-bar" id="tripProgressBar"></div>
                     </div>
-
-                    <button type="button" class="cta-secondary-btn danger" id="cancelTripBtn">إلغاء الرحلة الحالية</button>
                 </div>
+
+                <!-- أدوات الطوارئ وإلغاء الرحلة -->
+                <div class="safety-and-cancel-wrapper">
+                    <button type="button" id="sosEmergencyBtn" class="btn-sos-danger">
+                        <i class="fa-solid fa-shield-cat"></i> زر الطوارئ SOS
+                    </button>
+                    <button type="button" id="cancelTripBtn" class="btn-cancel-active-trip">
+                        <i class="fa-solid fa-xmark"></i> إلغاء الرحلة
+                    </button>
+                </div>
+
             </section>
 
         </aside>
 
-        <!-- Modals & Overlays Center Shell -->
-        <div class="modal-backdrop hidden" id="modalBackdrop">
+        <!-- منطقة الخريطة التفاعلية (Map Viewer Area) -->
+        <main class="map-viewport-area">
             
-            <!-- Payment Selection Modal -->
-            <div class="app-modal hidden" id="paymentModal">
-                <div class="modal-inner-header">
-                    <h3>اختر طريقة الدفع</h3>
-                    <button type="button" class="close-modal-btn" data-close="paymentModal"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body-list">
-                    <div class="modal-list-item active" data-payment="cash">
-                        <i class="fa-solid fa-money-bill-wave item-icon"></i>
-                        <span>نقداً (كاش)</span>
-                        <i class="fa-solid fa-check check-icon"></i>
-                    </div>
-                    <div class="modal-list-item" data-payment="wallet">
-                        <i class="fa-solid fa-wallet item-icon"></i>
-                        <span>محفظة إلكترونية (فودافون كاش / اتصالات)</span>
-                        <i class="fa-solid fa-check check-icon"></i>
-                    </div>
-                    <div class="modal-list-item" data-payment="card">
-                        <i class="fa-solid fa-credit-card item-icon"></i>
-                        <span>بطاقة بنكية (فيزا / ماستركارد)</span>
-                        <i class="fa-solid fa-check check-icon"></i>
-                    </div>
-                </div>
+            <!-- حاوية الخريطة -->
+            <div id="map" class="leaflet-map-canvas"></div>
+
+            <!-- أزرار تحكم عائمة فوق الخريطة -->
+            <div class="map-floating-controls">
+                
+                <button type="button" id="recenterBtn" class="map-float-btn" title="تمركز حول الخريطة">
+                    <i class="fa-solid fa-crosshairs"></i>
+                </button>
+
+                <button type="button" id="zoomInBtn" class="map-float-btn" title="تكبير">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+
+                <button type="button" id="zoomOutBtn" class="map-float-btn" title="تصغير">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+
+                <button type="button" id="trafficToggleBtn" class="map-float-btn" title="حالة المرور">
+                    <i class="fa-solid fa-layer-group"></i>
+                </button>
+
             </div>
 
-            <!-- Comments & Instructions Modal -->
-            <div class="app-modal hidden" id="commentsModal">
-                <div class="modal-inner-header">
-                    <h3>إضافة تعليق للسائق</h3>
-                    <button type="button" class="close-modal-btn" data-close="commentsModal"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="modal-body-form">
-                    <textarea id="tripCommentInput" placeholder="مثال: معي حقائب كثيرة، أرجو فتح الشنطة..." rows="4"></textarea>
-                    <button type="button" class="cta-primary-btn" id="saveCommentBtn">حفظ التعليق</button>
-                </div>
+            <!-- مؤشر الطقس / حالة المرور السريعة -->
+            <div class="map-top-status-pill">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>حركة المرور مستقرة في موقعك الحالي</span>
             </div>
 
-            <!-- Live Chat Modal -->
-            <div class="app-modal hidden" id="chatModal">
-                <div class="modal-inner-header">
-                    <h3 id="chatDriverTitle">محادثة الكابتن</h3>
-                    <button type="button" class="close-modal-btn" data-close="chatModal"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="chat-messages-container" id="chatMessagesBox">
-                    <div class="chat-bubble driver">أهلاً بك، أنا في طريقي إليك حالياً.</div>
-                </div>
-                <div class="chat-input-row">
-                    <input type="text" id="chatInputField" placeholder="اكتب رسالتك هنا...">
-                    <button type="button" id="sendChatMsgBtn"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-
-        </div>
+        </main>
 
     </div>
 
-    <!-- Leaflet GIS Engine Script -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- ============================================================================== -->
+    <!-- SECTION 3: MODALS & POPUP WINDOWS                                              -->
+    <!-- ============================================================================== -->
     
-    <!-- Application Engine Logic Script -->
+    <!-- خلفية التعتيم للنوافذ المنبثقة -->
+    <div id="modalBackdrop" class="modal-backdrop-overlay hidden-modal"></div>
+
+    <!-- 1. نافذة اختيار طريقة الدفع (Payment Modal) -->
+    <div id="paymentModal" class="custom-modal-window hidden-modal">
+        <div class="modal-header-bar">
+            <div class="modal-title">
+                <i class="fa-solid fa-wallet"></i>
+                <h3>اختر طريقة الدفع</h3>
+            </div>
+            <button type="button" class="close-modal-btn" data-close="paymentModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-content-body">
+            
+            <div class="payment-option-card active-payment" data-payment="cash">
+                <div class="payment-icon-box color-cash">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <div class="payment-text">
+                    <h4>نقداً (كاش)</h4>
+                    <p>الدفع المباشر للسائق بعد انتهاء الرحلة</p>
+                </div>
+                <i class="fa-solid fa-circle-check check-icon"></i>
+            </div>
+
+            <div class="payment-option-card" data-payment="wallet">
+                <div class="payment-icon-box color-wallet">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <div class="payment-text">
+                    <h4>محفظة إلكترونية</h4>
+                    <p>فودافون كاش / اورنج كاش / اتصالات كاش / إينستا باي</p>
+                </div>
+                <i class="fa-solid fa-circle-check check-icon"></i>
+            </div>
+
+            <div class="payment-option-card" data-payment="card">
+                <div class="payment-icon-box color-card">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <div class="payment-text">
+                    <h4>بطاقة إئتمان / بنكية</h4>
+                    <p>فيزا / ماستركارد / ميزة</p>
+                </div>
+                <i class="fa-solid fa-circle-check check-icon"></i>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 2. نافذة الملاحظات والتعليمات للسائق (Comments Modal) -->
+    <div id="commentsModal" class="custom-modal-window hidden-modal">
+        <div class="modal-header-bar">
+            <div class="modal-title">
+                <i class="fa-solid fa-comment-dots"></i>
+                <h3>إضافة ملاحظات للسائق</h3>
+            </div>
+            <button type="button" class="close-modal-btn" data-close="commentsModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-content-body">
+            <p class="modal-description-text">اكتب أي تعليمات خاصة بالسائق لضمان وصول سريع (مثل: وجود أمتعة، انتظاري عند علامة مميزة):</p>
+            
+            <textarea id="tripCommentInput" class="custom-modal-textarea" rows="4" placeholder="مثال: أنا أقف أمام بوابه الصيدلية، معي حقيبة سفر كبيرة..."></textarea>
+            
+            <!-- أزرار اختصارات سريعة -->
+            <div class="quick-comments-tags">
+                <button type="button" class="tag-btn">معي حقائب ثقيلة</button>
+                <button type="button" class="tag-btn">اتصل بي عند الوصول</button>
+                <button type="button" class="tag-btn">معي أطفال</button>
+                <button type="button" class="tag-btn">يرجى تشغيل التكييف</button>
+            </div>
+
+            <button type="button" id="saveCommentBtn" class="btn-save-modal">
+                <i class="fa-solid fa-floppy-disk"></i> حفظ الملاحظة
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. نافذة المحادثة الفورية مع السائق (Live Chat System Modal) -->
+    <div id="chatModal" class="custom-modal-window chat-modal-window hidden-modal">
+        <div class="modal-header-bar">
+            <div class="modal-title">
+                <i class="fa-solid fa-comments"></i>
+                <h3>المحادثة الفورية مع الكابتن</h3>
+            </div>
+            <button type="button" class="close-modal-btn" data-close="chatModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-content-body chat-body-container">
+            
+            <!-- منطقة الرسائل -->
+            <div id="chatMessagesBox" class="chat-messages-scroll-area">
+                
+                <div class="chat-bubble driver-bubble">
+                    <div class="bubble-sender-name">الكابتن أحمد</div>
+                    <div class="bubble-text">أهلاً بك يا فندم، أنا في طريقي إليك حالياً.</div>
+                    <span class="bubble-time">12:00 م</span>
+                </div>
+
+                <div class="chat-bubble user-bubble">
+                    <div class="bubble-sender-name">أنت</div>
+                    <div class="bubble-text">تمام يا كابتن، أنا منتظرك أمام العنوان المحدد.</div>
+                    <span class="bubble-time">12:01 م</span>
+                </div>
+
+            </div>
+
+            <!-- إدخال الرسالة -->
+            <div class="chat-input-bar">
+                <input type="text" id="chatInputField" placeholder="اكتب رسالتك للكابتن هنا...">
+                <button type="button" id="sendChatMsgBtn" class="chat-send-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================================== -->
+    <!-- SECTION 4: FOOTER INFORMATIONAL BAR                                           -->
+    <!-- ============================================================================== -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p class="copyright-text">&copy; 2026 جميع الحقوق محفوظة - منصة إنـدرايف مصر الرقمية.</p>
+            <div class="footer-links">
+                <a href="#"><i class="fa-solid fa-shield-halved"></i> سياسة الخصوصية</a>
+                <a href="#"><i class="fa-solid fa-file-contract"></i> الشروط والأحكام</a>
+                <a href="#"><i class="fa-solid fa-headset"></i> مركز الدعم والمساعدة</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- مكتبة الخرائط Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- ملف الـ JavaScript الخاص بك -->
     <script src="script.js"></script>
+
 </body>
 </html>
