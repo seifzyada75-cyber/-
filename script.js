@@ -1,27 +1,25 @@
 /**
  * ============================================================================
- * IN-DRIVE EGYPT - MASTER ENTERPRISE APPLICATION CONTROLLER (script.js)
- * Architecture: Modular Enterprise Vanilla JavaScript Client Engine
- * Version: 4.5.0-Enterprise
+ * IN-DRIVE EGYPT - MASTER ULTRA ENTERPRISE APPLICATION CONTROLLER (script.js)
+ * Architecture: Full Modular Enterprise Vanilla JavaScript Engine + Night Mode
+ * Version: 5.0.0-Ultimate-Edition
  * Date: 2026
  * ============================================================================
  */
 
 'use strict';
 
-(function(window, document, undefined) {
-    
-    // Global Namespace for InDrive Enterprise Application
-    window.InDriveApp = window.InDriveApp || {};
+document.addEventListener('DOMContentLoaded', function () {
 
     /* ======================================================================== */
-    /* 1. APPLICATION STATE & CONFIGURATION OBJECTS                             */
+    /* 1. APPLICATION STATE & GLOBAL CONFIGURATION OBJECTS                      */
     /* ======================================================================== */
     const EnterpriseState = {
-        version: '4.5.0',
+        version: '5.0.0',
         environment: 'production',
         currentStep: 1,
         selectedCity: 'alex',
+        isDarkMode: false,
         pickupLocation: {
             name: 'محطة الرمل، وسط البلد، الإسكندرية',
             lat: 31.2001,
@@ -62,7 +60,7 @@
         },
         trip: {
             id: null,
-            status: 'idle', // idle, searching, matched, active, completed, cancelled
+            status: 'idle',
             assignedDriver: null,
             agreedPrice: 35,
             startTime: null,
@@ -80,7 +78,7 @@
     };
 
     /* ======================================================================== */
-    /* 2. EXTENSIVE METADATA & CITIES DATABASE                                  */
+    /* 2. EXTENSIVE METADATA & CITIES DATABASE (ALL GOVERNORATES)               */
     /* ======================================================================== */
     const EgyptGovernoratesDatabase = {
         alex: {
@@ -90,9 +88,7 @@
             center: { lat: 31.2001, lng: 29.9187 },
             zoomLevel: 14,
             activeCaptainsCount: 412,
-            popularLandmarks: [
-                'محطة الرمل', 'ميامي', 'سيدي بشر', 'العجمي', 'سموحة', 'لوران', 'البورصة'
-            ]
+            popularLandmarks: ['محطة الرمل', 'ميامي', 'سيدي بشر', 'العجمي', 'سموحة', 'لوران', 'المنشية', 'الإبراهيمية']
         },
         cairo: {
             key: 'cairo',
@@ -101,9 +97,7 @@
             center: { lat: 30.0444, lng: 31.2357 },
             zoomLevel: 13,
             activeCaptainsCount: 1250,
-            popularLandmarks: [
-                'ميدان التحرير', 'مدينة نصر', 'التجمع الخامس', 'المعادي', 'الزمالك', 'المهندسين'
-            ]
+            popularLandmarks: ['ميدان التحرير', 'مدينة نصر', 'التجمع الخامس', 'المعادي', 'الزمالك', 'المهندسين', 'مصر الجديدة']
         },
         giza: {
             key: 'giza',
@@ -112,9 +106,7 @@
             center: { lat: 30.0131, lng: 31.2089 },
             zoomLevel: 13,
             activeCaptainsCount: 830,
-            popularLandmarks: [
-                'الدقي', 'المهندسين', 'الهرم', 'فيصل', 'الشيخ زايد', 'السادس من أكتوبر'
-            ]
+            popularLandmarks: ['الدقي', 'المهندسين', 'الهرم', 'فيصل', 'الشيخ زايد', 'السادس من أكتوبر', 'العجوزة']
         },
         mansoura: {
             key: 'mansoura',
@@ -123,9 +115,7 @@
             center: { lat: 31.0409, lng: 31.3785 },
             zoomLevel: 14,
             activeCaptainsCount: 215,
-            popularLandmarks: [
-                'الشارع الجديد', 'جامعة المنصورة', 'توليب', 'سوق الحرفيين'
-            ]
+            popularLandmarks: ['الشارع الجديد', 'جامعة المنصورة', 'توليب', 'سوق الحرفيين', 'المشاية']
         },
         tanta: {
             key: 'tanta',
@@ -134,9 +124,7 @@
             center: { lat: 30.7865, lng: 31.0004 },
             zoomLevel: 14,
             activeCaptainsCount: 160,
-            popularLandmarks: [
-                'محطة الطريق السريع', 'السد العالي', 'شارع البحر'
-            ]
+            popularLandmarks: ['محطة الطريق السريع', 'السد العالي', 'شارع البحر', 'استاد طنطا']
         },
         asyut: {
             key: 'asyut',
@@ -145,14 +133,84 @@
             center: { lat: 27.1810, lng: 31.1837 },
             zoomLevel: 14,
             activeCaptainsCount: 110,
-            popularLandmarks: [
-                'جامعة أسيوط', 'شارع الهلالي', 'الجمهورية'
-            ]
+            popularLandmarks: ['جامعة أسيوط', 'شارع الهلالي', 'الجمهورية', 'المحطة']
+        },
+        ismailia: {
+            key: 'ismailia',
+            name: 'الإسماعيلية',
+            code: 'ISM',
+            center: { lat: 30.5931, lng: 32.2715 },
+            zoomLevel: 14,
+            activeCaptainsCount: 95,
+            popularLandmarks: ['المنشية', 'نمرة 6', 'شارع شبين']
+        },
+        suez: {
+            key: 'suez',
+            name: 'السويس',
+            code: 'SUZ',
+            center: { lat: 29.9668, lng: 32.5498 },
+            zoomLevel: 14,
+            activeCaptainsCount: 80,
+            popularLandmarks: ['الأربعين', 'المثلث', 'بور توفيق']
+        },
+        port_said: {
+            key: 'port_said',
+            name: 'بورسعيد',
+            code: 'PSD',
+            center: { lat: 31.2653, lng: 32.3019 },
+            zoomLevel: 14,
+            activeCaptainsCount: 105,
+            popularLandmarks: ['المعدية', 'الشرقي', 'طرح البحر']
+        },
+        sohag: {
+            key: 'sohag',
+            name: 'سوهاج',
+            code: 'SHG',
+            center: { lat: 26.5560, lng: 31.6948 },
+            zoomLevel: 14,
+            activeCaptainsCount: 70,
+            popularLandmarks: ['الاستاد', 'ميدان الثقافة', 'المدينة الجامعية']
+        },
+        luxor: {
+            key: 'luxor',
+            name: 'الأقصر',
+            code: 'LXR',
+            center: { lat: 25.6872, lng: 32.6396 },
+            zoomLevel: 14,
+            activeCaptainsCount: 90,
+            popularLandmarks: ['معبد الكرنك', 'محطة الأقصر', 'كورنيش النيل']
+        },
+        aswan: {
+            key: 'aswan',
+            name: 'أسوان',
+            code: 'ASN',
+            center: { lat: 24.0889, lng: 32.8998 },
+            zoomLevel: 14,
+            activeCaptainsCount: 85,
+            popularLandmarks: ['السد العالي', 'المحطة البرية', 'شارع السوق']
+        },
+        hurghada: {
+            key: 'hurghada',
+            name: 'الغردقة',
+            code: 'HRG',
+            center: { lat: 27.2579, lng: 33.8116 },
+            zoomLevel: 13,
+            activeCaptainsCount: 140,
+            popularLandmarks: ['الشارع النادي', 'الممشى السياحي', 'سقالة']
+        },
+        sharm: {
+            key: 'sharm',
+            name: 'شرم الشيخ',
+            code: 'SSH',
+            center: { lat: 27.9158, lng: 34.3300 },
+            zoomLevel: 13,
+            activeCaptainsCount: 115,
+            popularLandmarks: ['خليج نعمة', 'الصحاري', 'السوق التجاري القديم']
         }
     };
 
     /* ======================================================================== */
-    /* 3. MOCK DRIVERS DATA POOL FOR DYNAMIC BIDDING                           */
+    /* 3. MOCK DRIVERS POOL DATABASE                                            */
     /* ======================================================================== */
     const SimulatedDriversPool = [
         {
@@ -204,53 +262,51 @@
     /* ======================================================================== */
     /* 4. DOM ELEMENTS REPOSITORY CACHING                                       */
     /* ======================================================================== */
-    let DOM = {};
-
-    function cacheDomElements() {
-        DOM.citySelect = document.getElementById('citySelect');
-        DOM.step1 = document.getElementById('step1');
-        DOM.step2 = document.getElementById('step2');
-        DOM.step3 = document.getElementById('step3');
-        DOM.pickupInput = document.getElementById('pickupInput');
-        DOM.dropoffInput = document.getElementById('dropoffInput');
-        DOM.clearPickupBtn = document.getElementById('clearPickupBtn');
-        DOM.clearDropoffBtn = document.getElementById('clearDropoffBtn');
-        DOM.swapLocationsBtn = document.getElementById('swapLocationsBtn');
-        DOM.vehicleCards = document.querySelectorAll('.vehicle-option-card');
-        DOM.bidAmountDisplay = document.getElementById('bidAmount');
-        DOM.increaseBidBtn = document.getElementById('increaseBidBtn');
-        DOM.decreaseBidBtn = document.getElementById('decreaseBidBtn');
-        DOM.requestRideBtn = document.getElementById('requestRideBtn');
-        DOM.cancelSearchBtn = document.getElementById('cancelSearchBtn');
-        DOM.driverBidsContainer = document.getElementById('driverBidsContainer');
-        DOM.tripProgressBar = document.getElementById('tripProgressBar');
-        DOM.activeStatusText = document.getElementById('activeStatusText');
-        DOM.acceptedDriverName = document.getElementById('acceptedDriverName');
-        DOM.acceptedVehicleInfo = document.getElementById('acceptedVehicleInfo');
-        DOM.acceptedFareBadge = document.getElementById('acceptedFareBadge');
-        DOM.callDriverBtn = document.getElementById('callDriverBtn');
-        DOM.chatDriverBtn = document.getElementById('chatDriverBtn');
-        DOM.shareTripBtn = document.getElementById('shareTripBtn');
-        DOM.sosEmergencyBtn = document.getElementById('sosEmergencyBtn');
-        DOM.cancelTripBtn = document.getElementById('cancelTripBtn');
-        DOM.modalBackdrop = document.getElementById('modalBackdrop');
-        DOM.paymentModal = document.getElementById('paymentModal');
-        DOM.chatModal = document.getElementById('chatModal');
-        DOM.chatMessagesBox = document.getElementById('chatMessagesBox');
-        DOM.chatInputField = document.getElementById('chatInputField');
-        DOM.sendChatMsgBtn = document.getElementById('sendChatMsgBtn');
-        DOM.recenterBtn = document.getElementById('recenterBtn');
-        DOM.notificationsBtn = document.getElementById('notificationsBtn');
-        DOM.supportCenterBtn = document.getElementById('supportCenterBtn');
-    }
+    const DOM = {
+        citySelect: document.getElementById('citySelect'),
+        step1: document.getElementById('step1'),
+        step2: document.getElementById('step2'),
+        step3: document.getElementById('step3'),
+        pickupInput: document.getElementById('pickupInput'),
+        dropoffInput: document.getElementById('dropoffInput'),
+        clearPickupBtn: document.getElementById('clearPickupBtn'),
+        clearDropoffBtn: document.getElementById('clearDropoffBtn'),
+        swapLocationsBtn: document.getElementById('swapLocationsBtn'),
+        vehicleCards: document.querySelectorAll('.vehicle-option-card'),
+        bidAmountDisplay: document.getElementById('bidAmount'),
+        increaseBidBtn: document.getElementById('increaseBidBtn'),
+        decreaseBidBtn: document.getElementById('decreaseBidBtn'),
+        requestRideBtn: document.getElementById('requestRideBtn'),
+        cancelSearchBtn: document.getElementById('cancelSearchBtn'),
+        driverBidsContainer: document.getElementById('driverBidsContainer'),
+        tripProgressBar: document.getElementById('tripProgressBar'),
+        activeStatusText: document.getElementById('activeStatusText'),
+        acceptedDriverName: document.getElementById('acceptedDriverName'),
+        acceptedVehicleInfo: document.getElementById('acceptedVehicleInfo'),
+        acceptedFareBadge: document.getElementById('acceptedFareBadge'),
+        callDriverBtn: document.getElementById('callDriverBtn'),
+        chatDriverBtn: document.getElementById('chatDriverBtn'),
+        shareTripBtn: document.getElementById('shareTripBtn'),
+        sosEmergencyBtn: document.getElementById('sosEmergencyBtn'),
+        cancelTripBtn: document.getElementById('cancelTripBtn'),
+        modalBackdrop: document.getElementById('modalBackdrop'),
+        paymentModal: document.getElementById('paymentModal'),
+        chatModal: document.getElementById('chatModal'),
+        chatMessagesBox: document.getElementById('chatMessagesBox'),
+        chatInputField: document.getElementById('chatInputField'),
+        sendChatMsgBtn: document.getElementById('sendChatMsgBtn'),
+        recenterBtn: document.getElementById('recenterBtn'),
+        notificationsBtn: document.getElementById('notificationsBtn'),
+        supportCenterBtn: document.getElementById('supportCenterBtn'),
+        darkModeToggleBtn: document.getElementById('darkModeToggleBtn')
+    };
 
     /* ======================================================================== */
-    /* 5. LEAFLET MAP ENGINE CORE INITIALIZER & UTILITIES                       */
+    /* 5. LEAFLET MAP ENGINE CORE INITIALIZER & NIGHT MODE UTILITIES            */
     /* ======================================================================== */
     let MapManager = {
         mapInstance: null,
         markersLayerGroup: null,
-        polylineLayer: null,
         
         init: function() {
             const activeCity = EgyptGovernoratesDatabase.alex;
@@ -270,10 +326,11 @@
             this.markersLayerGroup = L.layerGroup().addTo(this.mapInstance);
             this.renderDefaultMarkers(activeCity.center.lat, activeCity.center.lng);
             
-            console.log('MapManager: Leaflet map initialized successfully.');
+            console.log('MapManager: Leaflet map initialized successfully with full enterprise interactive bindings.');
         },
 
         renderDefaultMarkers: function(lat, lng) {
+            if (!this.markersLayerGroup) return;
             this.markersLayerGroup.clearLayers();
 
             const pickupIcon = L.divIcon({
@@ -290,7 +347,7 @@
 
             L.marker([lat, lng], { icon: pickupIcon })
                 .addTo(this.markersLayerGroup)
-                .bindPopup('<b>نقطة الركوب الحالية</b>');
+                .bindPopup('<b>نقطة الركوب الحالية (الانطلاق)</b>');
 
             L.marker([lat + 0.04, lng + 0.05], { icon: dropoffIcon })
                 .addTo(this.markersLayerGroup)
@@ -302,7 +359,7 @@
             if (cityData && this.mapInstance) {
                 this.mapInstance.setView([cityData.center.lat, cityData.center.lng], cityData.zoomLevel);
                 this.renderDefaultMarkers(cityData.center.lat, cityData.center.lng);
-                console.log(`MapManager: Panned view to governorate -> ${cityData.name}`);
+                console.log(`MapManager: Successfully panned to governorate -> ${cityData.name}`);
             }
         },
 
@@ -313,11 +370,11 @@
     };
 
     /* ======================================================================== */
-    /* 6. EVENT LISTENERS BINDING LOGIC                                         */
+    /* 6. ADVANCED EVENT LISTENERS BINDING ENGINE (FULLY EXPANDED)              */
     /* ======================================================================== */
     function bindApplicationEventListeners() {
         
-        // City selection change listener
+        // 1. Governorate Selection Dropdown Handler
         if (DOM.citySelect) {
             DOM.citySelect.addEventListener('change', function(event) {
                 const selectedKey = event.target.value;
@@ -326,44 +383,53 @@
                 
                 const govObj = EgyptGovernoratesDatabase[selectedKey];
                 if (govObj) {
-                    showEnterpriseToast(`تم تحديث الخريطة والمناطق النشطة في ${govObj.name}`);
+                    showEnterpriseToast(`تم تحديث الخريطة والمناطق النشطة في محافظة ${govObj.name}`);
                 }
             });
         }
 
-        // Input clearing tools
+        // 2. Pickup Input Clearing Tool
         if (DOM.clearPickupBtn) {
             DOM.clearPickupBtn.addEventListener('click', function() {
-                DOM.pickupInput.value = '';
-                DOM.pickupInput.focus();
-                EnterpriseState.pickupLocation.name = '';
+                if (DOM.pickupInput) {
+                    DOM.pickupInput.value = '';
+                    DOM.pickupInput.focus();
+                    EnterpriseState.pickupLocation.name = '';
+                    showEnterpriseToast('تم تفريغ حقل نقطة الانطلاق');
+                }
             });
         }
 
+        // 3. Dropoff Input Clearing Tool
         if (DOM.clearDropoffBtn) {
             DOM.clearDropoffBtn.addEventListener('click', function() {
-                DOM.dropoffInput.value = '';
-                DOM.dropoffInput.focus();
-                EnterpriseState.dropoffLocation.name = '';
+                if (DOM.dropoffInput) {
+                    DOM.dropoffInput.value = '';
+                    DOM.dropoffInput.focus();
+                    EnterpriseState.dropoffLocation.name = '';
+                    showEnterpriseToast('تم تفريغ حقل الوجهة');
+                }
             });
         }
 
-        // Swap locations functionality
+        // 4. Locations Swapping Engine
         if (DOM.swapLocationsBtn) {
             DOM.swapLocationsBtn.addEventListener('click', function() {
-                const tempVal = DOM.pickupInput.value;
-                DOM.pickupInput.value = DOM.dropoffInput.value;
-                DOM.dropoffInput.value = tempVal;
-                
-                const tempObj = { ...EnterpriseState.pickupLocation };
-                EnterpriseState.pickupLocation = { ...EnterpriseState.dropoffLocation };
-                EnterpriseState.dropoffLocation = tempObj;
+                if (DOM.pickupInput && DOM.dropoffInput) {
+                    const tempVal = DOM.pickupInput.value;
+                    DOM.pickupInput.value = DOM.dropoffInput.value;
+                    DOM.dropoffInput.value = tempVal;
 
-                showEnterpriseToast('تم تبديل مواقع نقطة الانطلاق والوصول بنجاح');
+                    const tempObj = { ...EnterpriseState.pickupLocation };
+                    EnterpriseState.pickupLocation = { ...EnterpriseState.dropoffLocation };
+                    EnterpriseState.dropoffLocation = tempObj;
+
+                    showEnterpriseToast('تم تبديل مواقع الانطلاق والوصول بنجاح');
+                }
             });
         }
 
-        // Vehicle selection cards click handlers
+        // 5. Vehicle Options Selector Cards
         if (DOM.vehicleCards) {
             DOM.vehicleCards.forEach(card => {
                 card.addEventListener('click', function() {
@@ -377,39 +443,41 @@
                     EnterpriseState.selectedVehicle.basePrice = defaultPrice;
                     EnterpriseState.bidding.userProposedFare = defaultPrice;
                     
-                    if (DOM.bidAmountDisplay) {
-                        DOM.bidAmountDisplay.textContent = defaultPrice;
-                    }
-
-                    console.log(`VehicleCategoryChanged: Selected -> ${vehicleId}, BasePrice -> ${defaultPrice}`);
+                    updateBidDisplayView();
+                    console.log(`VehicleSelected: ${vehicleId} with Base Fare: ${defaultPrice}`);
                 });
             });
         }
 
-        // Bidding Price Adjustment Buttons (+ / -)
+        // 6. Bidding Price Increment (+5 EGP)
         if (DOM.increaseBidBtn) {
             DOM.increaseBidBtn.addEventListener('click', function() {
                 if (EnterpriseState.bidding.userProposedFare < EnterpriseState.bidding.maxAllowedFare) {
                     EnterpriseState.bidding.userProposedFare += EnterpriseState.bidding.stepIncrement;
                     updateBidDisplayView();
+                } else {
+                    showEnterpriseToast('وصلت للحد الأقصى المسموح للمزايدة');
                 }
             });
         }
 
+        // 7. Bidding Price Decrement (-5 EGP)
         if (DOM.decreaseBidBtn) {
             DOM.decreaseBidBtn.addEventListener('click', function() {
                 if (EnterpriseState.bidding.userProposedFare > EnterpriseState.bidding.minAllowedFare) {
                     EnterpriseState.bidding.userProposedFare -= EnterpriseState.bidding.stepIncrement;
                     updateBidDisplayView();
+                } else {
+                    showEnterpriseToast('لا يمكن النزول عن الحد الأدنى للأجرة');
                 }
             });
         }
 
-        // Request Ride Trigger Button (Transitions to Step 2)
+        // 8. Request Ride Trigger (Step 1 -> Step 2)
         if (DOM.requestRideBtn) {
             DOM.requestRideBtn.addEventListener('click', function() {
-                const pickupVal = DOM.pickupInput.value.trim();
-                const dropoffVal = DOM.dropoffInput.value.trim();
+                const pickupVal = DOM.pickupInput ? DOM.pickupInput.value.trim() : '';
+                const dropoffVal = DOM.dropoffInput ? DOM.dropoffInput.value.trim() : '';
 
                 if (!pickupVal || !dropoffVal) {
                     alert('تنبيه هام: يرجى إدخال عنوان نقطة الانطلاق والوجهة المطلوبة بدقة للمتابعة.');
@@ -417,25 +485,26 @@
                 }
 
                 transitionWorkflowStep(2);
+                showEnterpriseToast('جاري تفعيل الرادار والبحث عن أقرب الكباتن المتاحين...');
             });
         }
 
-        // Cancel Search and return to Step 1
+        // 9. Cancel Search Trigger (Step 2 -> Step 1)
         if (DOM.cancelSearchBtn) {
             DOM.cancelSearchBtn.addEventListener('click', function() {
                 transitionWorkflowStep(1);
-                showEnterpriseToast('تم إلغاء عملية البحث عن الكباتن');
+                showEnterpriseToast('تم إلغاء عملية البحث عن الكباتن بنجاح');
             });
         }
 
-        // Global delegation for accepting/declining driver bids
+        // 10. Global Event Delegation for Accepting Driver Bids
         document.addEventListener('click', function(event) {
             const acceptBtn = event.target.closest('.btn-accept-offer');
             if (acceptBtn) {
                 const card = acceptBtn.closest('.driver-offer-card');
-                const captainName = card.querySelector('.driver-name').textContent;
-                const vehicleDetails = card.querySelector('.car-details').textContent;
-                const agreedPriceVal = card.querySelector('.price-val').textContent;
+                const captainName = card ? card.querySelector('.driver-name').textContent : 'الكابتن أحمد محمود';
+                const vehicleDetails = card ? card.querySelector('.car-details').textContent : 'شيفروليه أفيو - أبيض';
+                const agreedPriceVal = card ? card.querySelector('.price-val').textContent : '35';
 
                 EnterpriseState.trip.agreedPrice = parseInt(agreedPriceVal) || 35;
                 
@@ -444,18 +513,18 @@
                 if (DOM.acceptedFareBadge) DOM.acceptedFareBadge.textContent = `الأجرة المتفق عليها: ${agreedPriceVal} ج.م`;
 
                 transitionWorkflowStep(3);
-                showEnterpriseToast('تم قبول عرض الكابتن بنجاح! جاري تحضير تفاصيل الرحلة');
+                showEnterpriseToast('تم قبول العرض بنجاح! الكابتن في طريقه إليك الآن');
             }
         });
 
-        // Chat modal trigger
+        // 11. Chat Modal Opener Trigger
         if (DOM.chatDriverBtn) {
             DOM.chatDriverBtn.addEventListener('click', function() {
                 openEnterpriseModal('chatModal');
             });
         }
 
-        // Send chat message action
+        // 12. Chat Dispatch Message Action
         if (DOM.sendChatMsgBtn && DOM.chatInputField) {
             DOM.sendChatMsgBtn.addEventListener('click', handleChatDispatchMessage);
             DOM.chatInputField.addEventListener('keypress', function(e) {
@@ -465,7 +534,7 @@
             });
         }
 
-        // Modal backdrops and close events
+        // 13. Modals Backdrop & Closing Triggers
         if (DOM.modalBackdrop) {
             DOM.modalBackdrop.addEventListener('click', closeAllEnterpriseModals);
         }
@@ -475,44 +544,79 @@
             btn.addEventListener('click', closeAllEnterpriseModals);
         });
 
-        // SOS Emergency Button
+        // 14. SOS Emergency Button Trigger
         if (DOM.sosEmergencyBtn) {
             DOM.sosEmergencyBtn.addEventListener('click', function() {
                 triggerSosEmergencyProtocol();
             });
         }
 
-        // Cancel Active Trip Button
+        // 15. Cancel Active Trip Button Trigger
         if (DOM.cancelTripBtn) {
             DOM.cancelTripBtn.addEventListener('click', function() {
-                if (confirm('تحذير: هل أنت متأكد من رغبتك في إلغاء الرحلة الجارية حالياً؟ قد يتم تطبيق رسم إلغاء بسيط.')) {
+                const confirmCancel = confirm('تحذير أمني: هل أنت متأكد من رغبتك في إلغاء الرحلة الجارية حالياً؟');
+                if (confirmCancel) {
                     transitionWorkflowStep(1);
                     showEnterpriseToast('تم إلغاء الرحلة النشطة بنجاح');
                 }
             });
         }
 
-        // Recenter Map Button
+        // 16. Recenter Map Button
         if (DOM.recenterBtn) {
             DOM.recenterBtn.addEventListener('click', function() {
                 MapManager.resetViewToCurrentLocation();
-                showEnterpriseToast('تمت إعادة ضبط تمركز الخريطة');
+                showEnterpriseToast('تمت إعادة ضبط تمركز الخريطة على موقعك الحالي');
+            });
+        }
+
+        // 17. 🌙 Dark Mode / Night Mode Master Toggle Controller
+        if (DOM.darkModeToggleBtn) {
+            DOM.darkModeToggleBtn.addEventListener('click', function() {
+                toggleNightModeEngine();
             });
         }
     }
 
     /* ======================================================================== */
-    /* 7. WORKFLOW STEP MANAGEMENT & CONTROLLER ENGINE                          */
+    /* 7. NIGHT MODE ENGINE CONTROLLER SUBSYSTEM                                */
+    /* ======================================================================== */
+    function toggleNightModeEngine() {
+        EnterpriseState.isDarkMode = !EnterpriseState.isDarkMode;
+        const bodyElement = document.body;
+        const mapContainer = document.getElementById('map');
+
+        if (EnterpriseState.isDarkMode) {
+            bodyElement.classList.add('enterprise-dark-mode');
+            if (mapContainer) {
+                mapContainer.classList.add('map-night-filter');
+            }
+            if (DOM.darkModeToggleBtn) {
+                DOM.darkModeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i> الوضع النهاري';
+            }
+            showEnterpriseToast('🌙 تم تفعيل المنظور الليلي بنجاح (راحة العين القصوى)');
+        } else {
+            bodyElement.classList.remove('enterprise-dark-mode');
+            if (mapContainer) {
+                mapContainer.classList.remove('map-night-filter');
+            }
+            if (DOM.darkModeToggleBtn) {
+                DOM.darkModeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i> المنظور الليلي';
+            }
+            showEnterpriseToast('☀️ تم العودة للوضع النهاري القياسي الساطع');
+        }
+    }
+
+    /* ======================================================================== */
+    /* 8. WORKFLOW STEP MANAGEMENT & CONTROLLER ENGINE                          */
     /* ======================================================================== */
     function transitionWorkflowStep(targetStepNumber) {
         EnterpriseState.currentStep = targetStepNumber;
 
-        // Hide all steps first
         if (DOM.step1) DOM.step1.classList.add('hidden-step');
         if (DOM.step2) DOM.step2.classList.add('hidden-step');
         if (DOM.step3) DOM.step3.classList.add('hidden-step');
 
-        // Show appropriate step according to parameter
         switch (targetStepNumber) {
             case 1:
                 if (DOM.step1) DOM.step1.classList.remove('hidden-step');
@@ -521,7 +625,6 @@
             case 2:
                 if (DOM.step2) DOM.step2.classList.remove('hidden-step');
                 EnterpriseState.trip.status = 'searching';
-                initializeRadarScanSimulation();
                 break;
             case 3:
                 if (DOM.step3) DOM.step3.classList.remove('hidden-step');
@@ -542,21 +645,6 @@
         }
     }
 
-    /* ======================================================================== */
-    /* 8. RADAR SCANNING & TRIP TRACKING SIMULATION ENGINE                      */
-    /* ======================================================================== */
-    function initializeRadarScanSimulation() {
-        EnterpriseState.radar.isScanning = true;
-        console.log('RadarEngine: Scanning active zone for available captains...');
-        
-        // Simulate dynamic bid cards population if container exists
-        setTimeout(() => {
-            if (EnterpriseState.currentStep === 2) {
-                console.log('RadarEngine: Found 2 matched captains. Displaying bids.');
-            }
-        }, 2500);
-    }
-
     function initializeActiveTripTrackerSimulation() {
         let currentProgressPercentage = 35;
         EnterpriseState.trip.startTime = new Date();
@@ -575,9 +663,9 @@
             if (currentProgressPercentage >= 100) {
                 clearInterval(tripIntervalTimer);
                 if (DOM.activeStatusText) {
-                    DOM.activeStatusText.textContent = 'لقد وصلت إلى وجهتك بسلام!';
+                    DOM.activeStatusText.textContent = 'لقد وصلت إلى وجهتك بسلام تام!';
                 }
-                showEnterpriseToast('تم إتمام الرحلة بنجاح. شكراً لاستخدامك إنـدرايف!');
+                showEnterpriseToast('تم إتمام الرحلة بنجاح. شكراً لثقتكم في إنـدرايف!');
                 
                 setTimeout(() => {
                     transitionWorkflowStep(1);
@@ -615,24 +703,23 @@
 
         const userBubbleNode = document.createElement('div');
         userBubbleNode.className = 'chat-bubble driver-bubble';
-        userBubbleNode.style.alignSelf = 'flex-end';
-        userBubbleNode.style.background = '#e6f9f0';
+        userBubbleNode.style.cssText = 'align-self:flex-end; background:#e6f9f0; padding:10px 14px; border-radius:12px; margin-bottom:8px; max-width:80%;';
         userBubbleNode.innerHTML = `
-            <div class="bubble-sender-name" style="color:#00a859;">أنت</div>
-            <div class="bubble-text">${escapeHtmlString(messageText)}</div>
+            <div class="bubble-sender-name" style="color:#00a859; font-weight:bold; font-size:12px;">أنت</div>
+            <div class="bubble-text" style="color:#333; font-size:14px;">${escapeHtmlString(messageText)}</div>
         `;
 
         DOM.chatMessagesBox.appendChild(userBubbleNode);
         DOM.chatInputField.value = '';
         DOM.chatMessagesBox.scrollTop = DOM.chatMessagesBox.scrollHeight;
 
-        // Automated simulated captain reply after 1.8 seconds
         setTimeout(() => {
             const captainReplyNode = document.createElement('div');
             captainReplyNode.className = 'chat-bubble driver-bubble';
+            captainReplyNode.style.cssText = 'align-self:flex-start; background:#f1f1f1; padding:10px 14px; border-radius:12px; margin-bottom:8px; max-width:80%;';
             captainReplyNode.innerHTML = `
-                <div class="bubble-sender-name">الكابتن أحمد</div>
-                <div class="bubble-text">تمام يا فندم، وصلني ردك وأنا في الطريق إليك حالياً.</div>
+                <div class="bubble-sender-name" style="color:#555; font-weight:bold; font-size:12px;">الكابتن أحمد</div>
+                <div class="bubble-text" style="color:#333; font-size:14px;">تمام يا فندم، وصلني ردك وأنا في الطريق إليك حالياً.</div>
             `;
             DOM.chatMessagesBox.appendChild(captainReplyNode);
             DOM.chatMessagesBox.scrollTop = DOM.chatMessagesBox.scrollHeight;
@@ -640,7 +727,7 @@
     }
 
     function triggerSosEmergencyProtocol() {
-        const emergencyAlertConfirmed = confirm('⚠️ تفعيل نظام الطوارئ (SOS): هل تريد الاتصال المباشر بالخط الساخن للأمن ومشاركة تفاصيل الرحلة الحالية فوراً؟');
+        const emergencyAlertConfirmed = confirm('⚠️ تفعيل نظام الطوارئ (SOS): هل تريد الاتصال المباشر بالخط الساخن للأمن ومشاركة إحداثيات رحلتك الحالية؟');
         if (emergencyAlertConfirmed) {
             showEnterpriseToast('تم إرسال إشارة الاستغاثة وتأمين رحلتك بنجاح.');
         }
@@ -691,19 +778,9 @@
     /* ======================================================================== */
     /* 10. APPLICATION INITIALIZATION BOOTSTRAPPER                              */
     /* ======================================================================== */
-    function initializeEnterpriseApplication() {
-        cacheDomElements();
-        MapManager.init();
-        bindApplicationEventListeners();
-        
-        console.log(`InDrive Egypt Enterprise Application v${EnterpriseState.version} booted successfully.`);
-    }
+    MapManager.init();
+    bindApplicationEventListeners();
+    
+    console.log(`InDrive Egypt Enterprise Application v${EnterpriseState.version} successfully booted with full interactive controls and Night Mode engine.`);
 
-    // Execute boot on DOMContentLoaded state
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeEnterpriseApplication);
-    } else {
-        initializeEnterpriseApplication();
-    }
-
-})(window, document);
+});
