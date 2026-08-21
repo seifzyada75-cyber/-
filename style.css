@@ -1,1199 +1,347 @@
-/* ============================================================================
-   IN-DRIVE EGYPT - ENTERPRISE MASTER CSS SYSTEM
-   الملف الكامل والتفصيلي لشاشة التطبيق بالكامل
-   ============================================================================ */
-
-/* ----------------------------------------------------------------------------
-   1. المتغيرات العامة والتصميم الأساسي (Root Variables)
-   ---------------------------------------------------------------------------- */
+/* ==========================================================================
+   1. System Configuration & Enterprise CSS Architecture
+   ========================================================================== */
 :root {
-    --primary-color: #00dd88;
-    --primary-color-hover: #00c478;
-    --primary-color-active: #00a866;
-    --primary-color-light: rgba(0, 221, 136, 0.12);
-    
-    --secondary-color: #1a1a24;
-    --secondary-color-hover: #2a2a38;
-    
-    --danger-color: #ff3b30;
-    --danger-color-hover: #d72b21;
-    --danger-color-light: rgba(255, 59, 48, 0.12);
-    
-    --warning-color: #ffcc00;
-    --info-color: #007aff;
-    
-    --bg-light-body: #f4f6f9;
-    --bg-light-card: #ffffff;
-    --bg-light-input: #f8f9fa;
-    --border-light: #e2e8f0;
-    --text-light-main: #1e293b;
-    --text-light-muted: #64748b;
-    
-    --bg-dark-body: #0f172a;
-    --bg-dark-card: #1e293b;
-    --bg-dark-input: #334155;
-    --border-dark: #334155;
-    --text-dark-main: #f8fafc;
-    --text-dark-muted: #94a3b8;
-    
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 40px -15px rgba(0, 0, 0, 0.2);
-    
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 20px;
-    --radius-full: 9999px;
-    
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.3s ease;
-    --transition-slow: 0.5s ease;
+    --primary-color: #00e676;
+    --primary-hover: #00c853;
+    --bg-deep: #0a0f1d;
+    --bg-surface: #131b2e;
+    --bg-card: #1b2640;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #2a3958;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+    --transition-speed: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-family: 'Cairo', system-ui, -apple-system, sans-serif;
 }
 
-/* ----------------------------------------------------------------------------
-   2. إعادة الضبط الشاملة (Reset & Global Base Styles)
-   ---------------------------------------------------------------------------- */
-*,
-*::before,
-*::after {
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html {
-    font-size: 16px;
-    scroll-behavior: smooth;
-    direction: rtl;
+    font-family: var(--font-family);
 }
 
 body {
-    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-light-body);
-    color: var(--text-light-main);
-    line-height: 1.5;
+    background-color: var(--bg-deep);
+    color: var(--text-main);
     min-height: 100vh;
-    overflow-x: hidden;
-    transition: background-color var(--transition-normal), color var(--transition-normal);
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-button {
-    border: none;
-    background: none;
-    font-family: inherit;
-    cursor: pointer;
-    outline: none;
-}
-
-input,
-select,
-textarea {
-    font-family: inherit;
-    outline: none;
-    border: none;
-}
-
-ul,
-ol {
-    list-style: none;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* ----------------------------------------------------------------------------
-   3. نظام الوضع الليلي الشامل (Dark Mode Engine)
-   ---------------------------------------------------------------------------- */
-body.enterprise-dark-mode {
-    background-color: var(--bg-dark-body);
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .enterprise-navbar {
-    background-color: var(--bg-dark-card);
-    border-bottom-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .navbar-action-btn {
-    background-color: var(--bg-dark-input);
-    color: var(--text-dark-main);
-    border-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .navbar-action-btn:hover {
-    background-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .user-profile-badge {
-    background-color: var(--bg-dark-input);
-    border-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .user-info-text .name {
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .main-workflow-hub {
-    background-color: var(--bg-dark-card);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-}
-
-body.enterprise-dark-mode .control-card-block {
-    background-color: var(--bg-dark-card);
-    border-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .block-label,
-body.enterprise-dark-mode .block-section-title {
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .enterprise-select-dropdown,
-body.enterprise-dark-mode .enterprise-text-input {
-    background-color: var(--bg-dark-input);
-    border-color: var(--border-dark);
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .vehicle-option-card {
-    background-color: var(--bg-dark-input);
-    border-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .vehicle-option-card .title {
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .vehicle-option-card .eta {
-    color: var(--text-dark-muted);
-}
-
-body.enterprise-dark-mode .vehicle-option-card.active-vehicle {
-    background-color: rgba(0, 221, 136, 0.15);
-    border-color: var(--primary-color);
-}
-
-body.enterprise-dark-mode .bidding-control-card {
-    background-color: var(--bg-dark-input);
-}
-
-body.enterprise-dark-mode .bid-adjust-btn {
-    background-color: var(--border-dark);
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .bid-adjust-btn:hover {
-    background-color: #475569;
-}
-
-body.enterprise-dark-mode .driver-offer-card {
-    background-color: var(--bg-dark-input);
-    border-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .driver-name {
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .car-details {
-    color: var(--text-dark-muted);
-}
-
-body.enterprise-dark-mode .active-trip-status-card {
-    background-color: var(--bg-dark-input);
-    border-color: var(--border-dark);
-}
-
-body.enterprise-dark-mode .captain-title-lg {
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .enterprise-modal-dialog {
-    background-color: var(--bg-dark-card);
-    color: var(--text-dark-main);
-}
-
-body.enterprise-dark-mode .chat-messages-container-box {
-    background-color: var(--bg-dark-body);
-}
-
-body.enterprise-dark-mode .chat-text-input {
-    background-color: var(--bg-dark-input);
-    border-color: var(--border-dark);
-    color: var(--text-dark-main);
-}
-
-/* ----------------------------------------------------------------------------
-   4. الهيدر وشريط التنقل (Enterprise Navbar)
-   ---------------------------------------------------------------------------- */
-.enterprise-navbar {
-    height: 75px;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1.5rem;
-    background-color: var(--bg-light-card);
-    border-bottom: 1px solid var(--border-light);
-    box-shadow: var(--shadow-sm);
-    transition: background-color var(--transition-normal);
-}
-
-.navbar-brand-section {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.brand-logo-circle {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 1.25rem;
-    box-shadow: 0 4px 12px rgba(0, 221, 136, 0.3);
-}
-
-.brand-text-block {
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
-.brand-title {
-    font-size: 1.15rem;
+header.enterprise-header {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.brand-logo {
+    font-size: 1.5rem;
     font-weight: 800;
-    line-height: 1.2;
-    color: var(--primary-color-active);
-}
-
-.brand-subtitle {
-    font-size: 0.72rem;
-    color: var(--text-light-muted);
-    font-weight: 600;
-}
-
-.navbar-actions-panel {
+    color: var(--primary-color);
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
-.navbar-action-btn {
-    height: 42px;
-    padding: 0 0.9rem;
-    border-radius: var(--radius-full);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    color: var(--text-light-main);
+.system-status-badge {
+    background: rgba(0, 230, 118, 0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(0, 230, 118, 0.2);
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: 380px 1fr 350px;
+    height: calc(100vh - 73px);
+    width: 100vw;
+}
+
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+}
+
+.enterprise-panel {
+    background-color: var(--bg-surface);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    overflow-y: auto;
+}
+
+.panel-section {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
     font-size: 0.9rem;
+    color: var(--text-muted);
     font-weight: 600;
+}
+
+input, select, textarea {
+    background-color: var(--bg-deep);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: var(--transition-speed);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.15);
+}
+
+.btn-enterprise {
+    background-color: var(--primary-color);
+    color: var(--bg-deep);
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-speed);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    position: relative;
-    transition: all var(--transition-fast);
 }
 
-.navbar-action-btn:hover {
-    background-color: var(--border-light);
+.btn-enterprise:hover {
+    background-color: var(--primary-hover);
     transform: translateY(-1px);
 }
 
-.navbar-action-btn:active {
-    transform: translateY(0);
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
 }
 
-.badge-dot {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--danger-color);
-}
-
-.night-mode-btn {
-    background-color: var(--secondary-color);
-    color: #ffffff;
-    border: none;
-}
-
-.night-mode-btn:hover {
-    background-color: var(--secondary-color-hover);
-}
-
-.user-profile-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.3rem 0.8rem 0.3rem 0.4rem;
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-full);
-}
-
-.avatar-wrapper {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background-color: var(--primary-color-light);
-    color: var(--primary-color-active);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-}
-
-.user-info-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.user-info-text .name {
-    font-size: 0.8rem;
-    font-weight: 700;
-    line-height: 1.1;
-}
-
-.user-info-text .status-vip {
-    font-size: 0.65rem;
-    color: var(--primary-color-active);
-    font-weight: 800;
-}
-
-/* ----------------------------------------------------------------------------
-   5. حاوية الخريطة (Leaflet Map Viewport & Controls)
-   ---------------------------------------------------------------------------- */
-.map-viewport-wrapper {
-    position: relative;
-    width: 100%;
-    height: 52vh;
-    margin-top: 75px;
-    z-index: 1;
-}
-
-.leaflet-map-canvas {
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.map-night-filter {
-    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-}
-
-.map-floating-controls {
-    position: absolute;
-    bottom: 45px;
-    left: 20px;
-    z-index: 500;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.floating-map-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background-color: var(--bg-light-card);
-    color: var(--text-light-main);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    transition: all var(--transition-fast);
-}
-
-.floating-map-btn:hover {
-    transform: scale(1.08);
-    box-shadow: var(--shadow-lg);
-}
-
-.floating-map-btn:active {
-    transform: scale(0.95);
-}
-
-/* ----------------------------------------------------------------------------
-   6. لوحة التحكم الرئيسية والخطوات (Main Workflow Hub)
-   ---------------------------------------------------------------------------- */
-.main-workflow-hub {
-    position: relative;
-    z-index: 600;
-    max-width: 650px;
-    margin: -35px auto 40px auto;
-    padding: 1.5rem;
-    background-color: var(--bg-light-card);
-    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-md) var(--radius-md);
-    box-shadow: var(--shadow-xl);
-    transition: background-color var(--transition-normal);
-}
-
-.workflow-step-pane {
-    display: block;
-}
-
-.hidden-step-pane {
-    display: none !important;
-}
-
-.control-card-block {
-    margin-bottom: 1.25rem;
-    padding: 1rem;
-    background-color: var(--bg-light-card);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    transition: all var(--transition-normal);
-}
-
-.block-label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-light-main);
-}
-
-.block-section-title {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: var(--text-light-main);
-}
-
-/* ----------------------------------------------------------------------------
-   7. القوائم المنسدلة وحقول الإدخال (Inputs & Dropdowns)
-   ---------------------------------------------------------------------------- */
-.select-wrapper-box {
-    position: relative;
-    width: 100%;
-}
-
-.enterprise-select-dropdown {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-sm);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    color: var(--text-light-main);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-}
-
-.locations-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.location-input-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.25rem 0;
-}
-
-.icon-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.pickup-dot {
-    background-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 221, 136, 0.2);
-}
-
-.dropoff-dot {
-    background-color: var(--danger-color);
-    box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.2);
-}
-
-.input-field-container {
-    flex: 1;
-}
-
-.enterprise-text-input {
-    width: 100%;
-    padding: 0.65rem 0.8rem;
-    border-radius: var(--radius-sm);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    color: var(--text-light-main);
-    font-size: 0.88rem;
-    font-weight: 600;
-    transition: border-color var(--transition-fast);
-}
-
-.enterprise-text-input:focus {
+.btn-secondary:hover {
+    background-color: var(--bg-deep);
     border-color: var(--primary-color);
 }
 
-.input-action-btn {
-    color: var(--text-light-muted);
-    font-size: 0.9rem;
-    padding: 0.4rem;
-    border-radius: 50%;
-    transition: color var(--transition-fast);
-}
-
-.input-action-btn:hover {
-    color: var(--danger-color);
-}
-
-.location-divider-line {
+.workspace-center {
     position: relative;
-    height: 1px;
-    background-color: var(--border-light);
-    margin: 0.25rem 0 0.25rem 2rem;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.swap-locations-action-btn {
-    position: absolute;
-    top: -14px;
-    left: 20px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background-color: var(--bg-light-card);
-    border: 1px solid var(--border-light);
-    color: var(--text-light-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-fast);
-}
-
-.swap-locations-action-btn:hover {
-    color: var(--primary-color-active);
-    border-color: var(--primary-color);
-    transform: rotate(180deg);
-}
-
-/* ----------------------------------------------------------------------------
-   8. كروت وسائل النقل والمزايدة (Vehicles & Bidding)
-   ---------------------------------------------------------------------------- */
-.vehicle-options-grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-}
-
-.vehicle-option-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.85rem;
-    border-radius: var(--radius-md);
-    background-color: var(--bg-light-input);
-    border: 2px solid var(--border-light);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.vehicle-option-card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-}
-
-.vehicle-option-card.active-vehicle {
-    background-color: var(--primary-color-light);
-    border-color: var(--primary-color);
-}
-
-.vehicle-icon-box {
-    font-size: 1.4rem;
-    color: var(--primary-color-active);
-    width: 36px;
-    display: flex;
-    justify-content: center;
-}
-
-.vehicle-details-box {
+    background-color: #060913;
     display: flex;
     flex-direction: column;
-    flex: 1;
-}
-
-.vehicle-details-box .title {
-    font-size: 0.85rem;
-    font-weight: 800;
-}
-
-.vehicle-details-box .eta {
-    font-size: 0.7rem;
-    color: var(--text-light-muted);
-}
-
-.price-tag {
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--primary-color-active);
-}
-
-.bidding-control-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    background-color: var(--bg-light-input);
-}
-
-.bidding-header-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.bidding-header-info .label {
-    font-size: 0.85rem;
-    font-weight: 700;
-}
-
-.bidding-header-info .sub-hint {
-    font-size: 0.72rem;
-    color: var(--text-light-muted);
-}
-
-.bidding-counter-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 0.5rem 0;
-}
-
-.bid-adjust-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background-color: var(--border-light);
-    color: var(--text-light-main);
-    font-size: 1.25rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-}
-
-.bid-adjust-btn:hover {
-    background-color: var(--primary-color);
-    color: #ffffff;
-}
-
-.bid-amount-display-box {
-    display: flex;
-    align-items: baseline;
-    gap: 0.3rem;
-}
-
-.amount-val {
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: var(--primary-color-active);
-}
-
-.currency-label {
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-/* ----------------------------------------------------------------------------
-   9. الأزرار العامة والتفاعلية (Buttons System)
-   ---------------------------------------------------------------------------- */
-.enterprise-action-primary-btn {
-    width: 100%;
-    padding: 0.9rem 1.5rem;
-    border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    box-shadow: 0 4px 15px rgba(0, 221, 136, 0.3);
-    transition: all var(--transition-fast);
-}
-
-.enterprise-action-primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 221, 136, 0.4);
-}
-
-.enterprise-action-primary-btn:active {
-    transform: translateY(0);
-}
-
-.enterprise-action-secondary-btn {
-    width: 100%;
-    padding: 0.8rem 1.2rem;
-    border-radius: var(--radius-md);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    color: var(--text-light-main);
-    font-size: 0.9rem;
-    font-weight: 700;
-    transition: all var(--transition-fast);
-}
-
-.enterprise-action-secondary-btn:hover {
-    background-color: var(--border-light);
-}
-
-.enterprise-action-danger-btn {
-    width: 100%;
-    padding: 0.8rem 1.2rem;
-    border-radius: var(--radius-md);
-    background-color: var(--danger-color-light);
-    border: 1px solid var(--danger-color);
-    color: var(--danger-color);
-    font-size: 0.9rem;
-    font-weight: 800;
-    transition: all var(--transition-fast);
-}
-
-.enterprise-action-danger-btn:hover {
-    background-color: var(--danger-color);
-    color: #ffffff;
-}
-
-/* ----------------------------------------------------------------------------
-   10. الخطوة الثانية: البحث وعروض الكباتن (Radar & Driver Offers)
-   ---------------------------------------------------------------------------- */
-.searching-radar-header {
-    text-align: center;
-    padding: 1rem 0;
-}
-
-.radar-pulsing-icon {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-    animation: radarPulse 1.8s infinite ease-in-out;
-}
-
-@keyframes radarPulse {
-    0% {
-        transform: scale(0.9);
-        opacity: 0.6;
-    }
-    50% {
-        transform: scale(1.15);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(0.9);
-        opacity: 0.6;
-    }
-}
-
-.searching-radar-header h3 {
-    font-size: 1.05rem;
-    font-weight: 800;
-}
-
-.searching-radar-header p {
-    font-size: 0.78rem;
-    color: var(--text-light-muted);
-}
-
-.driver-bids-scroller-box {
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    max-height: 320px;
-    overflow-y: auto;
-    margin: 1rem 0;
-    padding-left: 0.3rem;
-}
-
-.driver-offer-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-radius: var(--radius-md);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    box-shadow: var(--shadow-sm);
-}
-
-.driver-profile-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.driver-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background-color: var(--border-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: var(--text-light-muted);
-}
-
-.driver-text-meta {
-    display: flex;
-    flex-direction: column;
-}
-
-.driver-name {
-    font-size: 0.88rem;
-    font-weight: 800;
-}
-
-.rating-row {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.72rem;
-    color: var(--text-light-muted);
-}
-
-.rating-row i {
-    color: var(--warning-color);
-}
-
-.car-details {
-    font-size: 0.7rem;
-    color: var(--text-light-muted);
-}
-
-.offer-price-action {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.4rem;
-}
-
-.offer-price-action .price-val {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: var(--primary-color-active);
-}
-
-.btn-accept-offer {
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-sm);
-    background-color: var(--primary-color);
-    color: #ffffff;
-    font-size: 0.78rem;
-    font-weight: 800;
-    transition: background-color var(--transition-fast);
-}
-
-.btn-accept-offer:hover {
-    background-color: var(--primary-color-hover);
-}
-
-/* ----------------------------------------------------------------------------
-   11. الخطوة الثالثة: الرحلة النشطة (Active Trip Step)
-   ---------------------------------------------------------------------------- */
-.active-trip-status-card {
-    padding: 1rem;
-    border-radius: var(--radius-md);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    margin-bottom: 1rem;
-}
-
-.trip-header-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: var(--primary-color-active);
-    margin-bottom: 0.4rem;
-}
-
-.captain-title-lg {
-    font-size: 1.1rem;
-    font-weight: 900;
-}
-
-.vehicle-title-sm {
-    font-size: 0.8rem;
-    color: var(--text-light-muted);
-}
-
-.fare-agreed-badge {
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--primary-color-active);
-}
-
-.trip-progress-container-box {
-    margin: 1.25rem 0;
-}
-
-.progress-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--text-light-muted);
-    margin-bottom: 0.4rem;
-}
-
-.progress-bar-shell {
-    width: 100%;
-    height: 8px;
-    border-radius: var(--radius-full);
-    background-color: var(--border-light);
     overflow: hidden;
 }
 
-.progress-bar-fill {
+#simulationMap {
+    width: 100%;
     height: 100%;
-    background-color: var(--primary-color);
-    border-radius: var(--radius-full);
-    transition: width var(--transition-slow);
+    position: relative;
+    background: radial-gradient(circle at center, #1b2640 0%, #0a0f1d 100%);
 }
 
-.status-description-text {
-    font-size: 0.78rem;
-    text-align: center;
-    color: var(--text-light-muted);
-    margin-top: 0.5rem;
-    font-weight: 600;
+.map-overlay-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 0.75rem;
+    z-index: 10;
 }
 
-.active-trip-action-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.6rem;
-    margin-bottom: 1rem;
+.map-chip {
+    background: rgba(19, 27, 46, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.trip-control-btn {
+.bids-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    padding: 0.75rem 0.5rem;
-    border-radius: var(--radius-md);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
-    font-size: 0.75rem;
-    font-weight: 800;
-    transition: all var(--transition-fast);
-}
-
-.trip-control-btn i {
-    font-size: 1.1rem;
-}
-
-.call-btn {
-    color: var(--info-color);
-}
-
-.chat-btn {
-    color: var(--primary-color-active);
-}
-
-.sos-btn {
-    color: var(--danger-color);
-    background-color: var(--danger-color-light);
-    border-color: var(--danger-color);
-}
-
-.trip-control-btn:hover {
-    transform: translateY(-2px);
-}
-
-/* ----------------------------------------------------------------------------
-   12. النوافذ المنبثقة والشات (Modals & Chat Box)
-   ---------------------------------------------------------------------------- */
-.enterprise-modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 2000;
-}
-
-.enterprise-modal-dialog {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: var(--bg-light-card);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding: 1.25rem;
-    z-index: 2001;
-    box-shadow: var(--shadow-xl);
-    animation: modalSlideUp 0.3s ease-out;
-}
-
-@keyframes modalSlideUp {
-    from {
-        transform: translateY(100%);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
-.hidden-modal {
-    display: none !important;
-}
-
-.modal-header-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 0.75rem;
-}
-
-.modal-header-bar h4 {
-    font-size: 0.95rem;
-    font-weight: 800;
-}
-
-.close-modal-btn {
-    font-size: 1.1rem;
-    color: var(--text-light-muted);
-    padding: 0.3rem;
-}
-
-.close-modal-btn:hover {
-    color: var(--danger-color);
-}
-
-.chat-messages-container-box {
-    height: 250px;
+    gap: 0.75rem;
+    max-height: 300px;
     overflow-y: auto;
-    padding: 0.5rem;
+}
+
+.bid-card {
+    background-color: var(--bg-deep);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition-speed);
+}
+
+.bid-card:hover {
+    border-color: var(--primary-color);
+}
+
+.driver-info h4 {
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.driver-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.bid-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.chat-container {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    background-color: var(--bg-light-input);
-    border-radius: var(--radius-sm);
+    height: 250px;
+    background-color: var(--bg-deep);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 0.75rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .chat-bubble {
     max-width: 80%;
-    padding: 0.6rem 0.8rem;
-    border-radius: var(--radius-md);
-    font-size: 0.82rem;
-}
-
-.captain-bubble {
-    align-self: flex-start;
-    background-color: var(--bg-light-card);
-    border: 1px solid var(--border-light);
-    border-bottom-right-radius: 2px;
-}
-
-.bubble-sender-name {
-    font-size: 0.68rem;
-    font-weight: 800;
-    color: var(--primary-color-active);
-    margin-bottom: 0.1rem;
-}
-
-.chat-input-footer-box {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-}
-
-.chat-text-input {
-    flex: 1;
-    padding: 0.65rem 0.8rem;
-    border-radius: var(--radius-sm);
-    background-color: var(--bg-light-input);
-    border: 1px solid var(--border-light);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
     font-size: 0.85rem;
 }
 
-.chat-send-action-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: var(--radius-sm);
-    background-color: var(--primary-color);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.chat-bubble.incoming {
+    background-color: var(--bg-card);
+    align-self: flex-start;
+    border: 1px solid var(--border-color);
 }
 
-/* ----------------------------------------------------------------------------
-   13. التوافق مع الشاشات المختلفة (Responsive Media Queries)
-   ---------------------------------------------------------------------------- */
-@media (max-width: 480px) {
-    .enterprise-navbar {
-        padding: 0 0.8rem;
-    }
-    
-    .brand-title {
-        font-size: 1rem;
-    }
-    
-    .brand-subtitle {
-        display: none;
-    }
-    
-    .user-info-text {
-        display: none;
-    }
-    
-    .btn-text-label {
-        display: none;
-    }
-    
-    .vehicle-options-grid-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .main-workflow-hub {
-        padding: 1rem;
-    }
+.chat-bubble.outgoing {
+    background-color: var(--primary-color);
+    color: var(--bg-deep);
+    align-self: flex-end;
+    font-weight: 600;
+}
+
+.chat-input-area {
+    display: flex;
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-input-area input {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    background: var(--bg-surface);
+}
+
+.chat-input-area button {
+    border-radius: 0;
+    padding: 0 1rem;
+}
+
+.enterprise-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 15, 29, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-speed);
+}
+
+.enterprise-modal-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.enterprise-modal {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.diagnostics-console {
+    background-color: #030712;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.75rem;
+    color: #38bdf8;
+    height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }

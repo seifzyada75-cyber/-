@@ -1,340 +1,138 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="enterprise-html-root">
+<html lang="ar" dir="rtl" class="dark-mode">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>InDrive Egypt - المنصة الرقمية المتكاملة للتنقل والشحن | الإصدار الاحترافي الكامل 2026</title>
-    <!-- استدعاء خط كايرو العربي الأنيق -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <!-- استدعاء مكتبة الأيقونات العالمية FontAwesome 6.4.0 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- استدعاء مكتبة الخرائط الشهيرة Leaflet JS CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- استدعاء ملف الـ CSS المخصص -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة النقل الذكي المؤسسية - In-Drive Enterprise Engine</title>
+    <!-- ربط ملف الـ CSS المنفصل -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="enterprise-app-body">
+<body>
 
-    <!-- ================================================================= -->
-    <!-- 1. شريط التنقل العلوي الاحترافي (Enterprise Navbar)                 -->
-    <!-- ================================================================= -->
-    <header class="enterprise-navbar" id="enterpriseNavbar">
-        <div class="navbar-brand-section">
-            <div class="brand-logo-circle">
-                <i class="fa-solid fa-route"></i>
-            </div>
-            <div class="brand-text-block">
-                <h1 class="brand-title">إنـدرايف مصر</h1>
-                <span class="brand-subtitle">التنقل الذكي وحلول الشحن الفوري</span>
-            </div>
+    <!-- Enterprise Header -->
+    <header class="enterprise-header">
+        <div class="brand-logo">
+            <span>🛡️</span> In-Drive Enterprise Core
         </div>
-
-        <div class="navbar-actions-panel">
-            <button id="notificationsBtn" class="navbar-action-btn" title="الإشعارات والتنبيهات">
-                <i class="fa-solid fa-bell"></i>
-                <span class="badge-dot"></span>
-            </button>
-            <button id="supportCenterBtn" class="navbar-action-btn" title="مركز الدعم والمساعدة">
-                <i class="fa-solid fa-headset"></i>
-            </button>
-            <!-- زر الوضع الليلي المطلوب بالتحديد -->
-            <button id="darkModeToggleBtn" class="navbar-action-btn night-mode-btn" title="تبديل المنظور الليلي">
-                <i class="fa-solid fa-moon"></i>
-                <span class="btn-text-label">المنظور الليلي</span>
-            </button>
-            <div class="user-profile-badge" id="userProfileBadge">
-                <div class="avatar-wrapper">
-                    <i class="fa-solid fa-user-tie"></i>
-                </div>
-                <div class="user-info-text">
-                    <span class="name">محمود الألفي</span>
-                    <span class="status-vip">حساب VIP</span>
-                </div>
-            </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="system-status-badge" id="systemStatusIndicator">● النظام نشط ومؤمن (Live EGY)</div>
+            <button class="btn-enterprise btn-secondary" onclick="EnterpriseUIController.toggleDarkMode()">الوضع الليلي / المضيء</button>
         </div>
     </header>
 
-    <!-- ================================================================= -->
-    <!-- 2. حاوية الخريطة التفاعلية الكبرى (Leaflet Map Engine Container)     -->
-    <!-- ================================================================= -->
-    <div class="map-viewport-wrapper" id="mapViewportWrapper">
-        <div id="map" class="leaflet-map-canvas"></div>
-        
-        <!-- أدوات التحكم العائمة فوق الخريطة -->
-        <div class="map-floating-controls">
-            <button id="recenterBtn" class="floating-map-btn" title="تمركز على موقعي الحالي">
-                <i class="fa-solid fa-crosshairs"></i>
-            </button>
-            <button id="mapTrafficToggleBtn" class="floating-map-btn" title="حالة حركة المرور">
-                <i class="fa-solid fa-traffic-light"></i>
-            </button>
-        </div>
-    </div>
+    <!-- Main Workspace Layout -->
+    <div class="main-container">
 
-    <!-- ================================================================= -->
-    <!-- 3. لوحة التحكم والعمليات الرئيسية (Main Workflow Hub Section)       -->
-    <!-- ================================================================= -->
-    <main class="main-workflow-hub" id="mainWorkflowHub">
-
-        <!-- ============================================================= -->
-        <!-- الخطوة الأولى: إدخال البيانات ومحطات الانطلاق وتحديد الأجرة      -->
-        <!-- ============================================================= -->
-        <section id="step1" class="workflow-step-pane active-step-pane">
-            
-            <!-- اختيار المحافظة -->
-            <div class="control-card-block">
-                <label for="citySelect" class="block-label">
-                    <i class="fa-solid fa-city"></i> اختر المحافظة أو المدينة النشطة:
-                </label>
-                <div class="select-wrapper-box">
-                    <select id="citySelect" class="enterprise-select-dropdown">
-                        <option value="alex">الإسكندرية (العاصمة الثانية)</option>
-                        <option value="cairo">القاهرة الكبرى</option>
-                        <option value="giza">الجيزة</option>
-                        <option value="mansoura">المنصورة (الدقهلية)</option>
-                        <option value="tanta">طنطا (الغربية)</option>
-                        <option value="asyut">أسيوط</option>
-                        <option value="ismailia">الإسماعيلية</option>
-                        <option value="suez">السويس</option>
-                        <option value="port_said">بورسعيد</option>
-                        <option value="sohag">سوهاج</option>
-                        <option value="luxor">الأقصر</option>
-                        <option value="aswan">أسوان</option>
-                        <option value="hurghada">الغردقة (البحر الأحمر)</option>
-                        <option value="sharm">شرم الشيخ (جنوب سيناء)</option>
+        <!-- Left Sidebar: Order Creation & Bidding Management -->
+        <aside class="enterprise-panel">
+            <div class="panel-section">
+                <div class="panel-title">📍 طلب رحلة جديدة (Ride Booking)</div>
+                <div class="form-group">
+                    <label>رقم الهاتف المصري للعميل</label>
+                    <input type="text" id="clientPhoneInput" placeholder="01012345678" value="01098765432">
+                </div>
+                <div class="form-group">
+                    <label>نقطة الانطلاق (Pickup Location)</label>
+                    <select id="pickupSelect">
+                        <option value="cairo_tahrir">ميدان التحرير، القاهرة</option>
+                        <option value="cairo_nasr">مدينة نصر، الـ 7 عمارات</option>
+                        <option value="giza_pyramids">هرم الجيزة، الأهرامات</option>
+                        <option value="alex_smouha">سموحة، الإسكندرية</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>وجهة الوصول (Dropoff Destination)</label>
+                    <select id="dropoffSelect">
+                        <option value="cairo_newcairo">التجمع الخامس، القاهرة الجديدة</option>
+                        <option value="cairo_maadi">المعادي، كورنيش النيل</option>
+                        <option value="giza_zayed">الشيخ زايد، الإستاد</option>
+                        <option value="alex_maamoura">المعمورة، الإسكندرية</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>السعر المقترح من العميل (ج.م)</label>
+                    <input type="number" id="clientOfferPrice" value="120" min="20" max="5000">
+                </div>
+                <button class="btn-enterprise" onclick="RideWorkflowController.submitRideRequest()">إرسال الطلب وإطلاق المزايدة</button>
             </div>
 
-            <!-- حقول إدخال المواقع (الانطلاق والوصول) -->
-            <div class="control-card-block locations-block">
-                <div class="location-input-row">
-                    <div class="icon-indicator pickup-dot"></div>
-                    <div class="input-field-container">
-                        <input type="text" id="pickupInput" class="enterprise-text-input" value="محطة الرمل، وسط البلد، الإسكندرية" placeholder="من أين تريد الركوب؟">
-                    </div>
-                    <button id="clearPickupBtn" class="input-action-btn" title="مسح الحقل"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-
-                <div class="location-divider-line">
-                    <button id="swapLocationsBtn" class="swap-locations-action-btn" title="تبديل نقطة الانطلاق والوصول">
-                        <i class="fa-solid fa-arrow-right-arrow-left fa-rotate-90"></i>
-                    </button>
-                </div>
-
-                <div class="location-input-row">
-                    <div class="icon-indicator dropoff-dot"></div>
-                    <div class="input-field-container">
-                        <input type="text" id="dropoffInput" class="enterprise-text-input" value="سيدي بشر، شارع خالد بن الوليد" placeholder="ما هي وجهتك النهائية؟">
-                    </div>
-                    <button id="clearDropoffBtn" class="input-action-btn" title="مسح الحقل"><i class="fa-solid fa-xmark"></i></button>
+            <div class="panel-section">
+                <div class="panel-title">💰 سوق المزايدات اللحظية (Live Bids)</div>
+                <div class="bids-list" id="bidsListContainer">
+                    <div style="text-align: center; color: var(--text-muted); padding: 1rem;">في انتظار تقديم الكباتن لعروضهم...</div>
                 </div>
             </div>
+        </aside>
 
-            <!-- شبكة خيارات وسائل النقل والشحن -->
-            <div class="control-card-block">
-                <span class="block-section-title">اختر فئة التوصيل المناسبة:</span>
-                <div class="vehicle-options-grid-container">
-                    
-                    <div class="vehicle-option-card active-vehicle" data-vehicle="economy" data-price="35">
-                        <div class="vehicle-icon-box"><i class="fa-solid fa-car"></i></div>
-                        <div class="vehicle-details-box">
-                            <span class="title">توفير</span>
-                            <span class="eta">3-5 دقائق</span>
-                        </div>
-                        <span class="price-tag">35 ج.م</span>
-                    </div>
-
-                    <div class="vehicle-option-card" data-vehicle="comfort" data-price="60">
-                        <div class="vehicle-icon-box"><i class="fa-solid fa-taxi"></i></div>
-                        <div class="vehicle-details-box">
-                            <span class="title">مريح</span>
-                            <span class="eta">2-4 دقائق</span>
-                        </div>
-                        <span class="price-tag">60 ج.م</span>
-                    </div>
-
-                    <div class="vehicle-option-card" data-vehicle="moto" data-price="25">
-                        <div class="vehicle-icon-box"><i class="fa-solid fa-motorcycle"></i></div>
-                        <div class="vehicle-details-box">
-                            <span class="title">موتوسيكل</span>
-                            <span class="eta">1-3 دقائق</span>
-                        </div>
-                        <span class="price-tag">25 ج.م</span>
-                    </div>
-
-                    <div class="vehicle-option-card" data-vehicle="delivery" data-price="45">
-                        <div class="vehicle-icon-box"><i class="fa-solid fa-box-open"></i></div>
-                        <div class="vehicle-details-box">
-                            <span class="title">شحن طرود</span>
-                            <span class="eta">10-15 دقيقة</span>
-                        </div>
-                        <span class="price-tag">45 ج.م</span>
-                    </div>
-
-                </div>
+        <!-- Center Workspace: Interactive Simulation Map -->
+        <main class="workspace-center">
+            <div class="map-overlay-controls">
+                <div class="map-chip">🗺️ نظام الخرائط الحية (GIS Engine)</div>
+                <div class="map-chip">🚗 الكباتن النشطون: <span id="activeCaptainsCount">12</span></div>
             </div>
+            <div id="simulationMap">
+                <svg width="100%" height="100%" id="mapSvgEngine" style="position: absolute; top: 0; left: 0;">
+                    <defs>
+                        <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00e676" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <g stroke="#2a3958" stroke-width="0.5" opacity="0.3">
+                        <line x1="0" y1="100" x2="100%" y2="100" />
+                        <line x1="0" y1="200" x2="100%" y2="200" />
+                        <line x1="0" y1="300" x2="100%" y2="300" />
+                        <line x1="0" y1="400" x2="100%" y2="400" />
+                        <line x1="100" y1="0" x2="100" y2="100%" />
+                        <line x1="300" y1="0" x2="300" y2="100%" />
+                        <line x1="500" y1="0" x2="500" y2="100%" />
+                        <line x1="700" y1="0" x2="700" y2="100%" />
+                    </g>
+                    <path id="svgActiveRoutePath" d="M 150 150 Q 300 50, 450 300 T 750 200" fill="none" stroke="url(#routeGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <g id="svgCaptainPinsLayer"></g>
+                </svg>
+            </div>
+        </main>
 
-            <!-- نظام المزايدة وتحديد الأجرة المقترحة -->
-            <div class="control-card-block bidding-control-card">
-                <div class="bidding-header-info">
-                    <span class="label">مقترح الأجرة الخاص بك (اقترح سعرك):</span>
-                    <span class="sub-hint">يمكنك زيادة أو تقليل المبلغ بكل حرية</span>
-                </div>
-                <div class="bidding-counter-wrapper">
-                    <button id="decreaseBidBtn" class="bid-adjust-btn" title="تقليل الأجرة">-</button>
-                    <div class="bid-amount-display-box">
-                        <span id="bidAmount" class="amount-val">35</span>
-                        <span class="currency-label">ج.م</span>
+        <!-- Right Sidebar: Chat, Diagnostics & Telemetry -->
+        <aside class="enterprise-panel">
+            <div class="panel-section">
+                <div class="panel-title">💬 الشات الآمن مع الكابتن</div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessagesContainer">
+                        <div class="chat-bubble incoming">مرحباً بك، أنا في طريق لإنهاء قبول العرض وموقعك قيد التتبع.</div>
                     </div>
-                    <button id="increaseBidBtn" class="bid-adjust-btn" title="زيادة الأجرة">+</button>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInputText" placeholder="اكتب رسالة للكابتن...">
+                        <button class="btn-enterprise" onclick="WebSocketChatEngine.sendMessage()">إرسال</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- زر إرسال الطلب الرئيسي -->
-            <button id="requestRideBtn" class="enterprise-action-primary-btn">
-                <span>طلب الرحلة الآن</span>
-                <i class="fa-solid fa-angles-left"></i>
-            </button>
-
-        </section>
-
-
-        <!-- ============================================================= -->
-        <!-- الخطوة الثانية: تشغيل رادار البحث وعروض الكباتن المتاحة            -->
-        <!-- ============================================================= -->
-        <section id="step2" class="workflow-step-pane hidden-step-pane">
-            <div class="searching-radar-header">
-                <div class="radar-pulsing-icon">
-                    <i class="fa-solid fa-satellite-dish"></i>
+            <div class="panel-section">
+                <div class="panel-title">⚙️ سجل التشخيص المركزي (Diagnostics)</div>
+                <div class="diagnostics-console" id="diagnosticsConsoleLog">
+                    <div>[00:00:01] System Boot: Enterprise Core initialized successfully.</div>
+                    <div>[00:00:02] Security Shield: XSS Sanitization & Geo-Validators active.</div>
                 </div>
-                <h3>جاري البحث عن كباتن متاحين بالقرب منك...</h3>
-                <p>نقوم الآن بإرسال عرضك لأقرب الكباتن في نطاق محافظتك</p>
             </div>
+        </aside>
 
-            <!-- حاوية عروض الكباتن الديناميكية -->
-            <div id="driverBidsContainer" class="driver-bids-scroller-box">
-                
-                <!-- عرض تجريبي لكابتن 1 -->
-                <div class="driver-offer-card">
-                    <div class="driver-profile-info">
-                        <div class="driver-avatar"><i class="fa-solid fa-user-tie"></i></div>
-                        <div class="driver-text-meta">
-                            <h4 class="driver-name">الكابتن / أحمد محمود</h4>
-                            <div class="rating-row">
-                                <i class="fa-solid fa-star text-warning"></i>
-                                <span>4.9 (1,240 رحلة)</span>
-                            </div>
-                            <span class="car-details">شيفروليه أفيو - أبيض (أ ب ج 1234)</span>
-                        </div>
-                    </div>
-                    <div class="offer-price-action">
-                        <span class="price-val">35 ج.م</span>
-                        <button class="btn-accept-offer">قبول العرض</button>
-                    </div>
-                </div>
+    </div>
 
-                <!-- عرض تجريبي لكابتن 2 -->
-                <div class="driver-offer-card">
-                    <div class="driver-profile-info">
-                        <div class="driver-avatar"><i class="fa-solid fa-user-gear"></i></div>
-                        <div class="driver-text-meta">
-                            <h4 class="driver-name">الكابتن / مصطفى السيد</h4>
-                            <div class="rating-row">
-                                <i class="fa-solid fa-star text-warning"></i>
-                                <span>4.8 (850 رحلة)</span>
-                            </div>
-                            <span class="car-details">نيسان صني - أسود (س ص ع 5678)</span>
-                        </div>
-                    </div>
-                    <div class="offer-price-action">
-                        <span class="price-val">40 ج.م</span>
-                        <button class="btn-accept-offer">قبول العرض</button>
-                    </div>
-                </div>
-
+    <!-- Enterprise Interactive Modal -->
+    <div class="enterprise-modal-backdrop" id="enterpriseModalBackdrop">
+        <div class="enterprise-modal" id="enterpriseModalContent">
+            <h2 id="modalTitle" style="color: var(--primary-color);">تأكيد العملية</h2>
+            <p id="modalBodyText" style="color: var(--text-muted);">جاري معالجة البيانات عبر الخوادم المؤمنة...</p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn-enterprise btn-secondary" onclick="EnterpriseUIController.closeModal()">إلغاء</button>
+                <button class="btn-enterprise" id="modalConfirmBtn" onclick="EnterpriseUIController.handleModalConfirm()">موافق ومتابعة</button>
             </div>
-
-            <button id="cancelSearchBtn" class="enterprise-action-secondary-btn">
-                إلغاء البحث والعودة
-            </button>
-        </section>
-
-
-        <!-- ============================================================= -->
-        <!-- الخطوة الثالثة: الرحلة النشطة ومتابعة خط السير والوصول           -->
-        <!-- ============================================================= -->
-        <section id="step3" class="workflow-step-pane hidden-step-pane">
-            <div class="active-trip-status-card">
-                <div class="trip-header-badge">
-                    <i class="fa-solid fa-shield-halved"></i> رحلة مؤمنة بالكامل
-                </div>
-                <h3 id="acceptedDriverName" class="captain-title-lg">الكابتن / أحمد محمود</h3>
-                <p id="acceptedVehicleInfo" class="vehicle-title-sm">شيفروليه أفيو - أبيض (أ ب ج 1234)</p>
-                <div id="acceptedFareBadge" class="fare-agreed-badge">الأجرة المتفق عليها: 35 ج.م</div>
-            </div>
-
-            <!-- مؤشر تقدم الرحلة -->
-            <div class="trip-progress-container-box">
-                <div class="progress-labels">
-                    <span>بداية التحرك</span>
-                    <span>في الطريق</span>
-                    <span>الوصول للوجهة</span>
-                </div>
-                <div class="progress-bar-shell">
-                    <div id="tripProgressBar" class="progress-bar-fill" style="width: 35%;"></div>
-                </div>
-                <p id="activeStatusText" class="status-description-text">الكابتن يقود السيارة في الطريق الآمن إليك...</p>
-            </div>
-
-            <!-- أزرار التواصل والطوارئ -->
-            <div class="active-trip-action-grid">
-                <button id="callDriverBtn" class="trip-control-btn call-btn" title="اتصال هاتفي">
-                    <i class="fa-solid fa-phone-volume"></i>
-                    <span>اتصال</span>
-                </button>
-                <button id="chatDriverBtn" class="trip-control-btn chat-btn" title="مراسلة الكابتن">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>محادثة</span>
-                </button>
-                <button id="sosEmergencyBtn" class="trip-control-btn sos-btn" title="زر الطوارئ SOS">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>طوارئ</span>
-                </button>
-            </div>
-
-            <button id="cancelTripBtn" class="enterprise-action-danger-btn">
-                إلغاء الرحلة الجارية
-            </button>
-        </section>
-
-    </main>
-
-    <!-- ================================================================= -->
-    <!-- 4. النوافذ المنبثقة الشاملة (Modals & Dialogs Hub)                -->
-    <!-- ================================================================= -->
-    <div id="modalBackdrop" class="enterprise-modal-backdrop hidden-modal"></div>
-
-    <!-- نافذة المحادثة المباشرة -->
-    <div id="chatModal" class="enterprise-modal-dialog hidden-modal">
-        <div class="modal-header-bar">
-            <h4><i class="fa-solid fa-comments"></i> المحادثة المباشرة مع الكابتن</h4>
-            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div id="chatMessagesBox" class="chat-messages-container-box">
-            <div class="chat-bubble captain-bubble">
-                <div class="bubble-sender-name">الكابتن أحمد</div>
-                <div class="bubble-text">أهلاً بحضرتك يا فندم، أنا اتحركت في طريقنا لنقطة الركوب.</div>
-            </div>
-        </div>
-        <div class="chat-input-footer-box">
-            <input type="text5" id="chatInputField" class="chat-text-input" placeholder="اكتب رسالة للكابتن...">
-            <button id="sendChatMsgBtn" class="chat-send-action-btn"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <!-- استدعاء ملف سكريبت الخرائط والوظائف البرمجية -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ربط ملف الـ JavaScript المنفصل -->
     <script src="script.js"></script>
 </body>
 </html>
