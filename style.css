@@ -1,25 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* ==========================================================================
+   1. VARIABLES & CONSTANTS
+   ========================================================================== */
 :root {
-    --bg-dark: #070a11;
-    --card-bg: rgba(18, 26, 43, 0.85);
-    --input-bg: rgba(28, 39, 62, 0.6);
-    --input-border: rgba(255, 255, 255, 0.08);
+    /* Color Palette */
+    --bg-dark: #060911;
+    --app-bg: #0a0f1d;
+    --card-bg: rgba(16, 24, 40, 0.75);
+    --input-bg: rgba(255, 255, 255, 0.04);
+    
+    /* Brand Colors */
     --primary: #10b981;
-    --primary-glow: rgba(16, 185, 129, 0.35);
+    --primary-hover: #059669;
+    --primary-glow: rgba(16, 185, 129, 0.25);
     --accent: #38bdf8;
-    --accent-glow: rgba(56, 189, 248, 0.25);
+    --accent-glow: rgba(56, 189, 248, 0.2);
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    
+    /* Typography & Borders */
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --danger: #ff4d6d;
-    --border: rgba(255, 255, 255, 0.08);
+    --border-light: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(16, 185, 129, 0.3);
+    
+    /* Layout Properties */
+    --radius-lg: 28px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* {
+/* ==========================================================================
+   2. GLOBAL RESETS & SCROLLBAR
+   ========================================================================== */
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -31,11 +52,12 @@ body {
     align-items: center;
     min-height: 100vh;
     background-image: 
-        radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
+        radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 40%);
+    overflow: hidden;
 }
 
-/* Scrollbar Customization */
+/* Slim Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 4px;
 }
@@ -43,95 +65,110 @@ body {
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 10px;
 }
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
 
-/* الموبايل / الفريم الرئيسي */
+/* ==========================================================================
+   3. CONTAINER & LAYOUT
+   ========================================================================== */
 .app-container {
     width: 100%;
     max-width: 410px;
     height: 100vh;
-    max-height: 850px;
-    background-color: #0b0f19;
-    border-radius: 36px;
+    max-height: 860px;
+    background-color: var(--app-bg);
+    border-radius: var(--radius-lg);
     overflow: hidden;
     position: relative;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(16, 185, 129, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 25px 60px -15px rgba(0, 0, 0, 0.9),
+        0 0 30px rgba(16, 185, 129, 0.03);
+    border: 1px solid var(--border-light);
     display: flex;
     flex-direction: column;
 }
 
-/* الهيدر */
+/* Header UI */
 .app-header {
     position: absolute;
-    top: 0; 
-    left: 0; 
+    top: 0;
+    left: 0;
     right: 0;
-    z-index: 10;
-    padding: 18px 20px;
-    background: linear-gradient(180deg, rgba(7, 10, 17, 0.95) 0%, rgba(7, 10, 17, 0) 100%);
-    backdrop-filter: blur(8px);
+    z-index: 20;
+    padding: 16px 20px;
+    background: linear-gradient(180deg, rgba(6, 9, 17, 0.92) 0%, rgba(6, 9, 17, 0) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.logo { 
-    font-size: 19px; 
-    font-weight: 800; 
-    letter-spacing: -0.5px;
+.logo {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.logo strong { 
-    color: var(--primary); 
-    text-shadow: 0 0 12px var(--primary-glow);
+.logo strong {
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary-glow);
 }
-.logo-icon { 
-    color: var(--primary); 
-    margin-left: 6px; 
+
+.logo-icon {
+    color: var(--primary);
     filter: drop-shadow(0 0 6px var(--primary-glow));
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .lang-btn {
-    background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
-    color: #000;
-    border: none;
-    font-weight: 800;
-    padding: 6px 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-light);
+    color: var(--text-main);
+    font-weight: 700;
+    padding: 6px 12px;
     border-radius: 20px;
     cursor: pointer;
     font-size: 11px;
-    box-shadow: 0 4px 12px var(--primary-glow);
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
 }
 
-.lang-btn:active {
-    transform: scale(0.92);
+.lang-btn:hover {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+    box-shadow: 0 0 12px var(--primary-glow);
 }
 
 .city-badge {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(12px);
-    padding: 6px 14px;
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(8px);
+    padding: 6px 12px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
     color: var(--accent);
     border: 1px solid rgba(56, 189, 248, 0.2);
     display: flex;
-    gap: 6px;
     align-items: center;
+    gap: 6px;
 }
 
-/* الخريطة */
+/* ==========================================================================
+   4. MAP SECTION & MARKERS
+   ========================================================================== */
 .map-view {
     flex: 1;
     background-color: #080d1a;
@@ -140,73 +177,95 @@ body {
 }
 
 .map-grid {
-    width: 100%; 
+    width: 100%;
     height: 100%;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 24px 24px;
-    opacity: 0.4;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.5;
 }
 
-.pin { 
-    position: absolute; 
-    font-size: 24px; 
-    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+.pin {
+    position: absolute;
+    font-size: 22px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
 }
-.pickup-pin { top: 28%; right: 30%; color: var(--primary); animation: bounce 2s infinite; }
-.dropoff-pin { top: 52%; right: 68%; color: var(--danger); }
 
-@keyframes bounce {
+.pickup-pin {
+    top: 26%;
+    right: 28%;
+    color: var(--primary);
+    animation: pinFloat 2.5s ease-in-out infinite;
+}
+
+.dropoff-pin {
+    top: 50%;
+    right: 68%;
+    color: var(--danger);
+}
+
+@keyframes pinFloat {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+    50% { transform: translateY(-5px); }
 }
 
 .driver-marker {
     position: absolute;
-    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    background: linear-gradient(135deg, var(--accent) 0%, #0284c7 100%);
     color: #fff;
-    padding: 8px;
+    padding: 7px;
     border-radius: 50%;
-    font-size: 12px;
-    box-shadow: 0 0 15px var(--accent-glow);
-    border: 2px solid rgba(255, 255, 255, 0.8);
-}
-.d1 { top: 22%; right: 18%; }
-.d2 { top: 42%; right: 58%; }
-.d3 { 
-    top: 58%; 
-    right: 22%; 
-    background: linear-gradient(135deg, #fbbf24, #d97706); 
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); 
+    font-size: 11px;
+    box-shadow: 0 0 12px var(--accent-glow);
+    border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
-/* اللوحة السفلية */
+.d1 { top: 20%; right: 16%; }
+.d2 { top: 40%; right: 54%; }
+.d3 {
+    top: 56%;
+    right: 20%;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+}
+
+/* ==========================================================================
+   5. BOTTOM SHEET & INTERACTION CARDS
+   ========================================================================== */
 .bottom-sheet {
     background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border-top-left-radius: 32px;
-    border-top-right-radius: 32px;
-    padding: 22px 20px 24px;
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    padding: 20px;
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
     max-height: 75%;
     overflow-y: auto;
+    z-index: 10;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
-/* إدخال العناوين */
+/* Address Card Inputs */
 .address-card {
     background: var(--input-bg);
-    border-radius: 20px;
-    padding: 12px 16px;
-    border: 1px solid var(--input-border);
-    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    border: 1px solid var(--border-light);
+    transition: var(--transition-fast);
+}
+
+.address-card:focus-within {
+    border-color: var(--border-glow);
 }
 
 .input-row {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .select-wrapper {
@@ -224,11 +283,11 @@ body {
 }
 
 .select-wrapper select {
-    background: none;
+    background: transparent;
     border: none;
     color: var(--text-main);
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
     outline: none;
     cursor: pointer;
     width: 100%;
@@ -236,91 +295,155 @@ body {
 }
 
 .select-wrapper select option {
-    background-color: #131b2e;
+    background-color: var(--app-bg);
     color: var(--text-main);
 }
 
-.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.green-dot { background-color: var(--primary); box-shadow: 0 0 10px var(--primary); }
-.red-dot { background-color: var(--danger); box-shadow: 0 0 10px rgba(255, 77, 109, 0.5); }
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.green-dot {
+    background-color: var(--primary);
+    box-shadow: 0 0 8px var(--primary);
+}
+
+.red-dot {
+    background-color: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
+}
 
 .divider {
     height: 1px;
-    background: var(--border);
-    margin: 8px 0 8px 24px;
+    background: var(--border-light);
+    margin: 8px 0 8px 20px;
 }
 
-/* اختيار نوع السيارة */
-.vehicle-selector { display: flex; gap: 10px; margin: 16px 0; }
+/* Vehicle Types */
+.vehicle-selector {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0;
+}
 
 .vehicle-card {
     flex: 1;
     background: var(--input-bg);
-    padding: 12px 8px;
-    border-radius: 18px;
-    border: 1px solid var(--input-border);
+    padding: 10px 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-fast);
 }
 
 .vehicle-card.active {
     border-color: var(--primary);
     background: rgba(16, 185, 129, 0.12);
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
     transform: translateY(-2px);
 }
 
-.vehicle-card i { font-size: 18px; color: var(--text-muted); transition: 0.2s; }
-.vehicle-card.active i { color: var(--primary); }
-.v-name { font-size: 12px; font-weight: 700; }
-.v-price { font-size: 10px; color: var(--text-muted); }
-
-/* المزايدة والسعر */
-.fare-card {
-    background: var(--input-bg);
-    border-radius: 20px;
-    padding: 12px 16px;
-    text-align: center;
-    margin-bottom: 16px;
-    border: 1px solid var(--input-border);
+.vehicle-card i {
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: var(--transition-fast);
 }
 
-.fare-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
-.fare-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+.vehicle-card.active i {
+    color: var(--primary);
+}
+
+.v-name {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.v-price {
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+/* Fare Control Card */
+.fare-card {
+    background: var(--input-bg);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    text-align: center;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-light);
+}
+
+.fare-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.fare-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
 
 .btn-circle {
-    width: 38px; height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-light);
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-main);
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex; justify-content: center; align-items: center;
+    transition: var(--transition-fast);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-circle:active {
-    transform: scale(0.9);
+    transform: scale(0.92);
     background: rgba(255, 255, 255, 0.15);
 }
 
-.fare-display { font-size: 26px; font-weight: 800; color: var(--primary); text-shadow: 0 0 12px var(--primary-glow); }
-.fare-display small { font-size: 12px; margin-right: 4px; color: var(--text-muted); font-weight: 600; }
+.fare-display {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary-glow);
+}
 
+.fare-display small {
+    font-size: 12px;
+    margin-right: 2px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Primary Buttons */
 .main-btn {
-    width: 100%; padding: 14px;
-    border-radius: 18px; border: none;
-    background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     color: #022c22;
-    font-weight: 800; font-size: 15px; cursor: pointer;
-    display: flex; justify-content: center; align-items: center; gap: 10px;
-    box-shadow: 0 6px 20px var(--primary-glow);
-    transition: all 0.2s ease;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 18px var(--primary-glow);
+    transition: var(--transition-fast);
 }
 
 .main-btn:active {
@@ -329,93 +452,258 @@ body {
 
 .secondary-btn {
     background: transparent;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-light);
     color: var(--text-muted);
-    padding: 10px 20px; border-radius: 25px;
-    cursor: pointer; margin-top: 18px; font-size: 12px; font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: var(--transition-fast);
 }
 
-/* الرادار والبحث */
-.radar-pulse { 
-    font-size: 42px; 
-    color: var(--primary); 
-    margin: 20px 0; 
-    animation: pulseGlow 2s infinite ease-in-out; 
+.secondary-btn:hover {
+    color: var(--text-main);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-@keyframes pulseGlow { 
-    0% { transform: scale(0.95); opacity: 0.8; } 
-    50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 15px var(--primary)); } 
-    100% { transform: scale(0.95); opacity: 0.8; } 
+/* Searching Radar Screen */
+.radar-pulse {
+    font-size: 40px;
+    color: var(--primary);
+    margin: 18px 0;
+    animation: pulseGlow 1.8s ease-in-out infinite;
 }
-.text-center { text-align: center; }
 
-/* قائمة عروض السواقين */
-.bids-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.bids-header h4 { font-size: 14px; font-weight: 700; }
-.user-price-tag { font-size: 11px; background: rgba(16, 185, 129, 0.15); color: var(--primary); padding: 5px 10px; border-radius: 10px; font-weight: 700; }
+@keyframes pulseGlow {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 12px var(--primary)); }
+    100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* ==========================================================================
+   6. BIDS & TRACKING CARDS
+   ========================================================================== */
+.bids-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.bids-header h4 {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.user-price-tag {
+    font-size: 11px;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+}
 
 .bids-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: 380px;
+    gap: 10px;
+    max-height: 360px;
     overflow-y: auto;
 }
 
 .bid-card {
     background: var(--input-bg);
-    border-radius: 18px;
-    padding: 14px;
-    border: 1px solid var(--input-border);
-    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    border: 1px solid var(--border-light);
+    animation: slideUp var(--transition-smooth);
 }
 
-@keyframes slideUp { 
-    from { opacity: 0; transform: translateY(20px); } 
-    to { opacity: 1; transform: translateY(0); } 
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.driver-info { display: flex; gap: 12px; align-items: center; }
-.driver-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-.driver-details h5 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-.rating { font-size: 11px; color: #fbbf24; font-weight: 600; }
-.car-details { font-size: 11px; color: var(--text-muted); }
+.driver-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
 
-.bid-price { margin-right: auto; text-align: left; }
-.price-val { font-size: 17px; font-weight: 800; color: var(--primary); }
-.counter-tag { font-size: 10px; color: #fbbf24; display: block; font-weight: 600; }
+.driver-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary);
+}
 
-.bid-actions { display: flex; gap: 10px; margin-top: 12px; }
-.btn-accept { 
-    flex: 2; 
-    background: linear-gradient(135deg, var(--primary) 0%, #059669 100%); 
+.driver-details h5 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.rating {
+    font-size: 11px;
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.car-details {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.bid-price {
+    margin-right: auto;
+    text-align: left;
+}
+
+.price-val {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.counter-tag {
+    font-size: 9px;
+    color: var(--warning);
+    display: block;
+    font-weight: 600;
+}
+
+.bid-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-accept {
+    flex: 2;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     color: #022c22;
-    border: none; padding: 10px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 13px; 
+    border: none;
+    padding: 9px;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 12px;
     box-shadow: 0 4px 12px var(--primary-glow);
-}
-.btn-decline { 
-    flex: 1; 
-    background: rgba(255, 77, 109, 0.1); 
-    border: 1px solid rgba(255, 77, 109, 0.2); 
-    color: var(--danger); padding: 10px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 700;
+    transition: var(--transition-fast);
 }
 
-/* شاشة التتبع */
+.btn-accept:active {
+    transform: scale(0.96);
+}
+
+.btn-decline {
+    flex: 1;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    padding: 9px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: var(--transition-fast);
+}
+
+.btn-decline:active {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* Status Tracking Section */
 .status-banner {
-    background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);
-    border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
 }
-.status-banner i { font-size: 24px; color: var(--primary); }
-.status-title { font-size: 12px; color: var(--primary); display: block; font-weight: 800; }
-.status-eta { font-size: 13px; font-weight: 600; }
 
-.driver-profile-card { background: var(--input-bg); padding: 14px; border-radius: 18px; margin-bottom: 12px; border: 1px solid var(--input-border); }
-.contact-actions { display: flex; gap: 10px; margin-bottom: 12px; }
-.action-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; }
-.danger-btn { width: 100%; padding: 10px; background: none; border: none; color: var(--danger); font-size: 13px; font-weight: 700; cursor: pointer; }
+.status-banner i {
+    font-size: 22px;
+    color: var(--primary);
+}
 
-/* اتجاهات اللغة الإنجليزية (LTR) */
+.status-title {
+    font-size: 11px;
+    color: var(--primary);
+    display: block;
+    font-weight: 800;
+}
+
+.status-eta {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.driver-profile-card {
+    background: var(--input-bg);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    border: 1px solid var(--border-light);
+}
+
+.contact-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    background: var(--input-bg);
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-fast);
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.danger-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.danger-btn:hover {
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   7. RTL / LTR ADJUSTMENTS
+   ========================================================================== */
 html[dir="ltr"] .arrow-icon {
     transform: rotate(180deg);
 }
