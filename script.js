@@ -1,278 +1,200 @@
-// قاموس الترجمة
-const translations = {
-    ar: {
-        logoText: 'إنـدرايف <strong>مصر</strong>',
-        cityName: 'الإسكندرية',
-        pickupLabel: 'منين؟',
-        dropoffLabel: 'على فين؟',
-        vEconomy: 'اقتصادي',
-        vEconomyPrice: 'من 35 ج.م',
-        vComfort: 'كومفورت',
-        vComfortPrice: 'من 60 ج.م',
-        vBike: 'موتوسيكل',
-        vBikePrice: 'من 18 ج.م',
-        fareLabel: 'السعر المقترح للرحلة',
-        currency: 'ج.م',
-        searchBtn: 'ابحث عن سواقين',
-        searchingTitle: 'جاري البحث عن كابتن قَرِيب...',
-        searchingSub: 'بنبعت طلبك للسواقين في نطاق المنطقة',
-        cancelBtn: 'إلغاء البحث',
-        bidsTitle: 'عروض الكباتن المتاحة',
-        yourOffer: 'عرضك:',
-        offerAccepted: 'تم قبول العرض!',
-        etaText: 'الكابتن يوصل خلال',
-        mins: 'دقيقة',
-        callBtn: 'اتصال',
-        chatBtn: 'محادثة',
-        cancelTripBtn: 'إلغاء الرحلة',
-        acceptBtn: 'قبول العرض',
-        declineBtn: 'رفض',
-        counterTag: 'عرض مضاد',
-        discountTag: 'خصم',
-        tripsText: 'رحلة'
-    },
-    en: {
-        logoText: 'inDrive <strong>Egypt</strong>',
-        cityName: 'Alexandria',
-        pickupLabel: 'Pickup location?',
-        dropoffLabel: 'Where to?',
-        vEconomy: 'Economy',
-        vEconomyPrice: 'From 35 EGP',
-        vComfort: 'Comfort',
-        vComfortPrice: 'From 60 EGP',
-        vBike: 'Moto',
-        vBikePrice: 'From 18 EGP',
-        fareLabel: 'Offer your fare',
-        currency: 'EGP',
-        searchBtn: 'Find Drivers',
-        searchingTitle: 'Finding nearby drivers...',
-        searchingSub: 'Sending your offer to drivers around',
-        cancelBtn: 'Cancel Search',
-        bidsTitle: 'Available Offers',
-        yourOffer: 'Your offer:',
-        offerAccepted: 'Offer Accepted!',
-        etaText: 'Driver arrives in',
-        mins: 'mins',
-        callBtn: 'Call',
-        chatBtn: 'Chat',
-        cancelTripBtn: 'Cancel Trip',
-        acceptBtn: 'Accept',
-        declineBtn: 'Decline',
-        counterTag: 'counter offer',
-        discountTag: 'discount',
-        tripsText: 'trips'
+/* ==========================================================================
+   INDRIVE CLONE - ADVANCED LOGIC & AUDIO/HAPTIC INTERACTION
+   ========================================================================== */
+
+// Audio FX Setup (Web Audio API - No external files needed)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'click') {
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+    } else if (type === 'success') {
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
     }
-};
+}
 
-// المناطق باللغتين
-const locations = [
-    { id: 1, name_ar: "محطة الرمل، الإسكندرية", name_en: "Mahatet El Raml, Alex", baseFare: 40 },
-    { id: 2, name_ar: "سيدي بشر، الإسكندرية", name_en: "Sidi Bishr, Alex", baseFare: 65 },
-    { id: 3, name_ar: "سموحة (ميدان الممر)، الإسكندرية", name_en: "Smouha, Alex", baseFare: 50 },
-    { id: 4, name_ar: "المنتزه (البوابة)، الإسكندرية", name_en: "El Montaza, Alex", baseFare: 80 },
-    { id: 5, name_ar: "العجمي (البيطاش)، الإسكندرية", name_en: "El Agami, Alex", baseFare: 90 },
-    { id: 6, name_ar: "ميدان التحرير، القاهرة", name_en: "Tahrir Square, Cairo", baseFare: 70 },
-    { id: 7, name_ar: "مدينة نصر (سيتي ستارز)، القاهرة", name_en: "Nasr City, Cairo", baseFare: 85 },
-    { id: 8, name_ar: "المعادي (شارع 9)، القاهرة", name_en: "Maadi Street 9, Cairo", baseFare: 75 }
-];
+// Trigger Mobile Haptic Feedback
+function triggerHaptic() {
+    if (navigator.vibrate) {
+        navigator.vibrate(40);
+    }
+}
 
+// State Management
+let currentFare = 50;
+let baseFare = 50;
+let searchTimer = null;
+let etaInterval = null;
+
+// DOM Elements
+const fareDisplay = document.getElementById('fare-amount');
+const minusBtn = document.getElementById('minus-btn');
+const plusBtn = document.getElementById('plus-btn');
+const searchBtn = document.getElementById('search-btn');
+const cancelSearchBtn = document.getElementById('cancel-search-btn');
+const cancelTripBtn = document.getElementById('cancel-trip-btn');
+
+const stepRequest = document.getElementById('step-request');
+const stepSearching = document.getElementById('step-searching');
+const stepBids = document.getElementById('step-bids');
+const stepTracking = document.getElementById('step-tracking');
+
+// Mock Drivers Data
 const mockDrivers = [
-    { id: 101, name_ar: "أحمد علي", name_en: "Ahmed Ali", rating: "4.9 ★", trips: "1,420", car_ar: "تويوتا كورولا 2021 • أ ب ج ١٢٣٤", car_en: "Toyota Corolla • ABC 1234", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80", addPrice: 0 },
-    { id: 102, name_ar: "محمود حسن", name_en: "Mahmoud Hassan", rating: "4.8 ★", trips: "890", car_ar: "هيونداي إيلانترا • س ص ج ٥٦٧٨", car_en: "Hyundai Elantra • XYZ 5678", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80", addPrice: 15 },
-    { id: 103, name_ar: "سارة سيد", name_en: "Sara Sayed", rating: "4.95 ★", trips: "2,100", car_ar: "نيسان صني • م ن هـ ٩٠١٢", car_en: "Nissan Sunny • MNO 9012", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80", addPrice: 10 },
-    { id: 104, name_ar: "كابتن إبراهيم", name_en: "Capt. Ibrahim", rating: "4.7 ★", trips: "650", car_ar: "شيفروليه أفيو • ط ك ل ٣٤٥٦", car_en: "Chevrolet Aveo • TKL 3456", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80", addPrice: 0 },
-    { id: 105, name_ar: "مصطفى الجزار", name_en: "Mostafa Elgazzar", rating: "4.85 ★", trips: "1,110", car_ar: "حلاوة موتوسيكل • ر س ت ٧٨٩٠", car_en: "Halawa Moto • RST 7890", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&auto=format&fit=crop&q=80", addPrice: -10 }
+    { name: "أحمد محمود", car: "تويوتا كورولا • أبيض", rating: "4.9 ★", priceOffset: 0, img: "https://i.pravatar.cc/100?img=11" },
+    { name: "محمد السيد", car: "نيسان صني • أسود", rating: "4.8 ★", priceOffset: 10, img: "https://i.pravatar.cc/100?img=12" },
+    { name: "محمود حسن", car: "هيونداي إلانتيرا • فضي", rating: "4.7 ★", priceOffset: -5, img: "https://i.pravatar.cc/100?img=13" }
 ];
 
-let currentLang = 'ar';
-let userPrice = 50;
-let currentBids = [];
-
-const pickupSelect = document.getElementById('pickup-select');
-const dropoffSelect = document.getElementById('dropoff-select');
-const fareAmountEl = document.getElementById('fare-amount');
-const langBtn = document.getElementById('lang-btn');
-
-// تبديل اللغة
-function toggleLanguage() {
-    currentLang = currentLang === 'ar' ? 'en' : 'ar';
-    document.documentElement.lang = currentLang;
-    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    langBtn.textContent = currentLang === 'ar' ? 'EN' : 'عربي';
-
-    // تحديث كل النصوص في الصفحة
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[currentLang][key]) {
-            el.textContent = translations[currentLang][key];
-        }
-    });
-
-    document.getElementById('logo-text').innerHTML = translations[currentLang].logoText;
-    document.getElementById('current-city-name').textContent = translations[currentLang].cityName;
-
-    initLocations();
-}
-
-function initLocations() {
-    if (!pickupSelect || !dropoffSelect) return;
-    
-    const pVal = pickupSelect.value;
-    const dVal = dropoffSelect.value;
-
-    pickupSelect.innerHTML = '';
-    dropoffSelect.innerHTML = '';
-
-    locations.forEach(loc => {
-        const name = currentLang === 'ar' ? loc.name_ar : loc.name_en;
-        pickupSelect.add(new Option(name, loc.id));
-        dropoffSelect.add(new Option(name, loc.id));
-    });
-
-    pickupSelect.value = pVal || 1;
-    dropoffSelect.value = dVal || 2;
-    updateEstimatedFare();
-}
-
-function updateEstimatedFare() {
-    const pId = parseInt(pickupSelect.value);
-    const dId = parseInt(dropoffSelect.value);
-    
-    const pLoc = locations.find(l => l.id === pId);
-    const dLoc = locations.find(l => l.id === dId);
-
-    if (pLoc && dLoc) {
-        let calculatedFare = Math.abs(pLoc.baseFare + dLoc.baseFare) / 2 + 15;
-        userPrice = Math.round(calculatedFare / 5) * 5;
-        if (fareAmountEl) fareAmountEl.textContent = userPrice;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    initLocations();
-
-    if (langBtn) langBtn.addEventListener('click', toggleLanguage);
-    if (pickupSelect) pickupSelect.addEventListener('change', updateEstimatedFare);
-    if (dropoffSelect) dropoffSelect.addEventListener('change', updateEstimatedFare);
-
-    document.getElementById('plus-btn')?.addEventListener('click', () => {
-        userPrice += 5;
-        if (fareAmountEl) fareAmountEl.textContent = userPrice;
-    });
-
-    document.getElementById('minus-btn')?.addEventListener('click', () => {
-        if (userPrice > 15) {
-            userPrice -= 5;
-            if (fareAmountEl) fareAmountEl.textContent = userPrice;
-        }
-    });
-
-    document.querySelectorAll('.vehicle-card').forEach(card => {
-        card.addEventListener('click', () => {
-            document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-        });
-    });
-
-    document.getElementById('search-btn')?.addEventListener('click', () => {
-        switchStep(document.getElementById('step-searching'));
-        const userPriceDisplay = document.getElementById('current-user-price');
-        if (userPriceDisplay) userPriceDisplay.textContent = userPrice;
-        
-        setTimeout(() => {
-            switchStep(document.getElementById('step-bids'));
-            streamDriverBids();
-        }, 1800);
-    });
-
-    document.getElementById('cancel-search-btn')?.addEventListener('click', () => switchStep(document.getElementById('step-request')));
-    document.getElementById('cancel-trip-btn')?.addEventListener('click', () => switchStep(document.getElementById('step-request')));
+/* --- Fare Adjustment --- */
+plusBtn.addEventListener('click', () => {
+    playSound('click');
+    triggerHaptic();
+    currentFare += 5;
+    fareDisplay.textContent = currentFare;
 });
 
-function streamDriverBids() {
-    const bidsListEl = document.getElementById('bids-list');
-    if (!bidsListEl) return;
+minusBtn.addEventListener('click', () => {
+    if (currentFare > 15) {
+        playSound('click');
+        triggerHaptic();
+        currentFare -= 5;
+        fareDisplay.textContent = currentFare;
+    }
+});
 
-    bidsListEl.innerHTML = '';
-    currentBids = [];
+/* --- Vehicle Selector --- */
+document.querySelectorAll('.vehicle-card').forEach(card => {
+    card.addEventListener('click', () => {
+        playSound('click');
+        triggerHaptic();
+        document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        
+        const type = card.dataset.type;
+        if (type === 'economy') currentFare = 50;
+        if (type === 'comfort') currentFare = 80;
+        if (type === 'bike') currentFare = 25;
+        fareDisplay.textContent = currentFare;
+    });
+});
 
-    mockDrivers.forEach((driver, index) => {
-        setTimeout(() => {
-            const finalPrice = Math.max(15, userPrice + driver.addPrice);
-            currentBids.push({ ...driver, finalPrice });
-            
-            const countEl = document.getElementById('bids-count');
-            if (countEl) countEl.textContent = currentBids.length;
+/* --- Flow Controls --- */
+searchBtn.addEventListener('click', () => {
+    playSound('click');
+    triggerHaptic();
+    stepRequest.classList.add('hidden');
+    stepSearching.classList.remove('hidden');
 
-            const name = currentLang === 'ar' ? driver.name_ar : driver.name_en;
-            car = currentLang === 'ar' ? driver.car_ar : driver.car_en;
-            const t = translations[currentLang];
+    searchTimer = setTimeout(() => {
+        showBids();
+    }, 3000);
+});
 
-            const card = document.createElement('div');
-            card.className = 'bid-card';
-            card.innerHTML = `
-                <div class="driver-info">
-                    <img src="${driver.avatar}" class="driver-img" alt="${name}">
-                    <div class="driver-details">
-                        <h5>${name}</h5>
-                        <div class="rating">${driver.rating} (${driver.trips} ${t.tripsText})</div>
-                        <div class="car-details">${car}</div>
-                    </div>
-                    <div class="bid-price">
-                        <span class="price-val">${finalPrice} ${t.currency}</span>
-                        ${driver.addPrice > 0 ? `<span class="counter-tag">+${driver.addPrice} ${t.currency} ${t.counterTag}</span>` : ''}
-                        ${driver.addPrice < 0 ? `<span class="counter-tag" style="color:#10b981">${t.discountTag} ${Math.abs(driver.addPrice)} ${t.currency}</span>` : ''}
-                    </div>
+cancelSearchBtn.addEventListener('click', () => {
+    playSound('click');
+    clearTimeout(searchTimer);
+    stepSearching.classList.add('hidden');
+    stepRequest.classList.remove('hidden');
+});
+
+function showBids() {
+    playSound('success');
+    triggerHaptic();
+    stepSearching.classList.add('hidden');
+    stepBids.classList.remove('hidden');
+
+    const bidsList = document.getElementById('bids-list');
+    const bidsCount = document.getElementById('bids-count');
+    document.getElementById('current-user-price').textContent = currentFare;
+    
+    bidsList.innerHTML = '';
+    bidsCount.textContent = mockDrivers.length;
+
+    mockDrivers.forEach(driver => {
+        const finalPrice = Math.max(15, currentFare + driver.priceOffset);
+        const card = document.createElement('div');
+        card.className = 'bid-card';
+        card.innerHTML = `
+            <div class="driver-info">
+                <img src="${driver.img}" class="driver-img" alt="${driver.name}">
+                <div class="driver-details">
+                    <h5>${driver.name}</h5>
+                    <span class="rating">${driver.rating}</span>
+                    <p class="car-details">${driver.car}</p>
                 </div>
-                <div class="bid-actions">
-                    <button class="btn-decline" onclick="declineBid(this)">${t.declineBtn}</button>
-                    <button class="btn-accept" onclick="acceptBid(${driver.id})">${t.acceptBtn}</button>
+                <div class="bid-price">
+                    <span class="price-val">${finalPrice} <small>ج.م</small></span>
+                    ${driver.priceOffset > 0 ? '<span class="counter-tag">عرض مضاد</span>' : ''}
                 </div>
-            `;
-            bidsListEl.appendChild(card);
-        }, (index + 1) * 500);
+            </div>
+            <div class="bid-actions">
+                <button class="btn-accept" onclick="acceptBid('${driver.name}', '${driver.car}', '${driver.img}', ${finalPrice})">قبول العرض</button>
+                <button class="btn-decline" onclick="this.closest('.bid-card').remove()">رفض</button>
+            </div>
+        `;
+        bidsList.appendChild(card);
     });
 }
 
-function declineBid(button) {
-    const card = button.closest('.bid-card');
-    if (card) {
-        card.remove();
-        const countEl = document.getElementById('bids-count');
-        if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent) - 1);
-    }
-}
+window.acceptBid = function(name, car, img, price) {
+    playSound('success');
+    triggerHaptic();
+    stepBids.classList.add('hidden');
+    stepTracking.classList.remove('hidden');
 
-function acceptBid(driverId) {
-    const driver = currentBids.find(d => d.id === driverId);
-    if (!driver) return;
-
-    const name = currentLang === 'ar' ? driver.name_ar : driver.name_en;
-    const car = currentLang === 'ar' ? driver.car_ar : driver.car_en;
-    const t = translations[currentLang];
-    
-    const targetCard = document.getElementById('accepted-driver-card');
-    if (targetCard) {
-        targetCard.innerHTML = `
-            <div class="driver-info">
-                <img src="${driver.avatar}" class="driver-img" alt="${name}">
-                <div class="driver-details">
-                    <h5>${name}</h5>
-                    <div class="rating">${driver.rating} (${driver.trips} ${t.tripsText})</div>
-                    <div class="car-details">${car}</div>
-                </div>
-                <div class="bid-price">
-                    <span class="price-val">${driver.finalPrice} ${t.currency}</span>
-                </div>
+    document.getElementById('accepted-driver-card').innerHTML = `
+        <div class="driver-info">
+            <img src="${img}" class="driver-img" alt="${name}">
+            <div class="driver-details">
+                <h5>${name}</h5>
+                <p class="car-details">${car}</p>
+                <strong style="color: var(--primary); font-size: 13px;">الأجرة المتفق عليها: ${price} ج.م</strong>
             </div>
-        `;
-    }
+        </div>
+    `;
 
-    switchStep(document.getElementById('step-tracking'));
+    startETATimer(210); // 3:30 mins
+};
+
+function startETATimer(seconds) {
+    let timer = seconds;
+    const display = document.getElementById('eta-timer');
+    
+    clearInterval(etaInterval);
+    etaInterval = setInterval(() => {
+        const mins = String(Math.floor(timer / 60)).padStart(2, '0');
+        const secs = String(timer % 60).padStart(2, '0');
+        display.textContent = `${mins}:${secs}`;
+        
+        if (--timer < 0) {
+            clearInterval(etaInterval);
+            display.textContent = "وصل الكابتن!";
+        }
+    }, 1000);
 }
 
-function switchStep(targetStep) {
-    if (!targetStep) return;
-    document.querySelectorAll('.step-content').forEach(s => s.classList.add('hidden'));
-    targetStep.classList.remove('hidden');
-}
+cancelTripBtn.addEventListener('click', () => {
+    playSound('click');
+    clearInterval(etaInterval);
+    stepTracking.classList.add('hidden');
+    stepRequest.classList.remove('hidden');
+});
+
+// Network Status Alert
+window.addEventListener('offline', () => alert('عفواً، تم قطع الاتصال بالإنترنت'));
