@@ -11,15 +11,21 @@
 
     <div class="app-container">
         
-        <!-- الهيدر -->
+        <!-- الهيدر مع زرار تحويل اللغة -->
         <header class="app-header">
             <div class="logo">
                 <i class="fa-solid fa-car-side logo-icon"></i>
-                <span>إنـدرايف <strong>مصر</strong></span>
+                <span id="logo-text">إنـدرايف <strong>مصر</strong></span>
             </div>
-            <div class="city-badge">
-                <i class="fa-solid fa-location-crosshairs"></i>
-                <span id="current-city-name">الإسكندرية</span>
+            
+            <div class="header-actions">
+                <!-- زرار تحويل اللغة -->
+                <button id="lang-btn" class="lang-btn">EN</button>
+                
+                <div class="city-badge">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <span id="current-city-name">الإسكندرية</span>
+                </div>
             </div>
         </header>
 
@@ -36,26 +42,24 @@
         <!-- اللوحة السفلية -->
         <div class="bottom-sheet">
             
-            <!-- الخطوة 1: طلب الرحلة بآلية اختيار المناطق -->
+            <!-- الخطوة 1: طلب الرحلة -->
             <div id="step-request" class="step-content">
                 
                 <div class="address-card">
-                    <!-- نقطة الانطلاق -->
                     <div class="input-row">
                         <span class="dot green-dot"></span>
                         <div class="select-wrapper">
-                            <label>منين؟</label>
+                            <label data-i18n="pickupLabel">منين؟</label>
                             <select id="pickup-select"></select>
                         </div>
                     </div>
                     
                     <div class="divider"></div>
                     
-                    <!-- نقطة الوصول -->
                     <div class="input-row">
                         <span class="dot red-dot"></span>
                         <div class="select-wrapper">
-                            <label>على فين؟</label>
+                            <label data-i18n="dropoffLabel">على فين؟</label>
                             <select id="dropoff-select"></select>
                         </div>
                     </div>
@@ -65,37 +69,37 @@
                 <div class="vehicle-selector">
                     <div class="vehicle-card active" data-type="economy">
                         <i class="fa-solid fa-car"></i>
-                        <span class="v-name">اقتصادي</span>
-                        <span class="v-price">من 35 ج.م</span>
+                        <span class="v-name" data-i18n="vEconomy">اقتصادي</span>
+                        <span class="v-price" data-i18n="vEconomyPrice">من 35 ج.م</span>
                     </div>
                     <div class="vehicle-card" data-type="comfort">
                         <i class="fa-solid fa-car-side"></i>
-                        <span class="v-name">كومفورت</span>
-                        <span class="v-price">من 60 ج.م</span>
+                        <span class="v-name" data-i18n="vComfort">كومفورت</span>
+                        <span class="v-price" data-i18n="vComfortPrice">من 60 ج.م</span>
                     </div>
                     <div class="vehicle-card" data-type="bike">
                         <i class="fa-solid fa-motorcycle"></i>
-                        <span class="v-name">موتوسيكل</span>
-                        <span class="v-price">من 18 ج.م</span>
+                        <span class="v-name" data-i18n="vBike">موتوسيكل</span>
+                        <span class="v-price" data-i18n="vBikePrice">من 18 ج.م</span>
                     </div>
                 </div>
 
                 <!-- المزايدة -->
                 <div class="fare-card">
-                    <span class="fare-label">السعر المقترح للرحلة</span>
+                    <span class="fare-label" data-i18n="fareLabel">السعر المقترح للرحلة</span>
                     <div class="fare-controls">
                         <button class="btn-circle" id="minus-btn"><i class="fa-solid fa-minus"></i></button>
                         <div class="fare-display">
                             <span id="fare-amount">50</span>
-                            <small>ج.م</small>
+                            <small data-i18n="currency">ج.م</small>
                         </div>
                         <button class="btn-circle" id="plus-btn"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
 
                 <button id="search-btn" class="main-btn">
-                    <span>ابحث عن سواقين</span>
-                    <i class="fa-solid fa-arrow-left"></i>
+                    <span data-i18n="searchBtn">ابحث عن سواقين</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
                 </button>
             </div>
 
@@ -104,21 +108,19 @@
                 <div class="radar-pulse">
                     <i class="fa-solid fa-satellite-dish"></i>
                 </div>
-                <h3>جاري البحث عن كابتن قَرِيب...</h3>
-                <p>بنبعت طلبك للسواقين في نطاق المنطقة</p>
-                <button id="cancel-search-btn" class="secondary-btn">إلغاء البحث</button>
+                <h3 data-i18n="searchingTitle">جاري البحث عن كابتن قَرِيب...</h3>
+                <p data-i18n="searchingSub">بنبعت طلبك للسواقين في نطاق المنطقة</p>
+                <button id="cancel-search-btn" class="secondary-btn" data-i18n="cancelBtn">إلغاء البحث</button>
             </div>
 
-            <!-- الخطوة 3: قائمة عروض السواقين (تستوعب سواقين كتير) -->
+            <!-- الخطوة 3: قائمة عروض السواقين -->
             <div id="step-bids" class="step-content hidden">
                 <div class="bids-header">
-                    <h4>عروض الكباتن المتاحة (<span id="bids-count">0</span>)</h4>
-                    <span class="user-price-tag">عرضك: <strong id="current-user-price">50</strong> ج.م</span>
+                    <h4><span data-i18n="bidsTitle">عروض الكباتن المتاحة</span> (<span id="bids-count">0</span>)</h4>
+                    <span class="user-price-tag"><span data-i18n="yourOffer">عرضك:</span> <strong id="current-user-price">50</strong> <span data-i18n="currency">ج.م</span></span>
                 </div>
 
-                <div id="bids-list" class="bids-list">
-                    <!-- كروت السواقين الـ 10 ينزلوا هنا -->
-                </div>
+                <div id="bids-list" class="bids-list"></div>
             </div>
 
             <!-- الخطوة 4: شاشة التتبع -->
@@ -126,21 +128,19 @@
                 <div class="status-banner">
                     <i class="fa-solid fa-circle-check"></i>
                     <div>
-                        <span class="status-title">تم قبول العرض!</span>
-                        <span class="status-eta">الكابتن يوصل خلال <strong id="eta-timer">03:30</strong> دقيقة</span>
+                        <span class="status-title" data-i18n="offerAccepted">تم قبول العرض!</span>
+                        <span class="status-eta"><span data-i18n="etaText">الكابتن يوصل خلال</span> <strong id="eta-timer">03:30</strong> <span data-i18n="mins">دقيقة</span></span>
                     </div>
                 </div>
 
-                <div id="accepted-driver-card" class="driver-profile-card">
-                    <!-- الكابتن المقبول -->
-                </div>
+                <div id="accepted-driver-card" class="driver-profile-card"></div>
 
                 <div class="contact-actions">
-                    <button class="action-btn call-btn"><i class="fa-solid fa-phone"></i> اتصال</button>
-                    <button class="action-btn chat-btn"><i class="fa-solid fa-comment-dots"></i> محادثة</button>
+                    <button class="action-btn call-btn"><i class="fa-solid fa-phone"></i> <span data-i18n="callBtn">اتصال</span></button>
+                    <button class="action-btn chat-btn"><i class="fa-solid fa-comment-dots"></i> <span data-i18n="chatBtn">محادثة</span></button>
                 </div>
 
-                <button id="cancel-trip-btn" class="danger-btn">إلغاء الرحلة</button>
+                <button id="cancel-trip-btn" class="danger-btn" data-i18n="cancelTripBtn">إلغاء الرحلة</button>
             </div>
 
         </div>
