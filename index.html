@@ -19,7 +19,7 @@
 
     <div class="app-container">
         
-        <!-- الهيدر -->
+        <!-- الهيدر المحدث بتمكين اختيار المحافظة -->
         <header class="app-header">
             <div class="logo">
                 <i class="fa-solid fa-car-side logo-icon"></i>
@@ -30,7 +30,14 @@
                 <button id="lang-btn" class="lang-btn">EN</button>
                 <div class="city-badge">
                     <i class="fa-solid fa-location-dot"></i>
-                    <span id="current-city-name">الإسكندرية</span>
+                    <select id="governorate-select" style="background: transparent; color: white; border: none; font-weight: bold; cursor: pointer; font-family: inherit;">
+                        <option value="cairo" style="color: #000;">القاهرة والجيزة</option>
+                        <option value="alex" style="color: #000;" selected>الإسكندرية</option>
+                        <option value="mansoura" style="color: #000;">المنصورة</option>
+                        <option value="tanta" style="color: #000;">طنطا</option>
+                        <option value="asyut" style="color: #000;">أسيوط</option>
+                        <option value="ismailia" style="color: #000;">الإسماعيلية</option>
+                    </select>
                 </div>
             </div>
         </header>
