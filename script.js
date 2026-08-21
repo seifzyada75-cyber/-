@@ -199,9 +199,7 @@ cancelTripBtn.addEventListener('click', () => {
 // Network Status Alert
 window.addEventListener('offline', () => alert('عفواً، تم قطع الاتصال بالإنترنت'));
 // تعبئة الأماكن تلقائياً
-const locations = ["محطة الرمل، الإسكندرية", "سيدي بشر، الإسكندرية", "سموحة، الإسكندرية", "ميامي، الإسكندرية"];
-const pickupSelect = document.getElementById('pickup-select');
-const dropoffSelect = document.getElementById('dropoff-select');
+
 
 locations.forEach(loc => {
     pickupSelect.add(new Option(loc, loc));
