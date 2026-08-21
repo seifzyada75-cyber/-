@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
+    <!-- Leaflet Interactive Maps CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,7 +23,7 @@
         <header class="app-header">
             <div class="logo">
                 <i class="fa-solid fa-car-side logo-icon"></i>
-                <span id="logo-text">إنـدرايف <strong>مصر</strong></span>
+                <span id="logo-text">إنـدرايف <strong style="color: var(--primary);">مصر</strong></span>
             </div>
             
             <div class="header-actions">
@@ -31,14 +35,9 @@
             </div>
         </header>
 
-        <!-- الخريطة -->
+        <!-- الخريطة التفاعلية الحقيقية -->
         <div class="map-view">
-            <div class="map-grid"></div>
-            <div class="driver-marker d1"><i class="fa-solid fa-car"></i></div>
-            <div class="driver-marker d2"><i class="fa-solid fa-car"></i></div>
-            <div class="driver-marker d3"><i class="fa-solid fa-motorcycle"></i></div>
-            <div class="pin pickup-pin"><i class="fa-solid fa-location-dot"></i></div>
-            <div class="pin dropoff-pin"><i class="fa-solid fa-flag-checkered"></i></div>
+            <div id="real-map" style="width: 100%; height: 100%;"></div>
         </div>
 
         <!-- اللوحة السفلية -->
@@ -51,7 +50,7 @@
                     <div class="input-row">
                         <span class="dot green-dot"></span>
                         <div class="select-wrapper">
-                            <label data-i18n="pickupLabel">منين؟</label>
+                            <label id="lbl-pickup">منين؟</label>
                             <select id="pickup-select"></select>
                         </div>
                     </div>
@@ -61,7 +60,7 @@
                     <div class="input-row">
                         <span class="dot red-dot"></span>
                         <div class="select-wrapper">
-                            <label data-i18n="dropoffLabel">على فين؟</label>
+                            <label id="lbl-dropoff">على فين؟</label>
                             <select id="dropoff-select"></select>
                         </div>
                     </div>
@@ -71,36 +70,36 @@
                 <div class="vehicle-selector">
                     <div class="vehicle-card active" data-type="economy">
                         <i class="fa-solid fa-car"></i>
-                        <span class="v-name" data-i18n="vEconomy">اقتصادي</span>
-                        <span class="v-price" data-i18n="vEconomyPrice">من 35 ج.م</span>
+                        <span class="v-name" id="v-economy-lbl">اقتصادي</span>
+                        <span class="v-price">من 35 ج.م</span>
                     </div>
                     <div class="vehicle-card" data-type="comfort">
                         <i class="fa-solid fa-car-side"></i>
-                        <span class="v-name" data-i18n="vComfort">كومفورت</span>
-                        <span class="v-price" data-i18n="vComfortPrice">من 60 ج.م</span>
+                        <span class="v-name" id="v-comfort-lbl">كومفورت</span>
+                        <span class="v-price">من 60 ج.م</span>
                     </div>
                     <div class="vehicle-card" data-type="bike">
                         <i class="fa-solid fa-motorcycle"></i>
-                        <span class="v-name" data-i18n="vBike">موتوسيكل</span>
-                        <span class="v-price" data-i18n="vBikePrice">من 18 ج.م</span>
+                        <span class="v-name" id="v-bike-lbl">موتوسيكل</span>
+                        <span class="v-price">من 18 ج.م</span>
                     </div>
                 </div>
 
                 <!-- المزايدة -->
                 <div class="fare-card">
-                    <span class="fare-label" data-i18n="fareLabel">السعر المقترح للرحلة</span>
+                    <span class="fare-label" id="lbl-fare-title">السعر المقترح للرحلة</span>
                     <div class="fare-controls">
                         <button class="btn-circle" id="minus-btn"><i class="fa-solid fa-minus"></i></button>
                         <div class="fare-display">
                             <span id="fare-amount">50</span>
-                            <small data-i18n="currency">ج.م</small>
+                            <small id="lbl-currency">ج.م</small>
                         </div>
                         <button class="btn-circle" id="plus-btn"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
 
                 <button id="search-btn" class="main-btn">
-                    <span data-i18n="searchBtn">ابحث عن سواقين</span>
+                    <span id="lbl-search-btn">ابحث عن سواقين</span>
                     <i class="fa-solid fa-arrow-left arrow-icon"></i>
                 </button>
             </div>
@@ -110,16 +109,16 @@
                 <div class="radar-pulse">
                     <i class="fa-solid fa-satellite-dish"></i>
                 </div>
-                <h3 data-i18n="searchingTitle">جاري البحث عن كابتن قَرِيب...</h3>
-                <p data-i18n="searchingSub">بنبعت طلبك للسواقين في نطاق المنطقة</p>
-                <button id="cancel-search-btn" class="secondary-btn" data-i18n="cancelBtn">إلغاء البحث</button>
+                <h3 id="lbl-searching-title">جاري البحث عن كابتن قَرِيب...</h3>
+                <p id="lbl-searching-sub">بنبعت طلبك للسواقين في نطاق المنطقة</p>
+                <button id="cancel-search-btn" class="secondary-btn">إلغاء البحث</button>
             </div>
 
             <!-- الخطوة 3: قائمة عروض السواقين -->
             <div id="step-bids" class="step-content hidden">
                 <div class="bids-header">
-                    <h4><span data-i18n="bidsTitle">عروض الكباتن المتاحة</span> (<span id="bids-count">0</span>)</h4>
-                    <span class="user-price-tag"><span data-i18n="yourOffer">عرضك:</span> <strong id="current-user-price">50</strong> <span data-i18n="currency">ج.م</span></span>
+                    <h4><span>عروض الكباتن المتاحة</span> (<span id="bids-count">0</span>)</h4>
+                    <span class="user-price-tag">عرضك: <strong id="current-user-price">50</strong> ج.م</span>
                 </div>
 
                 <div id="bids-list" class="bids-list"></div>
@@ -130,19 +129,19 @@
                 <div class="status-banner">
                     <i class="fa-solid fa-circle-check"></i>
                     <div>
-                        <span class="status-title" data-i18n="offerAccepted">تم قبول العرض!</span>
-                        <span class="status-eta"><span data-i18n="etaText">الكابتن يوصل خلال</span> <strong id="eta-timer">03:30</strong> <span data-i18n="mins">دقيقة</span></span>
+                        <span class="status-title">تم قبول العرض!</span>
+                        <span class="status-eta">الكابتن يوصل خلال <strong id="eta-timer">03:30</strong> دقيقة</span>
                     </div>
                 </div>
 
                 <div id="accepted-driver-card" class="driver-profile-card"></div>
 
                 <div class="contact-actions">
-                    <button class="action-btn call-btn"><i class="fa-solid fa-phone"></i> <span data-i18n="callBtn">اتصال</span></button>
-                    <button class="action-btn chat-btn"><i class="fa-solid fa-comment-dots"></i> <span data-i18n="chatBtn">محادثة</span></button>
+                    <button class="action-btn call-btn"><i class="fa-solid fa-phone"></i> اتصال</button>
+                    <button class="action-btn chat-btn"><i class="fa-solid fa-comment-dots"></i> محادثة</button>
                 </div>
 
-                <button id="cancel-trip-btn" class="danger-btn" data-i18n="cancelTripBtn">إلغاء الرحلة</button>
+                <button id="cancel-trip-btn" class="danger-btn">إلغاء الرحلة</button>
             </div>
 
         </div>
