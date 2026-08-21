@@ -3,37 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InDrive Egypt - منصة إنـدرايف مصر المتكاملة</title>
-
-    <!-- مكتبة الأيقونات Font Awesome V6 -->
+    <meta name="description" content="InDrive Egypt - منصة التنقل الذكي والتفاوض المباشر على الأجرة">
+    <meta name="author" content="InDrive Egypt Development Team">
+    <title>InDrive Egypt - المنصة الرقمية المتكاملة للتنقل والشحن</title>
+    
+    <!-- External Libraries & Frameworks Stylesheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- مكتبة الخرائط Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base Embedded Reset for Massive Single File structure */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: #f4f6f9; color: #333; direction: rtl; overflow-x: hidden; }
+        .main-header { background: #111; color: #fff; padding: 15px 30px; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .brand-identity { display: flex; align-items: center; gap: 12px; }
+        .brand-logo-wrapper { width: 45px; height: 45px; background: #00dd88; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #111; }
+        .brand-name { font-size: 22px; font-weight: 800; }
+        .highlight-egypt { color: #00dd88; }
+        .brand-tagline { font-size: 11px; color: #aaa; display: block; }
+        .city-selector-wrapper { display: flex; align-items: center; background: #222; padding: 6px 15px; border-radius: 30px; border: 1px solid #333; }
+        .city-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #ccc; margin-left: 10px; }
+        .city-dropdown-select { background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 600; outline: none; cursor: pointer; }
+        .city-dropdown-select option { background: #222; color: #fff; }
+        .user-utilities-bar { display: flex; align-items: center; gap: 15px; }
+        .icon-utility-btn { background: #222; border: none; width: 40px; height: 40px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.3s; }
+        .icon-utility-btn:hover { background: #00dd88; color: #111; }
+        .badge-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #ff3366; border-radius: 50%; }
+        .user-profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #00dd88; cursor: pointer; border: 2px solid #00dd88; }
+        
+        /* Dashboard Layout */
+        .app-dashboard-layout { display: flex; margin-top: 75px; height: calc(100vh - 75px); width: 100vw; }
+        .sidebar-control-panel { width: 480px; background: #fff; height: 100%; overflow-y: auto; padding: 25px; box-shadow: 4px 0 20px rgba(0,0,0,0.05); z-index: 10; border-left: 1px solid #eaeaea; }
+        .map-viewport-area { flex: 1; height: 100%; position: relative; }
+        .leaflet-map-canvas { width: 100%; height: 100%; }
 
-    <!-- ملف الـ CSS الخاص بالتطبيق -->
-    <link rel="stylesheet" href="style.css">
+        /* Workflow Steps */
+        .workflow-card-step { display: block; }
+        .hidden-step { display: none !important; }
+        .step-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; }
+        .step-title-group { display: flex; align-items: center; gap: 10px; }
+        .step-header-icon { font-size: 20px; color: #00dd88; }
+        .step-title-group h2 { font-size: 18px; font-weight: 700; color: #111; }
+        .step-indicator-badge { background: #e6f9f0; color: #00a859; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+
+        /* Route Selector Box */
+        .route-selector-box { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; margin-bottom: 20px; position: relative; }
+        .route-input-group { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+        .input-icon-wrapper { width: 30px; display: flex; justify-content: center; font-size: 16px; }
+        .color-green { color: #00c853; }
+        .color-red { color: #ff3d00; }
+        .input-field-wrapper { flex: 1; display: flex; flex-direction: column; }
+        .input-field-wrapper label { font-size: 11px; color: #718096; font-weight: 600; margin-bottom: 2px; }
+        .input-field-wrapper input { border: none; background: transparent; font-size: 14px; font-weight: 600; color: #2d3748; outline: none; width: 100%; }
+        .clear-input-btn { background: none; border: none; color: #a0aec0; cursor: pointer; font-size: 14px; padding: 5px; }
+        .clear-input-btn:hover { color: #e53e3e; }
+        .swap-locations-wrapper { position: relative; height: 2px; background: #e2e8f0; margin: 8px 30px; display: flex; align-items: center; justify-content: center; }
+        .swap-circle-btn { position: absolute; background: #fff; border: 1px solid #cbd5e0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #4a5568; font-size: 12px; transition: 0.2s; }
+        .swap-circle-btn:hover { background: #00dd88; color: #111; border-color: #00dd88; transform: rotate(180deg); }
+
+        /* Vehicles Grid */
+        .vehicle-selection-section { margin-bottom: 20px; }
+        .section-title-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .section-title-icon { color: #4a5568; font-size: 15px; }
+        .section-title-wrapper h3 { font-size: 14px; font-weight: 700; color: #2d3748; }
+        .vehicles-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .vehicle-option-card { background: #fdfdfe; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; cursor: pointer; transition: 0.2s; position: relative; display: flex; flex-direction: column; gap: 6px; }
+        .vehicle-option-card:hover { border-color: #cbd5e0; background: #fff; }
+        .vehicle-option-card.active-vehicle { border-color: #00dd88; background: #f0fff4; box-shadow: 0 4px 12px rgba(0,221,136,0.1); }
+        .vehicle-card-badge { position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
+        .tag-fast { background: #fff5f5; color: #e53e3e; }
+        .tag-popular { background: #edfff5; color: #00a859; }
+        .vehicle-icon-box { font-size: 22px; color: #2d3748; margin-bottom: 4px; }
+        .vehicle-title { font-size: 13px; font-weight: 700; color: #1a202c; }
+        .vehicle-eta { font-size: 11px; color: #718096; display: flex; align-items: center; gap: 4px; }
+        .vehicle-price-estimate { font-size: 14px; font-weight: 800; color: #00a859; margin-top: auto; }
+
+        /* Bidding Box */
+        .bidding-price-box { background: #1a202c; color: #fff; border-radius: 14px; padding: 15px; margin-bottom: 20px; }
+        .bidding-header-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a0aec0; margin-bottom: 12px; }
+        .bidding-controls-wrapper { display: flex; align-items: center; justify-content: space-between; background: #2d3748; border-radius: 10px; padding: 6px 15px; }
+        .bid-adjust-btn { background: #4a5568; border: none; color: #fff; width: 32px; height: 32px; border-radius: 8px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .bid-adjust-btn:hover { background: #00dd88; color: #111; }
+        .bid-display-container { display: flex; align-items: baseline; gap: 6px; }
+        .bid-number { font-size: 22px; font-weight: 900; color: #00dd88; }
+        .bid-currency { font-size: 13px; font-weight: 700; color: #cbd5e0; }
+
+        /* Action Buttons */
+        .action-button-wrapper { margin-top: 15px; }
+        .btn-primary-action { width: 100%; background: #00dd88; color: #111; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,221,136,0.3); }
+        .btn-primary-action:hover { background: #00c87a; transform: translateY(-1px); }
+
+        /* Extra Sections Placeholders styling */
+        .radar-searching-banner { text-align: center; padding: 30px 10px; }
+        .radar-waves-container { position: relative; width: 80px; height: 80px; margin: 0 auto 20px; background: #e6f9f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00a859; font-size: 28px; }
+        .driver-offer-card { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .driver-profile-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+        .driver-avatar-box { width: 45px; height: 45px; background: #cbd5e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #4a5568; }
+        .driver-info { flex: 1; }
+        .driver-name { font-size: 14px; font-weight: 700; }
+        .driver-rating { font-size: 12px; color: #718096; margin: 2px 0; }
+        .gold-star { color: #ecc94b; }
+        .car-details { font-size: 11px; color: #a0aec0; }
+        .offer-price-tag { text-align: left; }
+        .price-val { font-size: 18px; font-weight: 800; color: #00a859; }
+        .price-curr { font-size: 11px; color: #718096; }
+        .offer-actions-row { display: flex; gap: 10px; }
+        .btn-accept-offer { flex: 1; background: #00a859; color: #fff; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-decline-offer { flex: 1; background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-secondary-cancel { width: 100%; background: #edf2f7; color: #4a5568; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+    </style>
 </head>
 <body>
 
     <!-- ============================================================================== -->
-    <!-- SECTION 1: GLOBAL NAVIGATION & TOP HEADER BAR                                  -->
+    <!-- TOP NAVIGATION BAR SECTION                                                     -->
     <!-- ============================================================================== -->
     <header class="main-header navbar-fixed">
         <div class="header-container">
-            
-            <!-- الهوية التجارية واللوجو -->
             <div class="brand-identity">
                 <div class="brand-logo-wrapper">
                     <i class="fa-solid fa-route brand-icon"></i>
                 </div>
                 <div class="brand-text">
                     <h1 class="brand-name">إنـدرايف <span class="highlight-egypt">مصر</span></h1>
-                    <span class="brand-tagline">منصة التنقل والشحن الذكية</span>
+                    <span class="brand-tagline">التنقل الذكي والتفاوض المباشر</span>
                 </div>
             </div>
 
-            <!-- محول المحافظات والمدن -->
             <div class="city-selector-wrapper">
                 <label for="citySelect" class="city-label">
                     <i class="fa-solid fa-location-dot city-header-icon"></i>
@@ -47,44 +147,42 @@
                         <option value="mansoura">المنصورة (عروس الدلتا)</option>
                         <option value="tanta">طنطا (عاصمة الغربية)</option>
                         <option value="asyut">أسيوط (عاصمة الصعيد)</option>
+                        <option value="ismailia">الإسماعيلية</option>
+                        <option value="suez">السويس</option>
+                        <option value="port_said">بورسعيد</option>
+                        <option value="sohag">سوهاج</option>
+                        <option value="luxor">الأقصر</option>
+                        <option value="aswan">أسوان</option>
+                        <option value="hurghada">الغردقة</option>
+                        <option value="sharm">شرم الشيخ</option>
                     </select>
-                    <i class="fa-solid fa-chevron-down select-arrow-icon"></i>
                 </div>
             </div>
 
-            <!-- أدوات التحكم والملف الشخصي -->
             <div class="user-utilities-bar">
                 <button type="button" class="icon-utility-btn" id="notificationsBtn" title="الإشعارات">
                     <i class="fa-solid fa-bell"></i>
                     <span class="badge-dot"></span>
                 </button>
-                
                 <button type="button" class="icon-utility-btn" id="supportCenterBtn" title="الدعم الفني">
                     <i class="fa-solid fa-headset"></i>
                 </button>
-
-                <div class="user-profile-avatar" title="حسابك الشخصي">
+                <div class="user-profile-avatar" title="الملف الشخصي">
                     <i class="fa-solid fa-user-circle"></i>
                 </div>
             </div>
-
         </div>
     </header>
 
     <!-- ============================================================================== -->
-    <!-- SECTION 2: MAIN DASHBOARD & MAP INTERFACE                                      -->
+    <!-- MAIN DASHBOARD & MAP CONTAINER                                                 -->
     <!-- ============================================================================== -->
     <div class="app-dashboard-layout">
 
-        <!-- لوحة التحكم الجانبية (Workflow Panel) -->
         <aside class="sidebar-control-panel">
             
-            <!-- ---------------------------------------------------------------------- -->
-            <!-- WORKFLOW STEP 1: RIDE BOOKING & PRICE BIDDING                           -->
-            <!-- ---------------------------------------------------------------------- -->
+            <!-- STEP 1: RIDE BOOKING INTERFACE -->
             <section id="step1" class="workflow-card-step active-step">
-                
-                <!-- رأس بطاقة الطلب -->
                 <div class="step-card-header">
                     <div class="step-title-group">
                         <i class="fa-solid fa-car-side step-header-icon"></i>
@@ -93,48 +191,36 @@
                     <span class="step-indicator-badge">خطوة 1 من 3</span>
                 </div>
 
-                <!-- مربع تحديد نقاط الانطلاق والوصول -->
                 <div class="route-selector-box">
-                    
-                    <!-- نقطة الركوب -->
                     <div class="route-input-group pickup-group">
                         <div class="input-icon-wrapper color-green">
                             <i class="fa-solid fa-circle-dot"></i>
                         </div>
                         <div class="input-field-wrapper">
                             <label for="pickupInput">موقع الانطلاق (نقطة الركوب)</label>
-                            <input type="text" id="pickupInput" placeholder="أين أنت الآن؟" value="محطة الرمل، وسط البلد، الإسكندرية" readonly>
+                            <input type="text" id="pickupInput" placeholder="أين أنت الآن؟" value="محطة الرمل، وسط البلد، الإسكندرية">
                         </div>
-                        <button type="button" class="clear-input-btn" id="clearPickupBtn" title="مسح">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <button type="button" class="clear-input-btn" id="clearPickupBtn"><i class="fa-solid fa-xmark"></i></button>
                     </div>
 
-                    <!-- زر تبديل المواقع -->
                     <div class="swap-locations-wrapper">
-                        <div class="connector-line"></div>
-                        <button type="button" id="swapLocationsBtn" class="swap-circle-btn" title="تبديل نقطة الانطلاق والوصول">
+                        <button type="button" id="swapLocationsBtn" class="swap-circle-btn" title="تبديل المواقع">
                             <i class="fa-solid fa-arrow-down-up-across-line"></i>
                         </button>
                     </div>
 
-                    <!-- نقطة الوصول -->
                     <div class="route-input-group dropoff-group">
                         <div class="input-icon-wrapper color-red">
                             <i class="fa-solid fa-location-dot"></i>
                         </div>
                         <div class="input-field-wrapper">
-                            <label for="dropoffInput">وجهة الوصول (المقصد)</label>
-                            <input type="text" id="dropoffInput" placeholder="إلى أين تريد الذهاب؟" value="سيدي بشر، شارع خالد بن الوليد" readonly>
+                            <label for="dropoffInput">وجهة الوصول (المقصد النهائي)</label>
+                            <input type="text" id="dropoffInput" placeholder="إلى أين تريد الذهاب؟" value="سيدي بشر، شارع خالد بن الوليد">
                         </div>
-                        <button type="button" class="clear-input-btn" id="clearDropoffBtn" title="مسح">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <button type="button" class="clear-input-btn" id="clearDropoffBtn"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-
                 </div>
 
-                <!-- شبكة اختيار أنواع المركبات (Vehicle Grid) -->
                 <div class="vehicle-selection-section">
                     <div class="section-title-wrapper">
                         <i class="fa-solid fa-taxi section-title-icon"></i>
@@ -142,13 +228,9 @@
                     </div>
 
                     <div class="vehicles-grid-container">
-                        
-                        <!-- 1. موتوسيكل -->
                         <div class="vehicle-option-card" data-vehicle="moto" data-price="18">
                             <div class="vehicle-card-badge tag-fast">سريع جداً</div>
-                            <div class="vehicle-icon-box">
-                                <i class="fa-solid fa-motorcycle"></i>
-                            </div>
+                            <div class="vehicle-icon-box"><i class="fa-solid fa-motorcycle"></i></div>
                             <div class="vehicle-meta-info">
                                 <h4 class="vehicle-title">موتوسيكل</h4>
                                 <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> 1-3 دقائق</span>
@@ -156,12 +238,9 @@
                             <div class="vehicle-price-estimate">18 ج.م</div>
                         </div>
 
-                        <!-- 2. توفير (اقتصادي) -->
                         <div class="vehicle-option-card active-vehicle" data-vehicle="economy" data-price="35">
                             <div class="vehicle-card-badge tag-popular">الأكثر طلباً</div>
-                            <div class="vehicle-icon-box">
-                                <i class="fa-solid fa-car"></i>
-                            </div>
+                            <div class="vehicle-icon-box"><i class="fa-solid fa-car"></i></div>
                             <div class="vehicle-meta-info">
                                 <h4 class="vehicle-title">توفير</h4>
                                 <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> 3-5 دقائق</span>
@@ -169,11 +248,8 @@
                             <div class="vehicle-price-estimate">35 ج.م</div>
                         </div>
 
-                        <!-- 3. راحة (كومفورت) -->
                         <div class="vehicle-option-card" data-vehicle="comfort" data-price="60">
-                            <div class="vehicle-icon-box">
-                                <i class="fa-solid fa-car-side"></i>
-                            </div>
+                            <div class="vehicle-icon-box"><i class="fa-solid fa-car-side"></i></div>
                             <div class="vehicle-meta-info">
                                 <h4 class="vehicle-title">راحة</h4>
                                 <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> 2-4 دقائق</span>
@@ -181,23 +257,17 @@
                             <div class="vehicle-price-estimate">60 ج.م</div>
                         </div>
 
-                        <!-- 4. سفر بين المحافظات -->
                         <div class="vehicle-option-card" data-vehicle="travel" data-price="150">
-                            <div class="vehicle-icon-box">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                            </div>
+                            <div class="vehicle-icon-box"><i class="fa-solid fa-map-location-dot"></i></div>
                             <div class="vehicle-meta-info">
-                                <h4 class="vehicle-title">سفر</h4>
-                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> بين المدن</span>
+                                <h4 class="vehicle-title">سفر بين المدن</h4>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> رحلات خارجية</span>
                             </div>
                             <div class="vehicle-price-estimate">150 ج.م</div>
                         </div>
 
-                        <!-- 5. شحن طرود -->
                         <div class="vehicle-option-card" data-vehicle="delivery" data-price="25">
-                            <div class="vehicle-icon-box">
-                                <i class="fa-solid fa-box-open"></i>
-                            </div>
+                            <div class="vehicle-icon-box"><i class="fa-solid fa-box-open"></i></div>
                             <div class="vehicle-meta-info">
                                 <h4 class="vehicle-title">شحن طرود</h4>
                                 <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> توصيل سريع</span>
@@ -205,427 +275,125 @@
                             <div class="vehicle-price-estimate">25 ج.م</div>
                         </div>
 
-                        <!-- 6. نقل بضائع ثقيل -->
                         <div class="vehicle-option-card" data-vehicle="truck" data-price="200">
-                            <div class="vehicle-icon-box">
-                                <i class="fa-solid fa-truck-ramp-box"></i>
-                            </div>
+                            <div class="vehicle-icon-box"><i class="fa-solid fa-truck-ramp-box"></i></div>
                             <div class="vehicle-meta-info">
                                 <h4 class="vehicle-title">شحن ثقيل</h4>
-                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> نقل بضائع</span>
+                                <span class="vehicle-eta"><i class="fa-solid fa-clock"></i> نقل أثاث وبضائع</span>
                             </div>
                             <div class="vehicle-price-estimate">200 ج.م</div>
                         </div>
-
                     </div>
                 </div>
 
-                <!-- لوحة المزايدة واقتراح السعر -->
                 <div class="bidding-price-box">
                     <div class="bidding-header-row">
                         <i class="fa-solid fa-hand-holding-dollar bidding-icon"></i>
                         <span>اقترح سعرك للرحلة (قابل للمفاوضة):</span>
                     </div>
                     <div class="bidding-controls-wrapper">
-                        <button type="button" id="decreaseBidBtn" class="bid-adjust-btn btn-minus" title="إنقاص السعر">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
+                        <button type="button" id="decreaseBidBtn" class="bid-adjust-btn btn-minus"><i class="fa-solid fa-minus"></i></button>
                         <div class="bid-display-container">
                             <span id="bidAmount" class="bid-number">35</span>
                             <span class="bid-currency">ج.م</span>
                         </div>
-                        <button type="button" id="increaseBidBtn" class="bid-adjust-btn btn-plus" title="زيادة السعر">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+                        <button type="button" id="increaseBidBtn" class="bid-adjust-btn btn-plus"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
 
-                <!-- الخيارات الإضافية (طريقة الدفع وملاحظات السائق) -->
-                <div class="additional-options-grid">
-                    
-                    <button type="button" id="paymentMethodBtn" class="option-pill-button">
-                        <div class="pill-left-part">
-                            <i class="fa-solid fa-wallet pill-icon"></i>
-                            <span id="selectedPaymentText">نقداً (كاش)</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-left pill-arrow"></i>
-                    </button>
-
-                    <button type="button" id="rideCommentsBtn" class="option-pill-button">
-                        <div class="pill-left-part">
-                            <i class="fa-solid fa-comment-dots pill-icon"></i>
-                            <span id="selectedCommentText">إضافة ملاحظات للسائق</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-left pill-arrow"></i>
-                    </button>
-
-                </div>
-
-                <!-- زر الإرسال الرئيسي -->
                 <div class="action-button-wrapper">
                     <button type="button" id="requestRideBtn" class="btn-primary-action">
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>طلب الرحلة الآن</span>
                     </button>
                 </div>
-
             </section>
 
-            <!-- ---------------------------------------------------------------------- -->
-            <!-- WORKFLOW STEP 2: LIVE BIDDING RADAR & DRIVER OFFERS                    -->
-            <!-- ---------------------------------------------------------------------- -->
+            <!-- STEP 2: LIVE OFFERS (Hidden initially) -->
             <section id="step2" class="workflow-card-step hidden-step">
-                
                 <div class="step-card-header">
                     <div class="step-title-group">
-                        <i class="fa-solid fa-satellite-dish step-header-icon radar-pulse"></i>
-                        2. العروض المباشرة
+                        <i class="fa-solid fa-satellite-dish step-header-icon"></i>
+                        <h2>العروض المباشرة</h2>
                     </div>
                     <span class="step-indicator-badge">خطوة 2 من 3</span>
                 </div>
 
-                <!-- رادار جاري البحث -->
                 <div class="radar-searching-banner">
                     <div class="radar-waves-container">
-                        <div class="wave wave1"></div>
-                        <div class="wave wave2"></div>
-                        <div class="wave wave3"></div>
-                        <i class="fa-solid fa-car-side radar-center-icon"></i>
+                        <i class="fa-solid fa-car-side"></i>
                     </div>
                     <h3>جاري البحث عن كباتن بالقرب منك...</h3>
-                    <p>السائقون القريبون يراجعون سعر المقترح الآن.</p>
+                    <p style="font-size: 12px; color: #718096; margin-top: 5px;">الكباتن المتاحون يراجعون مقترحك الآن وسيرسلون عروضهم فوراً.</p>
                 </div>
 
-                <!-- قائمة العروض المستلمة من السائقين -->
-                <div class="bids-feed-section">
-                    <div class="feed-header">
-                        <i class="fa-solid fa-list-check"></i>
-                        <h4>عروض السائقين المتاحة:</h4>
-                    </div>
-
-                    <div id="driverBidsContainer" class="bids-list-wrapper">
-                        
-                        <!-- كارت عرض سائق (نموذج معايير) -->
-                        <div class="driver-offer-card">
-                            <div class="driver-profile-row">
-                                <div class="driver-avatar-box">
-                                    <i class="fa-solid fa-user-tie"></i>
-                                </div>
-                                <div class="driver-info">
-                                    <h4 class="driver-name">الكابتن / أحمد محمود العبد</h4>
-                                    <div class="driver-rating">
-                                        <i class="fa-solid fa-star gold-star"></i>
-                                        <span class="rating-val">4.9</span>
-                                        <span class="trips-count">(1,240 رحلة)</span>
-                                    </div>
-                                    <span class="car-details">شيفروليه أفيو - أبيض (أ ب ج 1234)</span>
-                                </div>
-                                <div class="offer-price-tag">
-                                    <span class="price-val">35</span>
-                                    <span class="price-curr">ج.م</span>
-                                </div>
+                <div class="driver-offer-card">
+                    <div class="driver-profile-row">
+                        <div class="driver-avatar-box"><i class="fa-solid fa-user-tie"></i></div>
+                        <div class="driver-info">
+                            <h4 class="driver-name">الكابتن / أحمد محمود</h4>
+                            <div class="driver-rating">
+                                <i class="fa-solid fa-star gold-star"></i> <span>4.9 (1,240 رحلة)</span>
                             </div>
-                            <div class="offer-actions-row">
-                                <button type="button" class="btn-accept-offer"><i class="fa-solid fa-check"></i> قبول العرض</button>
-                                <button type="button" class="btn-decline-offer"><i class="fa-solid fa-xmark"></i> رفض</button>
-                            </div>
+                            <span class="car-details">شيفروليه أفيو - أبيض (أ ب ج 1234)</span>
                         </div>
-
-                        <!-- كارت عرض سائق ثانٍ -->
-                        <div class="driver-offer-card">
-                            <div class="driver-profile-row">
-                                <div class="driver-avatar-box">
-                                    <i class="fa-solid fa-user"></i>
-                                </div>
-                                <div class="driver-info">
-                                    <h4 class="driver-name">الكابتن / محمد علي السيد</h4>
-                                    <div class="driver-rating">
-                                        <i class="fa-solid fa-star gold-star"></i>
-                                        <span class="rating-val">4.8</span>
-                                        <span class="trips-count">(850 رحلة)</span>
-                                    </div>
-                                    <span class="car-details">نيسان صني - أسود (س ص ع 5678)</span>
-                                </div>
-                                <div class="offer-price-tag">
-                                    <span class="price-val">40</span>
-                                    <span class="price-curr">ج.م</span>
-                                </div>
-                            </div>
-                            <div class="offer-actions-row">
-                                <button type="button" class="btn-accept-offer"><i class="fa-solid fa-check"></i> قبول العرض</button>
-                                <button type="button" class="btn-decline-offer"><i class="fa-solid fa-xmark"></i> رفض</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- زر إلغاء البحث -->
-                <div class="cancel-search-wrapper">
-                    <button type="button" id="cancelSearchBtn" class="btn-secondary-cancel">
-                        <i class="fa-solid fa-ban"></i> إلغاء البحث والعودة
-                    </button>
-                </div>
-
-            </section>
-
-            <!-- ---------------------------------------------------------------------- -->
-            <!-- WORKFLOW STEP 3: ACTIVE TRIP & REAL-TIME TRACKING                      -->
-            <!-- ---------------------------------------------------------------------- -->
-            <section id="step3" class="workflow-card-step hidden-step">
-                
-                <div class="step-card-header">
-                    <div class="step-title-group">
-                        <i class="fa-solid fa-circle-location-arrow step-header-icon color-green"></i>
-                        3. الرحلة قائمة الان
-                    </div>
-                    <span class="step-indicator-badge badge-active">رحلة جارية</span>
-                </div>
-
-                <!-- شريط تقدم حالة الرحلة -->
-                <div class="trip-status-tracker">
-                    <div class="status-badge-row">
-                        <span id="activeStatusText" class="status-text-pulse">السائق في طريقه لإقلالك...</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div id="tripProgressBar" class="progress-bar-fill" style="width: 25%;"></div>
-                    </div>
-                </div>
-
-                <!-- بطاقة السائق المقبول -->
-                <div class="active-driver-card">
-                    <div class="driver-card-header">
-                        <div class="driver-avatar-large">
-                            <i class="fa-solid fa-user-check"></i>
-                        </div>
-                        <div class="driver-main-meta">
-                            <h3 id="acceptedDriverName">الكابتن / أحمد محمود</h3>
-                            <p id="acceptedVehicleInfo">شيفروليه أفيو - أبيض (أ ب ج 1234)</p>
-                            <div class="fare-agreed-tag">
-                                <i class="fa-solid fa-shield-check"></i>
-                                <span id="acceptedFareBadge">المبلغ المتفق عليه: 35 ج.م</span>
-                            </div>
+                        <div class="offer-price-tag">
+                            <span class="price-val">35</span>
+                            <span class="price-curr">ج.م</span>
                         </div>
                     </div>
-
-                    <!-- أزرار التفاعل والتواصل -->
-                    <div class="driver-contact-actions">
-                        
-                        <button type="button" id="callDriverBtn" class="contact-btn btn-call">
-                            <i class="fa-solid fa-phone"></i>
-                            <span>اتصال</span>
-                        </button>
-
-                        <button type="button" id="chatDriverBtn" class="contact-btn btn-chat">
-                            <i class="fa-solid fa-comments"></i>
-                            <span>محادثة</span>
-                        </button>
-
-                        <button type="button" id="shareTripBtn" class="contact-btn btn-share">
-                            <i class="fa-solid fa-share-nodes"></i>
-                            <span>مشاركة</span>
-                        </button>
-
+                    <div class="offer-actions-row">
+                        <button type="button" class="btn-accept-offer"><i class="fa-solid fa-check"></i> قبول العرض</button>
+                        <button type="button" class="btn-decline-offer"><i class="fa-solid fa-xmark"></i> رفض</button>
                     </div>
                 </div>
 
-                <!-- أدوات الطوارئ وإلغاء الرحلة -->
-                <div class="safety-and-cancel-wrapper">
-                    <button type="button" id="sosEmergencyBtn" class="btn-sos-danger">
-                        <i class="fa-solid fa-shield-cat"></i> زر الطوارئ SOS
-                    </button>
-                    <button type="button" id="cancelTripBtn" class="btn-cancel-active-trip">
-                        <i class="fa-solid fa-xmark"></i> إلغاء الرحلة
-                    </button>
-                </div>
-
+                <button type="button" id="cancelSearchBtn" class="btn-secondary-cancel">
+                    <i class="fa-solid fa-ban"></i> إلغاء البحث والعودة
+                </button>
             </section>
 
         </aside>
 
-        <!-- منطقة الخريطة التفاعلية (Map Viewer Area) -->
+        <!-- MAP VIEWPORT -->
         <main class="map-viewport-area">
-            
-            <!-- حاوية الخريطة -->
             <div id="map" class="leaflet-map-canvas"></div>
-
-            <!-- أزرار تحكم عائمة فوق الخريطة -->
-            <div class="map-floating-controls">
-                
-                <button type="button" id="recenterBtn" class="map-float-btn" title="تمركز حول الخريطة">
-                    <i class="fa-solid fa-crosshairs"></i>
-                </button>
-
-                <button type="button" id="zoomInBtn" class="map-float-btn" title="تكبير">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-
-                <button type="button" id="zoomOutBtn" class="map-float-btn" title="تصغير">
-                    <i class="fa-solid fa-minus"></i>
-                </button>
-
-                <button type="button" id="trafficToggleBtn" class="map-float-btn" title="حالة المرور">
-                    <i class="fa-solid fa-layer-group"></i>
-                </button>
-
-            </div>
-
-            <!-- مؤشر الطقس / حالة المرور السريعة -->
-            <div class="map-top-status-pill">
-                <i class="fa-solid fa-circle-info"></i>
-                <span>حركة المرور مستقرة في موقعك الحالي</span>
-            </div>
-
         </main>
 
     </div>
 
-    <!-- ============================================================================== -->
-    <!-- SECTION 3: MODALS & POPUP WINDOWS                                              -->
-    <!-- ============================================================================== -->
-    
-    <!-- خلفية التعتيم للنوافذ المنبثقة -->
-    <div id="modalBackdrop" class="modal-backdrop-overlay hidden-modal"></div>
-
-    <!-- 1. نافذة اختيار طريقة الدفع (Payment Modal) -->
-    <div id="paymentModal" class="custom-modal-window hidden-modal">
-        <div class="modal-header-bar">
-            <div class="modal-title">
-                <i class="fa-solid fa-wallet"></i>
-                <h3>اختر طريقة الدفع</h3>
-            </div>
-            <button type="button" class="close-modal-btn" data-close="paymentModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div class="modal-content-body">
-            
-            <div class="payment-option-card active-payment" data-payment="cash">
-                <div class="payment-icon-box color-cash">
-                    <i class="fa-solid fa-money-bill-wave"></i>
-                </div>
-                <div class="payment-text">
-                    <h4>نقداً (كاش)</h4>
-                    <p>الدفع المباشر للسائق بعد انتهاء الرحلة</p>
-                </div>
-                <i class="fa-solid fa-circle-check check-icon"></i>
-            </div>
-
-            <div class="payment-option-card" data-payment="wallet">
-                <div class="payment-icon-box color-wallet">
-                    <i class="fa-solid fa-mobile-screen-button"></i>
-                </div>
-                <div class="payment-text">
-                    <h4>محفظة إلكترونية</h4>
-                    <p>فودافون كاش / اورنج كاش / اتصالات كاش / إينستا باي</p>
-                </div>
-                <i class="fa-solid fa-circle-check check-icon"></i>
-            </div>
-
-            <div class="payment-option-card" data-payment="card">
-                <div class="payment-icon-box color-card">
-                    <i class="fa-solid fa-credit-card"></i>
-                </div>
-                <div class="payment-text">
-                    <h4>بطاقة إئتمان / بنكية</h4>
-                    <p>فيزا / ماستركارد / ميزة</p>
-                </div>
-                <i class="fa-solid fa-circle-check check-icon"></i>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- 2. نافذة الملاحظات والتعليمات للسائق (Comments Modal) -->
-    <div id="commentsModal" class="custom-modal-window hidden-modal">
-        <div class="modal-header-bar">
-            <div class="modal-title">
-                <i class="fa-solid fa-comment-dots"></i>
-                <h3>إضافة ملاحظات للسائق</h3>
-            </div>
-            <button type="button" class="close-modal-btn" data-close="commentsModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div class="modal-content-body">
-            <p class="modal-description-text">اكتب أي تعليمات خاصة بالسائق لضمان وصول سريع (مثل: وجود أمتعة، انتظاري عند علامة مميزة):</p>
-            
-            <textarea id="tripCommentInput" class="custom-modal-textarea" rows="4" placeholder="مثال: أنا أقف أمام بوابه الصيدلية، معي حقيبة سفر كبيرة..."></textarea>
-            
-            <!-- أزرار اختصارات سريعة -->
-            <div class="quick-comments-tags">
-                <button type="button" class="tag-btn">معي حقائب ثقيلة</button>
-                <button type="button" class="tag-btn">اتصل بي عند الوصول</button>
-                <button type="button" class="tag-btn">معي أطفال</button>
-                <button type="button" class="tag-btn">يرجى تشغيل التكييف</button>
-            </div>
-
-            <button type="button" id="saveCommentBtn" class="btn-save-modal">
-                <i class="fa-solid fa-floppy-disk"></i> حفظ الملاحظة
-            </button>
-        </div>
-    </div>
-
-    <!-- 3. نافذة المحادثة الفورية مع السائق (Live Chat System Modal) -->
-    <div id="chatModal" class="custom-modal-window chat-modal-window hidden-modal">
-        <div class="modal-header-bar">
-            <div class="modal-title">
-                <i class="fa-solid fa-comments"></i>
-                <h3>المحادثة الفورية مع الكابتن</h3>
-            </div>
-            <button type="button" class="close-modal-btn" data-close="chatModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div class="modal-content-body chat-body-container">
-            
-            <!-- منطقة الرسائل -->
-            <div id="chatMessagesBox" class="chat-messages-scroll-area">
-                
-                <div class="chat-bubble driver-bubble">
-                    <div class="bubble-sender-name">الكابتن أحمد</div>
-                    <div class="bubble-text">أهلاً بك يا فندم، أنا في طريقي إليك حالياً.</div>
-                    <span class="bubble-time">12:00 م</span>
-                </div>
-
-                <div class="chat-bubble user-bubble">
-                    <div class="bubble-sender-name">أنت</div>
-                    <div class="bubble-text">تمام يا كابتن، أنا منتظرك أمام العنوان المحدد.</div>
-                    <span class="bubble-time">12:01 م</span>
-                </div>
-
-            </div>
-
-            <!-- إدخال الرسالة -->
-            <div class="chat-input-bar">
-                <input type="text" id="chatInputField" placeholder="اكتب رسالتك للكابتن هنا...">
-                <button type="button" id="sendChatMsgBtn" class="chat-send-btn">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ============================================================================== -->
-    <!-- SECTION 4: FOOTER INFORMATIONAL BAR                                           -->
-    <!-- ============================================================================== -->
-    <footer class="app-footer">
-        <div class="footer-container">
-            <p class="copyright-text">&copy; 2026 جميع الحقوق محفوظة - منصة إنـدرايف مصر الرقمية.</p>
-            <div class="footer-links">
-                <a href="#"><i class="fa-solid fa-shield-halved"></i> سياسة الخصوصية</a>
-                <a href="#"><i class="fa-solid fa-file-contract"></i> الشروط والأحكام</a>
-                <a href="#"><i class="fa-solid fa-headset"></i> مركز الدعم والمساعدة</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- مكتبة الخرائط Leaflet JS -->
+    <!-- External Leaflet JS Engine -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- ملف الـ JavaScript الخاص بك -->
-    <script src="script.js"></script>
+    <script>
+        // إعداد خريطة الإسكندرية الافتراضية
+        var map = L.map('map').setView([31.2001, 29.9187], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© InDrive Egypt'
+        }).addTo(map);
 
+        // تفاعل العداد البسيط
+        let currentBid = 35;
+        document.getElementById('increaseBidBtn').addEventListener('click', () => {
+            currentBid += 5;
+            document.getElementById('bidAmount').textContent = currentBid;
+        });
+        document.getElementById('decreaseBidBtn').addEventListener('click', () => {
+            if (currentBid > 10) {
+                currentBid -= 5;
+                document.getElementById('bidAmount').textContent = currentBid;
+            }
+        });
+
+        // محاكاة زر الطلب والانتقال للخطوة التالية
+        document.getElementById('requestRideBtn').addEventListener('click', () => {
+            document.getElementById('step1').classList.add('hidden-step');
+            document.getElementById('step2').classList.remove('hidden-step');
+        });
+        document.getElementById('cancelSearchBtn').addEventListener('click', () => {
+            document.getElementById('step2').classList.add('hidden-step');
+            document.getElementById('step1').classList.remove('hidden-step');
+        });
+    </script>
 </body>
 </html>

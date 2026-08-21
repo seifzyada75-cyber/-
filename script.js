@@ -1,1023 +1,709 @@
 /**
- * ==============================================================================
- * INDRIVE EGYPT ENTERPRISE APPLICATION ENGINE (v3.5.0)
- * ==============================================================================
- * Production-Grade Architecture for Ride-Hailing Platform Simulation
- * Built with vanilla JavaScript (ES6+ Strict Mode)
- * Includes: GPS Tracking Engine, Real-time Bidding Radar, Offline Storage,
- * System Sound Effects, Dynamic Map Tiles, and Custom Notification Center.
+ * ============================================================================
+ * IN-DRIVE EGYPT - MASTER ENTERPRISE APPLICATION CONTROLLER (script.js)
+ * Architecture: Modular Enterprise Vanilla JavaScript Client Engine
+ * Version: 4.5.0-Enterprise
+ * Date: 2026
+ * ============================================================================
  */
 
 'use strict';
 
-// ==============================================================================
-// 1. CONFIGURATION & CONSTANTS DATABASE
-// ==============================================================================
+(function(window, document, undefined) {
+    
+    // Global Namespace for InDrive Enterprise Application
+    window.InDriveApp = window.InDriveApp || {};
 
-const APP_CONFIG = Object.freeze({
-    DEFAULT_CITY: 'alex',
-    CURRENCY_SYMBOL: 'ج.م',
-    REFRESH_INTERVAL_MS: 3000,
-    MAX_BID_INCREMENT: 5,
-    MIN_FARE_LIMIT: 10,
-    SIMULATION_SPEED_MS: 1500,
-    MAP_TILE_PROVIDER: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    MAP_ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-});
-
-const EGYPT_CITIES_DATABASE = Object.freeze({
-    alex: {
-        id: 'alex',
-        name_ar: 'الإسكندرية',
-        coords: [31.2001, 29.9187],
-        defaultPickup: 'محطة الرمل، وسط البلد، الإسكندرية',
-        defaultDropoff: 'سيدي بشر، شارع خالد بن الوليد',
-        driversNearbyCount: 8,
-        baseFareMultiplier: 1.0,
-        hotspots: [
-            { name: "محطة الرمل", coords: [31.2001, 29.9187] },
-            { name: "سيدي بشر", coords: [31.2500, 30.0000] },
-            { name: "سموحة", coords: [31.2150, 29.9550] },
-            { name: "المنتزه", coords: [31.2880, 30.0150] }
-        ]
-    },
-    cairo: {
-        id: 'cairo',
-        name_ar: 'القاهرة الكبرى',
-        coords: [30.0444, 31.2357],
-        defaultPickup: 'ميدان التحرير، وسط البلد، القاهرة',
-        defaultDropoff: 'مدينة نصر، شارع مكرم عبيد',
-        driversNearbyCount: 15,
-        baseFareMultiplier: 1.25,
-        hotspots: [
-            { name: "ميدان التحرير", coords: [30.0444, 31.2357] },
-            { name: "مدينة نصر", coords: [30.0561, 31.3301] },
-            { name: "التجمع الخامس", coords: [30.0074, 31.4310] },
-            { name: "المعادي", coords: [29.9602, 31.2569] }
-        ]
-    },
-    giza: {
-        id: 'giza',
-        name_ar: 'الجيزة',
-        coords: [30.0131, 31.2089],
-        defaultPickup: 'ميدان الجيزة، بجوار محطة المترو',
-        defaultDropoff: 'الشيخ زايد، مول العرب',
-        driversNearbyCount: 10,
-        baseFareMultiplier: 1.15,
-        hotspots: [
-            { name: "ميدان الجيزة", coords: [30.0131, 31.2089] },
-            { name: "الشيخ زايد", coords: [30.0465, 30.9820] },
-            { name: "الدقي", coords: [30.0381, 31.2120] },
-            { name: "الهرم", coords: [29.9870, 31.1420] }
-        ]
-    },
-    mansoura: {
-        id: 'mansoura',
-        name_ar: 'المنصورة',
-        coords: [31.0409, 31.3785],
-        defaultPickup: 'شارع المشاية السفلية، أمام الجامعة',
-        defaultDropoff: 'حي الجامعة، الدائري',
-        driversNearbyCount: 6,
-        baseFareMultiplier: 0.9,
-        hotspots: [
-            { name: "المشاية السفلية", coords: [31.0409, 31.3785] },
-            { name: "حي الجامعة", coords: [31.0350, 31.3620] },
-            { name: "شارع قناة السويس", coords: [31.0480, 31.3900] }
-        ]
-    },
-    tanta: {
-        id: 'tanta',
-        name_ar: 'طنطا',
-        coords: [30.7865, 31.0004],
-        defaultPickup: 'ميدان المحطة، وسط المدينة',
-        defaultDropoff: 'شارع النادي، طنطا',
-        driversNearbyCount: 5,
-        baseFareMultiplier: 0.85,
-        hotspots: [
-            { name: "ميدان المحطة", coords: [30.7865, 31.0004] },
-            { name: "شارع النادي", coords: [30.7950, 31.0080] }
-        ]
-    },
-    asyut: {
-        id: 'asyut',
-        name_ar: 'أسيوط',
-        coords: [27.1783, 31.1859],
-        defaultPickup: 'ميدان المحافظة، أسيوط',
-        defaultDropoff: 'جامعة أسيوط، البوابة الرئيسية',
-        driversNearbyCount: 4,
-        baseFareMultiplier: 0.8,
-        hotspots: [
-            { name: "ميدان المحافظة", coords: [27.1783, 31.1859] },
-            { name: "جامعة أسيوط", coords: [27.1850, 31.1710] }
-        ]
-    }
-});
-
-const VEHICLE_CATEGORIES = Object.freeze([
-    { id: 'moto', name: 'موتوسيكل', basePrice: 18, eta: '1-3 دقائق', badge: 'سريع جداً', icon: 'fa-motorcycle' },
-    { id: 'economy', name: 'توفير', basePrice: 35, eta: '3-5 دقائق', badge: 'الأكثر طلباً', icon: 'fa-car' },
-    { id: 'comfort', name: 'راحة', basePrice: 60, eta: '2-4 دقائق', badge: '', icon: 'fa-car-side' },
-    { id: 'travel', name: 'سفر', basePrice: 150, eta: 'بين المدن', badge: '', icon: 'fa-route' },
-    { id: 'delivery', name: 'شحن طرود', basePrice: 25, eta: 'توصيل سريع', badge: '', icon: 'fa-box-open' },
-    { id: 'truck', name: 'شحن ثقيل', basePrice: 200, eta: 'نقل بضائع', badge: '', icon: 'fa-truck-ramp-box' }
-]);
-
-const DRIVER_SIMULATION_POOL = Object.freeze([
-    {
-        id: 'drv_101',
-        name: 'أحمد محمود العبد',
-        rating: 4.9,
-        tripsCount: 1240,
-        vehicleModel: 'شيفروليه أفيو - أبيض',
-        plateNumber: 'أ ب ج 1234',
-        phone: '01012345678',
-        avatarIcon: 'fa-user'
-    },
-    {
-        id: 'drv_102',
-        name: 'محمد علي السيد',
-        rating: 4.8,
-        tripsCount: 850,
-        vehicleModel: 'نيسان صني - أسود',
-        plateNumber: 'س ص ع 5678',
-        phone: '01198765432',
-        avatarIcon: 'fa-user-tie'
-    },
-    {
-        id: 'drv_103',
-        name: 'حسن السيد عبد الوهاب',
-        rating: 4.95,
-        tripsCount: 2100,
-        vehicleModel: 'هيونداي فيرنا - فضي',
-        plateNumber: 'ر ط ي 9012',
-        phone: '01234567890',
-        avatarIcon: 'fa-id-badge'
-    },
-    {
-        id: 'drv_104',
-        name: 'محمود كمال النجار',
-        rating: 4.75,
-        tripsCount: 620,
-        vehicleModel: 'تويوتا كورولا - كحلي',
-        plateNumber: 'ط د س 4321',
-        phone: '01551234567',
-        avatarIcon: 'fa-user-gear'
-    },
-    {
-        id: 'drv_105',
-        name: 'إبراهيم مصطفى الفقي',
-        rating: 4.88,
-        tripsCount: 1430,
-        vehicleModel: 'كيا سيراتو - أحمر',
-        plateNumber: 'م ن هـ 8765',
-        phone: '01099887766',
-        avatarIcon: 'fa-user-check'
-    }
-]);
-
-// ==============================================================================
-// 2. AUDIO & SOUND EFFECTS ENGINE
-// ==============================================================================
-
-class SoundEngine {
-    constructor() {
-        this.ctx = null;
-    }
-
-    initCtx() {
-        if (!this.ctx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) {
-                this.ctx = new AudioContext();
-            }
+    /* ======================================================================== */
+    /* 1. APPLICATION STATE & CONFIGURATION OBJECTS                             */
+    /* ======================================================================== */
+    const EnterpriseState = {
+        version: '4.5.0',
+        environment: 'production',
+        currentStep: 1,
+        selectedCity: 'alex',
+        pickupLocation: {
+            name: 'محطة الرمل، وسط البلد، الإسكندرية',
+            lat: 31.2001,
+            lng: 29.9187,
+            zoneId: 'ALX-01'
+        },
+        dropoffLocation: {
+            name: 'سيدي بشر، شارع خالد بن الوليد',
+            lat: 31.2832,
+            lng: 30.0124,
+            zoneId: 'ALX-05'
+        },
+        selectedVehicle: {
+            id: 'economy',
+            name: 'توفير',
+            basePrice: 35,
+            eta: '3-5 دقائق',
+            category: 'standard'
+        },
+        bidding: {
+            userProposedFare: 35,
+            minAllowedFare: 15,
+            maxAllowedFare: 500,
+            stepIncrement: 5,
+            negotiationActive: true
+        },
+        payment: {
+            method: 'cash',
+            isVerified: true,
+            walletBalance: 1450.00,
+            currency: 'ج.م'
+        },
+        radar: {
+            isScanning: false,
+            searchRadiusKm: 5,
+            maxScanDurationSec: 30,
+            activeDriversFound: 0
+        },
+        trip: {
+            id: null,
+            status: 'idle', // idle, searching, matched, active, completed, cancelled
+            assignedDriver: null,
+            agreedPrice: 35,
+            startTime: null,
+            endTime: null,
+            routePolyline: []
+        },
+        userProfile: {
+            id: 'USR-882391',
+            name: 'محمود الألفي',
+            rating: 4.95,
+            totalTrips: 184,
+            phone: '+201012345678',
+            isVip: true
         }
-    }
+    };
 
-    playBeep(freq = 440, type = 'sine', duration = 0.15) {
-        try {
-            this.initCtx();
-            if (!this.ctx) return;
-            
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-            
-            gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-
-            osc.start();
-            osc.stop(this.ctx.currentTime + duration);
-        } catch (e) {
-            console.warn("AudioContext playback muted by browser security policy.", e);
+    /* ======================================================================== */
+    /* 2. EXTENSIVE METADATA & CITIES DATABASE                                  */
+    /* ======================================================================== */
+    const EgyptGovernoratesDatabase = {
+        alex: {
+            key: 'alex',
+            name: 'الإسكندرية',
+            code: 'ALX',
+            center: { lat: 31.2001, lng: 29.9187 },
+            zoomLevel: 14,
+            activeCaptainsCount: 412,
+            popularLandmarks: [
+                'محطة الرمل', 'ميامي', 'سيدي بشر', 'العجمي', 'سموحة', 'لوران', 'البورصة'
+            ]
+        },
+        cairo: {
+            key: 'cairo',
+            name: 'القاهرة الكبرى',
+            code: 'CAI',
+            center: { lat: 30.0444, lng: 31.2357 },
+            zoomLevel: 13,
+            activeCaptainsCount: 1250,
+            popularLandmarks: [
+                'ميدان التحرير', 'مدينة نصر', 'التجمع الخامس', 'المعادي', 'الزمالك', 'المهندسين'
+            ]
+        },
+        giza: {
+            key: 'giza',
+            name: 'الجيزة',
+            code: 'GIZ',
+            center: { lat: 30.0131, lng: 31.2089 },
+            zoomLevel: 13,
+            activeCaptainsCount: 830,
+            popularLandmarks: [
+                'الدقي', 'المهندسين', 'الهرم', 'فيصل', 'الشيخ زايد', 'السادس من أكتوبر'
+            ]
+        },
+        mansoura: {
+            key: 'mansoura',
+            name: 'المنصورة',
+            code: 'MNS',
+            center: { lat: 31.0409, lng: 31.3785 },
+            zoomLevel: 14,
+            activeCaptainsCount: 215,
+            popularLandmarks: [
+                'الشارع الجديد', 'جامعة المنصورة', 'توليب', 'سوق الحرفيين'
+            ]
+        },
+        tanta: {
+            key: 'tanta',
+            name: 'طنطا',
+            code: 'TNT',
+            center: { lat: 30.7865, lng: 31.0004 },
+            zoomLevel: 14,
+            activeCaptainsCount: 160,
+            popularLandmarks: [
+                'محطة الطريق السريع', 'السد العالي', 'شارع البحر'
+            ]
+        },
+        asyut: {
+            key: 'asyut',
+            name: 'أسيوط',
+            code: 'ASY',
+            center: { lat: 27.1810, lng: 31.1837 },
+            zoomLevel: 14,
+            activeCaptainsCount: 110,
+            popularLandmarks: [
+                'جامعة أسيوط', 'شارع الهلالي', 'الجمهورية'
+            ]
         }
-    }
+    };
 
-    playSuccessSound() {
-        this.playBeep(523.25, 'sine', 0.1);
-        setTimeout(() => this.playBeep(659.25, 'sine', 0.15), 100);
-        setTimeout(() => this.playBeep(783.99, 'sine', 0.25), 200);
-    }
-
-    playNotificationSound() {
-        this.playBeep(880, 'triangle', 0.08);
-        setTimeout(() => this.playBeep(1174.66, 'triangle', 0.12), 90);
-    }
-
-    playClickSound() {
-        this.playBeep(300, 'sine', 0.05);
-    }
-}
-
-// ==============================================================================
-// 3. STORAGE MANAGER (LOCAL STORAGE WRAPPER)
-// ==============================================================================
-
-class StorageManager {
-    static STORAGE_KEY_PREFIX = 'indrive_egypt_';
-
-    static setItem(key, data) {
-        try {
-            const serialized = JSON.stringify(data);
-            localStorage.setItem(this.STORAGE_KEY_PREFIX + key, serialized);
-        } catch (err) {
-            console.error("StorageManager Error saving key:", key, err);
+    /* ======================================================================== */
+    /* 3. MOCK DRIVERS DATA POOL FOR DYNAMIC BIDDING                           */
+    /* ======================================================================== */
+    const SimulatedDriversPool = [
+        {
+            id: 'DRV-101',
+            name: 'الكابتن / أحمد محمود',
+            rating: 4.9,
+            tripsCount: 1240,
+            vehicleModel: 'شيفروليه أفيو - أبيض',
+            plateNumber: 'أ ب ج 1234',
+            avatarIcon: 'fa-user-tie',
+            estimatedArrivalMin: 2,
+            baseBidOffer: 35
+        },
+        {
+            id: 'DRV-102',
+            name: 'الكابتن / مصطفى السيد',
+            rating: 4.8,
+            tripsCount: 850,
+            vehicleModel: 'نيسان صني - أسود',
+            plateNumber: 'س ص ع 5678',
+            avatarIcon: 'fa-user-gear',
+            estimatedArrivalMin: 3,
+            baseBidOffer: 40
+        },
+        {
+            id: 'DRV-103',
+            name: 'الكابتن / إبراهيم عبد الله',
+            rating: 4.95,
+            tripsCount: 2100,
+            vehicleModel: 'هيونداي فيرنا - فضي',
+            plateNumber: 'ط د ر 9876',
+            avatarIcon: 'fa-user-shield',
+            estimatedArrivalMin: 4,
+            baseBidOffer: 35
+        },
+        {
+            id: 'DRV-104',
+            name: 'الكابتن / محمد إسلام',
+            rating: 4.7,
+            tripsCount: 420,
+            vehicleModel: 'رينو لوجان - أزرق',
+            plateNumber: 'م ن ه 4321',
+            avatarIcon: 'fa-user-ninja',
+            estimatedArrivalMin: 5,
+            baseBidOffer: 30
         }
+    ];
+
+    /* ======================================================================== */
+    /* 4. DOM ELEMENTS REPOSITORY CACHING                                       */
+    /* ======================================================================== */
+    let DOM = {};
+
+    function cacheDomElements() {
+        DOM.citySelect = document.getElementById('citySelect');
+        DOM.step1 = document.getElementById('step1');
+        DOM.step2 = document.getElementById('step2');
+        DOM.step3 = document.getElementById('step3');
+        DOM.pickupInput = document.getElementById('pickupInput');
+        DOM.dropoffInput = document.getElementById('dropoffInput');
+        DOM.clearPickupBtn = document.getElementById('clearPickupBtn');
+        DOM.clearDropoffBtn = document.getElementById('clearDropoffBtn');
+        DOM.swapLocationsBtn = document.getElementById('swapLocationsBtn');
+        DOM.vehicleCards = document.querySelectorAll('.vehicle-option-card');
+        DOM.bidAmountDisplay = document.getElementById('bidAmount');
+        DOM.increaseBidBtn = document.getElementById('increaseBidBtn');
+        DOM.decreaseBidBtn = document.getElementById('decreaseBidBtn');
+        DOM.requestRideBtn = document.getElementById('requestRideBtn');
+        DOM.cancelSearchBtn = document.getElementById('cancelSearchBtn');
+        DOM.driverBidsContainer = document.getElementById('driverBidsContainer');
+        DOM.tripProgressBar = document.getElementById('tripProgressBar');
+        DOM.activeStatusText = document.getElementById('activeStatusText');
+        DOM.acceptedDriverName = document.getElementById('acceptedDriverName');
+        DOM.acceptedVehicleInfo = document.getElementById('acceptedVehicleInfo');
+        DOM.acceptedFareBadge = document.getElementById('acceptedFareBadge');
+        DOM.callDriverBtn = document.getElementById('callDriverBtn');
+        DOM.chatDriverBtn = document.getElementById('chatDriverBtn');
+        DOM.shareTripBtn = document.getElementById('shareTripBtn');
+        DOM.sosEmergencyBtn = document.getElementById('sosEmergencyBtn');
+        DOM.cancelTripBtn = document.getElementById('cancelTripBtn');
+        DOM.modalBackdrop = document.getElementById('modalBackdrop');
+        DOM.paymentModal = document.getElementById('paymentModal');
+        DOM.chatModal = document.getElementById('chatModal');
+        DOM.chatMessagesBox = document.getElementById('chatMessagesBox');
+        DOM.chatInputField = document.getElementById('chatInputField');
+        DOM.sendChatMsgBtn = document.getElementById('sendChatMsgBtn');
+        DOM.recenterBtn = document.getElementById('recenterBtn');
+        DOM.notificationsBtn = document.getElementById('notificationsBtn');
+        DOM.supportCenterBtn = document.getElementById('supportCenterBtn');
     }
 
-    static getItem(key, defaultValue = null) {
-        try {
-            const item = localStorage.getItem(this.STORAGE_KEY_PREFIX + key);
-            return item ? JSON.parse(item) : defaultValue;
-        } catch (err) {
-            console.error("StorageManager Error reading key:", key, err);
-            return defaultValue;
-        }
-    }
-
-    static removeItem(key) {
-        localStorage.removeItem(this.STORAGE_KEY_PREFIX + key);
-    }
-
-    static clearAllHistory() {
-        Object.keys(localStorage).forEach(k => {
-            if (k.startsWith(this.STORAGE_KEY_PREFIX)) {
-                localStorage.removeItem(k);
-            }
-        });
-    }
-}
-
-// ==============================================================================
-// 4. LEAFLET GEOGRAPHIC MAP CONTROLLER ENGINE
-// ==============================================================================
-
-class MapEngine {
-    constructor(containerId, initialCity) {
-        this.containerId = containerId;
-        this.currentCity = initialCity;
-        this.map = null;
-        this.pickupMarker = null;
-        this.dropoffMarker = null;
-        this.routeLine = null;
-        this.driverMarkers = [];
-        this.activeDriverMarker = null;
-
-        this.initMap();
-    }
-
-    initMap() {
-        const cityData = EGYPT_CITIES_DATABASE[this.currentCity];
+    /* ======================================================================== */
+    /* 5. LEAFLET MAP ENGINE CORE INITIALIZER & UTILITIES                       */
+    /* ======================================================================== */
+    let MapManager = {
+        mapInstance: null,
+        markersLayerGroup: null,
+        polylineLayer: null,
         
-        this.map = L.map(this.containerId, {
-            zoomControl: false,
-            attributionControl: false,
-            fadeAnimation: true,
-            zoomAnimation: true
-        }).setView(cityData.coords, 14);
+        init: function() {
+            const activeCity = EgyptGovernoratesDatabase.alex;
+            
+            this.mapInstance = L.map('map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([activeCity.center.lat, activeCity.center.lng], activeCity.zoomLevel);
 
-        L.tileLayer(APP_CONFIG.MAP_TILE_PROVIDER, {
-            maxZoom: 19,
-            subdomains: 'abcd'
-        }).addTo(this.map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                subdomains: ['a', 'b', 'c']
+            }).addTo(this.mapInstance);
 
-        this.setupCustomIconStyles();
-        this.setupInitialMarkers(cityData);
-    }
+            L.control.zoom({ position: 'bottomleft' }).addTo(this.mapInstance);
+            
+            this.markersLayerGroup = L.layerGroup().addTo(this.mapInstance);
+            this.renderDefaultMarkers(activeCity.center.lat, activeCity.center.lng);
+            
+            console.log('MapManager: Leaflet map initialized successfully.');
+        },
 
-    setupCustomIconStyles() {
-        this.pickupIcon = L.divIcon({
-            className: 'custom-map-pin pickup-pin',
-            html: `<div class="pin-inner pulse-green"><i class="fa-solid fa-location-dot"></i></div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 32]
-        });
+        renderDefaultMarkers: function(lat, lng) {
+            this.markersLayerGroup.clearLayers();
 
-        this.dropoffIcon = L.divIcon({
-            className: 'custom-map-pin dropoff-pin',
-            html: `<div class="pin-inner pulse-red"><i class="fa-solid fa-flag-checkered"></i></div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 32]
-        });
-
-        this.driverIcon = L.divIcon({
-            className: 'custom-map-pin driver-pin',
-            html: `<div class="car-pin-inner"><i class="fa-solid fa-car-side"></i></div>`,
-            iconSize: [28, 28],
-            iconAnchor: [14, 14]
-        });
-    }
-
-    setupInitialMarkers(cityData) {
-        const pickupCoords = cityData.coords;
-        const dropoffCoords = [cityData.coords[0] + 0.025, cityData.coords[1] + 0.025];
-
-        this.pickupMarker = L.marker(pickupCoords, { icon: this.pickupIcon, draggable: true }).addTo(this.map);
-        this.dropoffMarker = L.marker(dropoffCoords, { icon: this.dropoffIcon, draggable: true }).addTo(this.map);
-
-        this.pickupMarker.bindPopup("<b>نقطة الانطلاق</b><br>انقل الدبوس لتغيير الموقع").openPopup();
-        this.dropoffMarker.bindPopup("<b>وجهة الوصول</b>");
-
-        this.drawRoute(pickupCoords, dropoffCoords);
-        this.spawnRandomNearbyDrivers(pickupCoords);
-
-        // Marker Drag Events
-        this.pickupMarker.on('dragend', (e) => {
-            const newPos = e.target.getLatLng();
-            this.updateRouteFromMarkers();
-        });
-
-        this.dropoffMarker.on('dragend', (e) => {
-            const newPos = e.target.getLatLng();
-            this.updateRouteFromMarkers();
-        });
-    }
-
-    drawRoute(start, end) {
-        if (this.routeLine) {
-            this.map.removeLayer(this.routeLine);
-        }
-
-        this.routeLine = L.polyline([start, end], {
-            color: '#00e676',
-            weight: 5,
-            opacity: 0.8,
-            dashArray: '10, 10',
-            lineCap: 'round'
-        }).addTo(this.map);
-
-        this.map.fitBounds(this.routeLine.getBounds(), { padding: [50, 50] });
-    }
-
-    updateRouteFromMarkers() {
-        const p1 = this.pickupMarker.getLatLng();
-        const p2 = this.dropoffMarker.getLatLng();
-        this.drawRoute([p1.lat, p1.lng], [p2.lat, p2.lng]);
-    }
-
-    switchCity(cityKey) {
-        if (!EGYPT_CITIES_DATABASE[cityKey]) return;
-        this.currentCity = cityKey;
-        const cityData = EGYPT_CITIES_DATABASE[cityKey];
-
-        this.map.flyTo(cityData.coords, 14, { duration: 1.8 });
-
-        const pickupCoords = cityData.coords;
-        const dropoffCoords = [cityData.coords[0] + 0.025, cityData.coords[1] + 0.025];
-
-        this.pickupMarker.setLatLng(pickupCoords);
-        this.dropoffMarker.setLatLng(dropoffCoords);
-
-        this.drawRoute(pickupCoords, dropoffCoords);
-        this.clearDriverMarkers();
-        this.spawnRandomNearbyDrivers(pickupCoords);
-    }
-
-    clearDriverMarkers() {
-        this.driverMarkers.forEach(m => this.map.removeLayer(m));
-        this.driverMarkers = [];
-    }
-
-    spawnRandomNearbyDrivers(centerCoords) {
-        this.clearDriverMarkers();
-        const count = EGYPT_CITIES_DATABASE[this.currentCity].driversNearbyCount;
-
-        for (let i = 0; i < count; i++) {
-            const latOffset = (Math.random() - 0.5) * 0.03;
-            const lngOffset = (Math.random() - 0.5) * 0.03;
-            const driverPos = [centerCoords[0] + latOffset, centerCoords[1] + lngOffset];
-
-            const marker = L.marker(driverPos, { icon: this.driverIcon }).addTo(this.map);
-            this.driverMarkers.push(marker);
-        }
-    }
-
-    animateActiveDriverToPickup(callback) {
-        if (this.driverMarkers.length === 0) return;
-
-        const driverMarker = this.driverMarkers[0];
-        const targetLatLng = this.pickupMarker.getLatLng();
-        const startLatLng = driverMarker.getLatLng();
-
-        let steps = 30;
-        let currentStep = 0;
-
-        const interval = setInterval(() => {
-            currentStep++;
-            const lat = startLatLng.lat + (targetLatLng.lat - startLatLng.lat) * (currentStep / steps);
-            const lng = startLatLng.lng + (targetLatLng.lng - startLatLng.lng) * (currentStep / steps);
-
-            driverMarker.setLatLng([lat, lng]);
-
-            if (currentStep >= steps) {
-                clearInterval(interval);
-                if (typeof callback === 'function') callback();
-            }
-        }, 300);
-    }
-
-    recenterMap() {
-        const p1 = this.pickupMarker.getLatLng();
-        const p2 = this.dropoffMarker.getLatLng();
-        const bounds = L.latLngBounds([p1, p2]);
-        this.map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
-    }
-}
-
-// ==============================================================================
-// 5. BIDDING & OFFER SIMULATOR ENGINE
-// ==============================================================================
-
-class BiddingEngine {
-    constructor(soundEngine) {
-        this.soundEngine = soundEngine;
-        this.activeOffers = [];
-        this.timerInstance = null;
-    }
-
-    generateOffersForUserBid(userBidAmount, selectedVehicle) {
-        this.activeOffers = [];
-        const basePool = DRIVER_SIMULATION_POOL.slice(0, 3);
-
-        basePool.forEach((driverData, index) => {
-            let variance = 0;
-            if (index === 0) variance = 0; 
-            else if (index === 1) variance = 5; 
-            else variance = 3; 
-
-            const calculatedPrice = userBidAmount + variance;
-
-            this.activeOffers.push({
-                offerId: 'off_' + Math.random().toString(36).substring(2, 9),
-                driver: driverData,
-                price: calculatedPrice,
-                etaMinutes: (index + 1) * 2,
-                timeCreated: new Date()
+            const pickupIcon = L.divIcon({
+                className: 'custom-leaflet-marker pickup-marker-node',
+                html: '<div style="background:#00c853; width:16px; height:16px; border-radius:50%; border:3px solid #ffffff; box-shadow:0 0 12px rgba(0,200,83,0.6);"></div>',
+                iconSize: [20, 20]
             });
+
+            const dropoffIcon = L.divIcon({
+                className: 'custom-leaflet-marker dropoff-marker-node',
+                html: '<div style="background:#ff3d00; width:16px; height:16px; border-radius:50%; border:3px solid #ffffff; box-shadow:0 0 12px rgba(255,61,0,0.6);"></div>',
+                iconSize: [20, 20]
+            });
+
+            L.marker([lat, lng], { icon: pickupIcon })
+                .addTo(this.markersLayerGroup)
+                .bindPopup('<b>نقطة الركوب الحالية</b>');
+
+            L.marker([lat + 0.04, lng + 0.05], { icon: dropoffIcon })
+                .addTo(this.markersLayerGroup)
+                .bindPopup('<b>الوجهة النهائية المقترحة</b>');
+        },
+
+        panToCity: function(cityKey) {
+            const cityData = EgyptGovernoratesDatabase[cityKey];
+            if (cityData && this.mapInstance) {
+                this.mapInstance.setView([cityData.center.lat, cityData.center.lng], cityData.zoomLevel);
+                this.renderDefaultMarkers(cityData.center.lat, cityData.center.lng);
+                console.log(`MapManager: Panned view to governorate -> ${cityData.name}`);
+            }
+        },
+
+        resetViewToCurrentLocation: function() {
+            const currentCityKey = EnterpriseState.selectedCity;
+            this.panToCity(currentCityKey);
+        }
+    };
+
+    /* ======================================================================== */
+    /* 6. EVENT LISTENERS BINDING LOGIC                                         */
+    /* ======================================================================== */
+    function bindApplicationEventListeners() {
+        
+        // City selection change listener
+        if (DOM.citySelect) {
+            DOM.citySelect.addEventListener('change', function(event) {
+                const selectedKey = event.target.value;
+                EnterpriseState.selectedCity = selectedKey;
+                MapManager.panToCity(selectedKey);
+                
+                const govObj = EgyptGovernoratesDatabase[selectedKey];
+                if (govObj) {
+                    showEnterpriseToast(`تم تحديث الخريطة والمناطق النشطة في ${govObj.name}`);
+                }
+            });
+        }
+
+        // Input clearing tools
+        if (DOM.clearPickupBtn) {
+            DOM.clearPickupBtn.addEventListener('click', function() {
+                DOM.pickupInput.value = '';
+                DOM.pickupInput.focus();
+                EnterpriseState.pickupLocation.name = '';
+            });
+        }
+
+        if (DOM.clearDropoffBtn) {
+            DOM.clearDropoffBtn.addEventListener('click', function() {
+                DOM.dropoffInput.value = '';
+                DOM.dropoffInput.focus();
+                EnterpriseState.dropoffLocation.name = '';
+            });
+        }
+
+        // Swap locations functionality
+        if (DOM.swapLocationsBtn) {
+            DOM.swapLocationsBtn.addEventListener('click', function() {
+                const tempVal = DOM.pickupInput.value;
+                DOM.pickupInput.value = DOM.dropoffInput.value;
+                DOM.dropoffInput.value = tempVal;
+                
+                const tempObj = { ...EnterpriseState.pickupLocation };
+                EnterpriseState.pickupLocation = { ...EnterpriseState.dropoffLocation };
+                EnterpriseState.dropoffLocation = tempObj;
+
+                showEnterpriseToast('تم تبديل مواقع نقطة الانطلاق والوصول بنجاح');
+            });
+        }
+
+        // Vehicle selection cards click handlers
+        if (DOM.vehicleCards) {
+            DOM.vehicleCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    DOM.vehicleCards.forEach(c => c.classList.remove('active-vehicle'));
+                    this.classList.add('active-vehicle');
+
+                    const vehicleId = this.getAttribute('data-vehicle');
+                    const defaultPrice = parseInt(this.getAttribute('data-price')) || 35;
+
+                    EnterpriseState.selectedVehicle.id = vehicleId;
+                    EnterpriseState.selectedVehicle.basePrice = defaultPrice;
+                    EnterpriseState.bidding.userProposedFare = defaultPrice;
+                    
+                    if (DOM.bidAmountDisplay) {
+                        DOM.bidAmountDisplay.textContent = defaultPrice;
+                    }
+
+                    console.log(`VehicleCategoryChanged: Selected -> ${vehicleId}, BasePrice -> ${defaultPrice}`);
+                });
+            });
+        }
+
+        // Bidding Price Adjustment Buttons (+ / -)
+        if (DOM.increaseBidBtn) {
+            DOM.increaseBidBtn.addEventListener('click', function() {
+                if (EnterpriseState.bidding.userProposedFare < EnterpriseState.bidding.maxAllowedFare) {
+                    EnterpriseState.bidding.userProposedFare += EnterpriseState.bidding.stepIncrement;
+                    updateBidDisplayView();
+                }
+            });
+        }
+
+        if (DOM.decreaseBidBtn) {
+            DOM.decreaseBidBtn.addEventListener('click', function() {
+                if (EnterpriseState.bidding.userProposedFare > EnterpriseState.bidding.minAllowedFare) {
+                    EnterpriseState.bidding.userProposedFare -= EnterpriseState.bidding.stepIncrement;
+                    updateBidDisplayView();
+                }
+            });
+        }
+
+        // Request Ride Trigger Button (Transitions to Step 2)
+        if (DOM.requestRideBtn) {
+            DOM.requestRideBtn.addEventListener('click', function() {
+                const pickupVal = DOM.pickupInput.value.trim();
+                const dropoffVal = DOM.dropoffInput.value.trim();
+
+                if (!pickupVal || !dropoffVal) {
+                    alert('تنبيه هام: يرجى إدخال عنوان نقطة الانطلاق والوجهة المطلوبة بدقة للمتابعة.');
+                    return;
+                }
+
+                transitionWorkflowStep(2);
+            });
+        }
+
+        // Cancel Search and return to Step 1
+        if (DOM.cancelSearchBtn) {
+            DOM.cancelSearchBtn.addEventListener('click', function() {
+                transitionWorkflowStep(1);
+                showEnterpriseToast('تم إلغاء عملية البحث عن الكباتن');
+            });
+        }
+
+        // Global delegation for accepting/declining driver bids
+        document.addEventListener('click', function(event) {
+            const acceptBtn = event.target.closest('.btn-accept-offer');
+            if (acceptBtn) {
+                const card = acceptBtn.closest('.driver-offer-card');
+                const captainName = card.querySelector('.driver-name').textContent;
+                const vehicleDetails = card.querySelector('.car-details').textContent;
+                const agreedPriceVal = card.querySelector('.price-val').textContent;
+
+                EnterpriseState.trip.agreedPrice = parseInt(agreedPriceVal) || 35;
+                
+                if (DOM.acceptedDriverName) DOM.acceptedDriverName.textContent = captainName;
+                if (DOM.acceptedVehicleInfo) DOM.acceptedVehicleInfo.textContent = vehicleDetails;
+                if (DOM.acceptedFareBadge) DOM.acceptedFareBadge.textContent = `الأجرة المتفق عليها: ${agreedPriceVal} ج.م`;
+
+                transitionWorkflowStep(3);
+                showEnterpriseToast('تم قبول عرض الكابتن بنجاح! جاري تحضير تفاصيل الرحلة');
+            }
         });
 
-        return this.activeOffers;
-    }
+        // Chat modal trigger
+        if (DOM.chatDriverBtn) {
+            DOM.chatDriverBtn.addEventListener('click', function() {
+                openEnterpriseModal('chatModal');
+            });
+        }
 
-    startRealtimeBiddingFeed(containerEl, userBidAmount, onAcceptCallback) {
-        containerEl.innerHTML = '';
-        const offers = this.generateOffersForUserBid(userBidAmount);
+        // Send chat message action
+        if (DOM.sendChatMsgBtn && DOM.chatInputField) {
+            DOM.sendChatMsgBtn.addEventListener('click', handleChatDispatchMessage);
+            DOM.chatInputField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleChatDispatchMessage();
+                }
+            });
+        }
 
-        offers.forEach((offer, idx) => {
-            setTimeout(() => {
-                const cardHTML = this.createOfferCardElement(offer, onAcceptCallback);
-                containerEl.appendChild(cardHTML);
-                this.soundEngine.playNotificationSound();
-            }, (idx + 1) * 1200);
+        // Modal backdrops and close events
+        if (DOM.modalBackdrop) {
+            DOM.modalBackdrop.addEventListener('click', closeAllEnterpriseModals);
+        }
+
+        const closeModalsTriggerList = document.querySelectorAll('.close-modal-btn');
+        closeModalsTriggerList.forEach(btn => {
+            btn.addEventListener('click', closeAllEnterpriseModals);
         });
+
+        // SOS Emergency Button
+        if (DOM.sosEmergencyBtn) {
+            DOM.sosEmergencyBtn.addEventListener('click', function() {
+                triggerSosEmergencyProtocol();
+            });
+        }
+
+        // Cancel Active Trip Button
+        if (DOM.cancelTripBtn) {
+            DOM.cancelTripBtn.addEventListener('click', function() {
+                if (confirm('تحذير: هل أنت متأكد من رغبتك في إلغاء الرحلة الجارية حالياً؟ قد يتم تطبيق رسم إلغاء بسيط.')) {
+                    transitionWorkflowStep(1);
+                    showEnterpriseToast('تم إلغاء الرحلة النشطة بنجاح');
+                }
+            });
+        }
+
+        // Recenter Map Button
+        if (DOM.recenterBtn) {
+            DOM.recenterBtn.addEventListener('click', function() {
+                MapManager.resetViewToCurrentLocation();
+                showEnterpriseToast('تمت إعادة ضبط تمركز الخريطة');
+            });
+        }
     }
 
-    createOfferCardElement(offer, onAcceptCallback) {
-        const card = document.createElement('div');
-        card.className = 'driver-offer-card animated-fade-in';
-        card.setAttribute('data-offer-id', offer.offerId);
+    /* ======================================================================== */
+    /* 7. WORKFLOW STEP MANAGEMENT & CONTROLLER ENGINE                          */
+    /* ======================================================================== */
+    function transitionWorkflowStep(targetStepNumber) {
+        EnterpriseState.currentStep = targetStepNumber;
 
-        card.innerHTML = `
-            <div class="driver-info-meta">
-                <div class="driver-avatar-circle">
-                    <i class="fa-solid ${offer.driver.avatarIcon}"></i>
-                </div>
-                <div class="driver-details">
-                    <span class="driver-name">الكابتن / ${offer.driver.name}</span>
-                    <div class="driver-rating-row">
-                        <i class="fa-solid fa-star star-icon"></i>
-                        <span class="rating-val">${offer.driver.rating}</span>
-                        <span class="trips-count">(${offer.driver.tripsCount} رحلة مكتملة)</span>
-                    </div>
-                    <span class="driver-vehicle-info">${offer.driver.vehicleModel} | (${offer.driver.plateNumber})</span>
-                    <span class="driver-distance-eta"><i class="fa-solid fa-clock"></i> يبعد ${offer.etaMinutes} دقائق عنك</span>
-                </div>
-                <div class="offer-price-tag">
-                    <span>${offer.price}</span>
-                    <span class="curr">${APP_CONFIG.CURRENCY_SYMBOL}</span>
-                </div>
-            </div>
-            <div class="offer-action-buttons">
-                <button type="button" class="accept-bid-btn">قبول العرض</button>
-                <button type="button" class="decline-bid-btn">رفض</button>
-            </div>
+        // Hide all steps first
+        if (DOM.step1) DOM.step1.classList.add('hidden-step');
+        if (DOM.step2) DOM.step2.classList.add('hidden-step');
+        if (DOM.step3) DOM.step3.classList.add('hidden-step');
+
+        // Show appropriate step according to parameter
+        switch (targetStepNumber) {
+            case 1:
+                if (DOM.step1) DOM.step1.classList.remove('hidden-step');
+                EnterpriseState.trip.status = 'idle';
+                break;
+            case 2:
+                if (DOM.step2) DOM.step2.classList.remove('hidden-step');
+                EnterpriseState.trip.status = 'searching';
+                initializeRadarScanSimulation();
+                break;
+            case 3:
+                if (DOM.step3) DOM.step3.classList.remove('hidden-step');
+                EnterpriseState.trip.status = 'active';
+                initializeActiveTripTrackerSimulation();
+                break;
+            default:
+                if (DOM.step1) DOM.step1.classList.remove('hidden-step');
+                break;
+        }
+
+        console.log(`WorkflowEngine: Successfully transitioned to Step -> ${targetStepNumber}`);
+    }
+
+    function updateBidDisplayView() {
+        if (DOM.bidAmountDisplay) {
+            DOM.bidAmountDisplay.textContent = EnterpriseState.bidding.userProposedFare;
+        }
+    }
+
+    /* ======================================================================== */
+    /* 8. RADAR SCANNING & TRIP TRACKING SIMULATION ENGINE                      */
+    /* ======================================================================== */
+    function initializeRadarScanSimulation() {
+        EnterpriseState.radar.isScanning = true;
+        console.log('RadarEngine: Scanning active zone for available captains...');
+        
+        // Simulate dynamic bid cards population if container exists
+        setTimeout(() => {
+            if (EnterpriseState.currentStep === 2) {
+                console.log('RadarEngine: Found 2 matched captains. Displaying bids.');
+            }
+        }, 2500);
+    }
+
+    function initializeActiveTripTrackerSimulation() {
+        let currentProgressPercentage = 35;
+        EnterpriseState.trip.startTime = new Date();
+
+        const tripIntervalTimer = setInterval(() => {
+            if (EnterpriseState.currentStep !== 3) {
+                clearInterval(tripIntervalTimer);
+                return;
+            }
+
+            currentProgressPercentage += 20;
+            if (DOM.tripProgressBar) {
+                DOM.tripProgressBar.style.width = `${currentProgressPercentage}%`;
+            }
+
+            if (currentProgressPercentage >= 100) {
+                clearInterval(tripIntervalTimer);
+                if (DOM.activeStatusText) {
+                    DOM.activeStatusText.textContent = 'لقد وصلت إلى وجهتك بسلام!';
+                }
+                showEnterpriseToast('تم إتمام الرحلة بنجاح. شكراً لاستخدامك إنـدرايف!');
+                
+                setTimeout(() => {
+                    transitionWorkflowStep(1);
+                }, 3500);
+            } else if (currentProgressPercentage >= 75) {
+                if (DOM.activeStatusText) DOM.activeStatusText.textContent = 'أنت تقترب جداً من وجهتك النهائية...';
+            } else if (DOM.activeStatusText) {
+                DOM.activeStatusText.textContent = 'الكابتن يقود السيارة في الطريق الآمن...';
+            }
+        }, 3000);
+    }
+
+    /* ======================================================================== */
+    /* 9. MODALS, CHAT & TOAST NOTIFICATIONS SUBSYSTEM                          */
+    /* ======================================================================== */
+    function openEnterpriseModal(modalElementId) {
+        const targetModal = document.getElementById(modalElementId);
+        if (targetModal && DOM.modalBackdrop) {
+            targetModal.classList.remove('hidden-modal');
+            DOM.modalBackdrop.classList.remove('hidden-modal');
+        }
+    }
+
+    function closeAllEnterpriseModals() {
+        if (DOM.paymentModal) DOM.paymentModal.classList.add('hidden-modal');
+        if (DOM.chatModal) DOM.chatModal.classList.add('hidden-modal');
+        if (DOM.modalBackdrop) DOM.modalBackdrop.classList.add('hidden-modal');
+    }
+
+    function handleChatDispatchMessage() {
+        if (!DOM.chatInputField || !DOM.chatMessagesBox) return;
+        
+        const messageText = DOM.chatInputField.value.trim();
+        if (!messageText) return;
+
+        const userBubbleNode = document.createElement('div');
+        userBubbleNode.className = 'chat-bubble driver-bubble';
+        userBubbleNode.style.alignSelf = 'flex-end';
+        userBubbleNode.style.background = '#e6f9f0';
+        userBubbleNode.innerHTML = `
+            <div class="bubble-sender-name" style="color:#00a859;">أنت</div>
+            <div class="bubble-text">${escapeHtmlString(messageText)}</div>
         `;
 
-        const acceptBtn = card.querySelector('.accept-bid-btn');
-        const declineBtn = card.querySelector('.decline-bid-btn');
-
-        acceptBtn.addEventListener('click', () => {
-            onAcceptCallback(offer);
-        });
-
-        declineBtn.addEventListener('click', () => {
-            card.style.transform = 'scale(0.9)';
-            card.style.opacity = '0';
-            setTimeout(() => card.remove(), 250);
-        });
-
-        return card;
-    }
-}
-
-// ==============================================================================
-// 6. MAIN APPLICATION MASTER CONTROLLER
-// ==============================================================================
-
-class InDriveApplicationController {
-    constructor() {
-        this.soundEngine = new SoundEngine();
-        this.mapEngine = null;
-        this.biddingEngine = new BiddingEngine(this.soundEngine);
-
-        // Application State Data
-        this.state = {
-            currentCity: APP_CONFIG.DEFAULT_CITY,
-            selectedVehicle: 'economy',
-            userProposedBid: 35,
-            selectedPaymentMethod: 'cash',
-            tripComment: '',
-            activeWorkflowStep: 1,
-            activeTripData: null,
-            chatMessagesHistory: [
-                { sender: 'driver', text: 'أهلاً بك يا فندم، أنا في طريقي إليك حالياً.' }
-            ]
-        };
-
-        // DOM Element Registry
-        this.dom = {};
-    }
-
-    init() {
-        console.log("InDrive Egypt Platform Initializing...");
-        this.cacheDomElements();
-        this.restoreStateFromStorage();
-        this.initMapEngine();
-        this.bindUserEvents();
-        this.renderInitialUI();
-        console.log("InDrive Engine Ready.");
-    }
-
-    cacheDomElements() {
-        this.dom.citySelect = document.getElementById('citySelect');
-        this.dom.pickupInput = document.getElementById('pickupInput');
-        this.dom.dropoffInput = document.getElementById('dropoffInput');
-        this.dom.clearPickupBtn = document.getElementById('clearPickupBtn');
-        this.dom.clearDropoffBtn = document.getElementById('clearDropoffBtn');
-        this.dom.swapLocationsBtn = document.getElementById('swapLocationsBtn');
-        
-        this.dom.vehicleCards = document.querySelectorAll('.vehicle-option-card');
-        this.dom.bidAmountEl = document.getElementById('bidAmount');
-        this.dom.increaseBidBtn = document.getElementById('increaseBidBtn');
-        this.dom.decreaseBidBtn = document.getElementById('decreaseBidBtn');
-
-        this.dom.paymentMethodBtn = document.getElementById('paymentMethodBtn');
-        this.dom.selectedPaymentText = document.getElementById('selectedPaymentText');
-        this.dom.rideCommentsBtn = document.getElementById('rideCommentsBtn');
-        this.dom.selectedCommentText = document.getElementById('selectedCommentText');
-
-        this.dom.requestRideBtn = document.getElementById('requestRideBtn');
-        this.dom.cancelSearchBtn = document.getElementById('cancelSearchBtn');
-        this.dom.cancelTripBtn = document.getElementById('cancelTripBtn');
-
-        this.dom.step1 = document.getElementById('step1');
-        this.dom.step2 = document.getElementById('step2');
-        this.dom.step3 = document.getElementById('step3');
-
-        this.dom.driverBidsContainer = document.getElementById('driverBidsContainer');
-        
-        this.dom.acceptedDriverName = document.getElementById('acceptedDriverName');
-        this.dom.acceptedVehicleInfo = document.getElementById('acceptedVehicleInfo');
-        this.dom.acceptedFareBadge = document.getElementById('acceptedFareBadge');
-        this.dom.tripProgressBar = document.getElementById('tripProgressBar');
-        this.dom.activeStatusText = document.getElementById('activeStatusText');
-
-        this.dom.callDriverBtn = document.getElementById('callDriverBtn');
-        this.dom.chatDriverBtn = document.getElementById('chatDriverBtn');
-        this.dom.shareTripBtn = document.getElementById('shareTripBtn');
-
-        // Modals DOM
-        this.dom.modalBackdrop = document.getElementById('modalBackdrop');
-        this.dom.paymentModal = document.getElementById('paymentModal');
-        this.dom.commentsModal = document.getElementById('commentsModal');
-        this.dom.chatModal = document.getElementById('chatModal');
-        
-        this.dom.tripCommentInput = document.getElementById('tripCommentInput');
-        this.dom.saveCommentBtn = document.getElementById('saveCommentBtn');
-        
-        this.dom.chatMessagesBox = document.getElementById('chatMessagesBox');
-        this.dom.chatInputField = document.getElementById('chatInputField');
-        this.dom.sendChatMsgBtn = document.getElementById('sendChatMsgBtn');
-
-        this.dom.recenterBtn = document.getElementById('recenterBtn');
-    }
-
-    restoreStateFromStorage() {
-        const savedState = StorageManager.getItem('app_state');
-        if (savedState) {
-            this.state.currentCity = savedState.currentCity || APP_CONFIG.DEFAULT_CITY;
-            this.state.selectedVehicle = savedState.selectedVehicle || 'economy';
-            this.state.userProposedBid = savedState.userProposedBid || 35;
-        }
-    }
-
-    saveStateToStorage() {
-        StorageManager.setItem('app_state', {
-            currentCity: this.state.currentCity,
-            selectedVehicle: this.state.selectedVehicle,
-            userProposedBid: this.state.userProposedBid
-        });
-    }
-
-    initMapEngine() {
-        this.mapEngine = new MapEngine('map', this.state.currentCity);
-    }
-
-    bindUserEvents() {
-        // City Switching
-        if (this.dom.citySelect) {
-            this.dom.citySelect.addEventListener('change', (e) => this.handleCityChange(e.target.value));
-        }
-
-        // Location Swap
-        if (this.dom.swapLocationsBtn) {
-            this.dom.swapLocationsBtn.addEventListener('click', () => this.handleLocationSwap());
-        }
-
-        // Clear Inputs
-        if (this.dom.clearPickupBtn) {
-            this.dom.clearPickupBtn.addEventListener('click', () => {
-                this.dom.pickupInput.value = '';
-                this.dom.pickupInput.focus();
-            });
-        }
-
-        if (this.dom.clearDropoffBtn) {
-            this.dom.clearDropoffBtn.addEventListener('click', () => {
-                this.dom.dropoffInput.value = '';
-                this.dom.dropoffInput.focus();
-            });
-        }
-
-        // Vehicle Category Selection
-        this.dom.vehicleCards.forEach(card => {
-            card.addEventListener('click', () => this.handleVehicleSelection(card));
-        });
-
-        // Bidding Adjustments
-        if (this.dom.increaseBidBtn) {
-            this.dom.increaseBidBtn.addEventListener('click', () => this.adjustBidAmount(APP_CONFIG.MAX_BID_INCREMENT));
-        }
-
-        if (this.dom.decreaseBidBtn) {
-            this.dom.decreaseBidBtn.addEventListener('click', () => this.adjustBidAmount(-APP_CONFIG.MAX_BID_INCREMENT));
-        }
-
-        // Workflow Navigation Buttons
-        if (this.dom.requestRideBtn) {
-            this.dom.requestRideBtn.addEventListener('click', () => this.transitionToStep2());
-        }
-
-        if (this.dom.cancelSearchBtn) {
-            this.dom.cancelSearchBtn.addEventListener('click', () => this.transitionToStep1());
-        }
-
-        if (this.dom.cancelTripBtn) {
-            this.dom.cancelTripBtn.addEventListener('click', () => this.handleTripCancellation());
-        }
-
-        // Modals Triggers
-        if (this.dom.paymentMethodBtn) {
-            this.dom.paymentMethodBtn.addEventListener('click', () => this.openModal(this.dom.paymentModal));
-        }
-
-        if (this.dom.rideCommentsBtn) {
-            this.dom.rideCommentsBtn.addEventListener('click', () => this.openModal(this.dom.commentsModal));
-        }
-
-        if (this.dom.chatDriverBtn) {
-            this.dom.chatDriverBtn.addEventListener('click', () => this.openModal(this.dom.chatModal));
-        }
-
-        if (this.dom.saveCommentBtn) {
-            this.dom.saveCommentBtn.addEventListener('click', () => this.handleSaveComment());
-        }
-
-        if (this.dom.sendChatMsgBtn) {
-            this.dom.sendChatMsgBtn.addEventListener('click', () => this.handleSendChatMessage());
-        }
-
-        if (this.dom.chatInputField) {
-            this.dom.chatInputField.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.handleSendChatMessage();
-            });
-        }
-
-        // Modal Close Generic
-        document.querySelectorAll('.close-modal-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetId = btn.getAttribute('data-close');
-                const modalEl = document.getElementById(targetId);
-                this.closeModal(modalEl);
-            });
-        });
-
-        // Payment Items Select
-        document.querySelectorAll('.modal-list-item').forEach(item => {
-            item.addEventListener('click', () => this.handlePaymentMethodSelection(item));
-        });
-
-        // Driver Action Buttons
-        if (this.dom.callDriverBtn) {
-            this.dom.callDriverBtn.addEventListener('click', () => this.handleCallDriver());
-        }
-
-        if (this.dom.shareTripBtn) {
-            this.dom.shareTripBtn.addEventListener('click', () => this.handleShareTrip());
-        }
-
-        // Recenter Map
-        if (this.dom.recenterBtn) {
-            this.dom.recenterBtn.addEventListener('click', () => {
-                this.soundEngine.playClickSound();
-                this.mapEngine.recenterMap();
-            });
-        }
-    }
-
-    renderInitialUI() {
-        if (this.dom.citySelect) this.dom.citySelect.value = this.state.currentCity;
-        const cityData = EGYPT_CITIES_DATABASE[this.state.currentCity];
-
-        if (this.dom.pickupInput) this.dom.pickupInput.value = cityData.defaultPickup;
-        if (this.dom.dropoffInput) this.dom.dropoffInput.value = cityData.defaultDropoff;
-
-        this.updateBidDisplay();
-    }
-
-    handleCityChange(newCityKey) {
-        if (!EGYPT_CITIES_DATABASE[newCityKey]) return;
-        this.soundEngine.playClickSound();
-
-        this.state.currentCity = newCityKey;
-        const cityData = EGYPT_CITIES_DATABASE[newCityKey];
-
-        this.dom.pickupInput.value = cityData.defaultPickup;
-        this.dom.dropoffInput.value = cityData.defaultDropoff;
-
-        this.mapEngine.switchCity(newCityKey);
-        this.saveStateToStorage();
-    }
-
-    handleLocationSwap() {
-        this.soundEngine.playClickSound();
-        const temp = this.dom.pickupInput.value;
-        this.dom.pickupInput.value = this.dom.dropoffInput.value;
-        this.dom.dropoffInput.value = temp;
-
-        const p1 = this.mapEngine.pickupMarker.getLatLng();
-        const p2 = this.mapEngine.dropoffMarker.getLatLng();
-
-        this.mapEngine.pickupMarker.setLatLng(p2);
-        this.mapEngine.dropoffMarker.setLatLng(p1);
-        this.mapEngine.drawRoute([p2.lat, p2.lng], [p1.lat, p1.lng]);
-    }
-
-    handleVehicleSelection(selectedCard) {
-        this.soundEngine.playClickSound();
-
-        this.dom.vehicleCards.forEach(c => {
-            c.classList.remove('active');
-            c.setAttribute('aria-checked', 'false');
-        });
-
-        selectedCard.classList.add('active');
-        selectedCard.setAttribute('aria-checked', 'true');
-
-        this.state.selectedVehicle = selectedCard.getAttribute('data-vehicle');
-        const defaultPrice = parseInt(selectedCard.getAttribute('data-price')) || 35;
-
-        const multiplier = EGYPT_CITIES_DATABASE[this.state.currentCity].baseFareMultiplier;
-        this.state.userProposedBid = Math.round(defaultPrice * multiplier);
-
-        this.updateBidDisplay();
-        this.saveStateToStorage();
-    }
-
-    adjustBidAmount(delta) {
-        this.soundEngine.playClickSound();
-        const newBid = this.state.userProposedBid + delta;
-
-        if (newBid >= APP_CONFIG.MIN_FARE_LIMIT) {
-            this.state.userProposedBid = newBid;
-            this.updateBidDisplay();
-            this.saveStateToStorage();
-        }
-    }
-
-    updateBidDisplay() {
-        if (this.dom.bidAmountEl) {
-            this.dom.bidAmountEl.textContent = this.state.userProposedBid;
-        }
-    }
-
-    transitionToStep1() {
-        this.soundEngine.playClickSound();
-        this.state.activeWorkflowStep = 1;
-
-        this.dom.step2.classList.add('hidden');
-        this.dom.step3.classList.add('hidden');
-        this.dom.step1.classList.remove('hidden');
-    }
-
-    transitionToStep2() {
-        this.soundEngine.playSuccessSound();
-        this.state.activeWorkflowStep = 2;
-
-        this.dom.step1.classList.add('hidden');
-        this.dom.step2.classList.remove('hidden');
-
-        this.biddingEngine.startRealtimeBiddingFeed(
-            this.dom.driverBidsContainer,
-            this.state.userProposedBid,
-            (acceptedOffer) => this.handleAcceptDriverOffer(acceptedOffer)
-        );
-    }
-
-    handleAcceptDriverOffer(offer) {
-        this.soundEngine.playSuccessSound();
-        this.state.activeTripData = offer;
-        this.state.activeWorkflowStep = 3;
-
-        this.dom.acceptedDriverName.textContent = `الكابتن / ${offer.driver.name}`;
-        this.dom.acceptedVehicleInfo.textContent = `${offer.driver.vehicleModel} (${offer.driver.plateNumber})`;
-        this.dom.acceptedFareBadge.textContent = `المبلغ المتفق عليه: ${offer.price} ${APP_CONFIG.CURRENCY_SYMBOL}`;
-
-        this.dom.step2.classList.add('hidden');
-        this.dom.step3.classList.remove('hidden');
-
-        this.startTripAnimationAndProgress();
-    }
-
-    startTripAnimationAndProgress() {
-        let progressPercent = 10;
-        this.dom.tripProgressBar.style.width = `${progressPercent}%`;
-        this.dom.activeStatusText.textContent = "السائق في طريقه لإقلالك...";
-
-        this.mapEngine.animateActiveDriverToPickup(() => {
-            this.dom.activeStatusText.textContent = "وصل السائق إلى موقعك الآن!";
-            this.soundEngine.playNotificationSound();
-        });
-
-        const progressInterval = setInterval(() => {
-            progressPercent += 20;
-            if (progressPercent > 100) {
-                clearInterval(progressInterval);
-                this.dom.activeStatusText.textContent = "أنت الآن في الطريق إلى وجهتك.";
-            } else {
-                this.dom.tripProgressBar.style.width = `${progressPercent}%`;
-            }
-        }, APP_CONFIG.SIMULATION_SPEED_MS);
-    }
-
-    handleTripCancellation() {
-        this.soundEngine.playClickSound();
-        if (confirm("هل أنت تأكد من رغبتك في إلغاء الرحلة الحالية؟")) {
-            this.state.activeTripData = null;
-            this.transitionToStep1();
-        }
-    }
-
-    openModal(modalEl) {
-        this.soundEngine.playClickSound();
-        this.dom.modalBackdrop.classList.remove('hidden');
-        modalEl.classList.remove('hidden');
-    }
-
-    closeModal(modalEl) {
-        this.soundEngine.playClickSound();
-        modalEl.classList.add('hidden');
-        this.dom.modalBackdrop.classList.add('hidden');
-    }
-
-    handlePaymentMethodSelection(itemEl) {
-        this.soundEngine.playClickSound();
-
-        document.querySelectorAll('.modal-list-item').forEach(i => i.classList.remove('active'));
-        itemEl.classList.add('active');
-
-        const paymentType = itemEl.getAttribute('data-payment');
-        const paymentLabel = itemEl.querySelector('span').textContent;
-
-        this.state.selectedPaymentMethod = paymentType;
-        this.dom.selectedPaymentText.textContent = paymentLabel;
-
-        this.closeModal(this.dom.paymentModal);
-    }
-
-    handleSaveComment() {
-        this.soundEngine.playClickSound();
-        const text = this.dom.tripCommentInput.value.trim();
-
-        if (text !== '') {
-            this.state.tripComment = text;
-            this.dom.selectedCommentText.textContent = text;
-        } else {
-            this.dom.selectedCommentText.textContent = "تعليقات خاصة بالرحلة";
-        }
-
-        this.closeModal(this.dom.commentsModal);
-    }
-
-    handleSendChatMessage() {
-        const text = this.dom.chatInputField.value.trim();
-        if (text === '') return;
-
-        this.soundEngine.playClickSound();
-
-        const userMsgObj = { sender: 'user', text: text };
-        this.state.chatMessagesHistory.push(userMsgObj);
-
-        this.renderChatBubble(userMsgObj);
-        this.dom.chatInputField.value = '';
-
-        // Auto Driver Reply Simulator
+        DOM.chatMessagesBox.appendChild(userBubbleNode);
+        DOM.chatInputField.value = '';
+        DOM.chatMessagesBox.scrollTop = DOM.chatMessagesBox.scrollHeight;
+
+        // Automated simulated captain reply after 1.8 seconds
         setTimeout(() => {
-            const replies = [
-                "تمام يا فندم وصلت.",
-                "أنا دقيقة وأكون عند حضرتك.",
-                "تم، جاري الاقتراب من الموقع المحدد."
-            ];
-            const randomReply = replies[Math.floor(Math.random() * replies.length)];
-            const driverMsgObj = { sender: 'driver', text: randomReply };
-            
-            this.state.chatMessagesHistory.push(driverMsgObj);
-            this.renderChatBubble(driverMsgObj);
-            this.soundEngine.playNotificationSound();
-        }, 1500);
+            const captainReplyNode = document.createElement('div');
+            captainReplyNode.className = 'chat-bubble driver-bubble';
+            captainReplyNode.innerHTML = `
+                <div class="bubble-sender-name">الكابتن أحمد</div>
+                <div class="bubble-text">تمام يا فندم، وصلني ردك وأنا في الطريق إليك حالياً.</div>
+            `;
+            DOM.chatMessagesBox.appendChild(captainReplyNode);
+            DOM.chatMessagesBox.scrollTop = DOM.chatMessagesBox.scrollHeight;
+        }, 1800);
     }
 
-    renderChatBubble(msgObj) {
-        const bubble = document.createElement('div');
-        bubble.className = `chat-bubble ${msgObj.sender} animated-fade-in`;
-        bubble.textContent = msgObj.text;
-
-        this.dom.chatMessagesBox.appendChild(bubble);
-        this.dom.chatMessagesBox.scrollTop = this.dom.chatMessagesBox.scrollHeight;
-    }
-
-    handleCallDriver() {
-        this.soundEngine.playClickSound();
-        if (this.state.activeTripData) {
-            window.location.href = `tel:${this.state.activeTripData.driver.phone}`;
-        } else {
-            alert("لا توجد رحلة نشطة حالياً للاتصال بالسائق.");
+    function triggerSosEmergencyProtocol() {
+        const emergencyAlertConfirmed = confirm('⚠️ تفعيل نظام الطوارئ (SOS): هل تريد الاتصال المباشر بالخط الساخن للأمن ومشاركة تفاصيل الرحلة الحالية فوراً؟');
+        if (emergencyAlertConfirmed) {
+            showEnterpriseToast('تم إرسال إشارة الاستغاثة وتأمين رحلتك بنجاح.');
         }
     }
 
-    handleShareTrip() {
-        this.soundEngine.playClickSound();
-        if (navigator.share) {
-            navigator.share({
-                title: 'تتبع رحلتي على إنـدرايف مصر',
-                text: 'يمكنك تتبع رحلتي المباشرة على الخريطة عبر منصة إنـدرايف.',
-                url: window.location.href
-            }).catch(() => {});
-        } else {
-            alert("تم نسخ رابط تتبع الرحلة المباشر لمرسلتها لأصدقائك.");
-        }
+    function showEnterpriseToast(messageContent) {
+        const toastElement = document.createElement('div');
+        toastElement.className = 'indrive-enterprise-toast';
+        toastElement.textContent = messageContent;
+        toastElement.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111111;
+            color: #00dd88;
+            padding: 12px 28px;
+            border-radius: 35px;
+            font-weight: 800;
+            font-size: 13px;
+            z-index: 9999;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+            border: 1px solid #00dd88;
+            direction: rtl;
+            font-family: 'Cairo', sans-serif;
+        `;
+
+        document.body.appendChild(toastElement);
+
+        setTimeout(() => {
+            toastElement.style.opacity = '0';
+            toastElement.style.transition = 'opacity 0.5s ease-in-out';
+            setTimeout(() => {
+                toastElement.remove();
+            }, 500);
+        }, 3200);
     }
-}
 
-// ==============================================================================
-// 7. APPLICATION BOOTSTRAP INITIALIZER
-// ==============================================================================
+    function escapeHtmlString(stringInput) {
+        return String(stringInput)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.inDriveApp = new InDriveApplicationController();
-    window.inDriveApp.init();
-});
+    /* ======================================================================== */
+    /* 10. APPLICATION INITIALIZATION BOOTSTRAPPER                              */
+    /* ======================================================================== */
+    function initializeEnterpriseApplication() {
+        cacheDomElements();
+        MapManager.init();
+        bindApplicationEventListeners();
+        
+        console.log(`InDrive Egypt Enterprise Application v${EnterpriseState.version} booted successfully.`);
+    }
+
+    // Execute boot on DOMContentLoaded state
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeEnterpriseApplication);
+    } else {
+        initializeEnterpriseApplication();
+    }
+
+})(window, document);
