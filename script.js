@@ -1,25 +1,25 @@
 /* ==========================================================================
-   Enterprise System Configuration & Constants Module
+   IN-DRIVE EGYPT ENTERPRISE JAVASCRIPT ARCHITECTURE v5.0
    ========================================================================== */
+
+/* 1. System Configuration & Enterprise Constants Module */
 const SystemConfig = Object.freeze({
-    VERSION: "4.8.2-Enterprise",
-    REGION: "Egypt (EGY)",
+    VERSION: "5.0.0-Enterprise-Production",
+    REGION: "Egypt (EGY - Cairo/Alexandria/Beheira)",
     CURRENCY: "ج.م",
     API_TIMEOUT_MS: 5000,
-    DEFAULT_LATITUDE: 30.0444,
-    DEFAULT_LONGITUDE: 31.2357,
+    DEFAULT_LATITUDE: 31.0267, // Abu Al Matamir / Beheira baseline
+    DEFAULT_LONGITUDE: 30.1775,
     PRICING: {
-        BASE_FARE: 15.0,
-        RATE_PER_KM: 4.5,
-        MIN_FARE: 25.0,
-        SURG_MULTIPLIER_PEAK: 1.35
+        BASE_FARE: 18.0,
+        RATE_PER_KM: 5.0,
+        MIN_FARE: 30.0,
+        SURG_MULTIPLIER_PEAK: 1.40
     },
     EGYPT_PHONE_REGEX: /^(\+20|0)?1[0125][0-9]{8}$/
 });
 
-/* ==========================================================================
-   Diagnostics Logger & Error Handling Try-Catch Engine
-   ========================================================================== */
+/* 2. Diagnostics & Telemetry Logging Engine */
 class DiagnosticsLogger {
     static log(message, level = "INFO") {
         try {
@@ -39,9 +39,7 @@ class DiagnosticsLogger {
     }
 }
 
-/* ==========================================================================
-   Security, XSS Sanitization & Validation Engine
-   ========================================================================== */
+/* 3. Security, XSS Sanitization & Validation Shield */
 class SecurityEngine {
     static sanitizeInput(inputString) {
         try {
@@ -71,9 +69,7 @@ class SecurityEngine {
     }
 }
 
-/* ==========================================================================
-   Global State Management & Store Pattern
-   ========================================================================== */
+/* 4. Global Reactive State Store Pattern */
 class GlobalStore {
     constructor() {
         try {
@@ -84,7 +80,7 @@ class GlobalStore {
                 captains: [],
                 selectedPickup: "cairo_tahrir",
                 selectedDropoff: "cairo_newcairo",
-                clientOffer: 120,
+                clientOffer: 150,
                 systemMode: "DARK"
             };
             this.listeners = [];
@@ -129,9 +125,7 @@ class GlobalStore {
 
 const AppStore = new GlobalStore();
 
-/* ==========================================================================
-   Advanced Bidding & Pricing Engine
-   ========================================================================== */
+/* 5. Advanced Bidding & Dynamic Pricing Engine */
 class PricingAndBiddingEngine {
     static calculateDynamicFare(distanceKm, surgeFactor = 1.0) {
         try {
@@ -149,14 +143,15 @@ class PricingAndBiddingEngine {
     static generateSimulatedBids(clientBaseOffer) {
         try {
             const simulatedCaptains = [
-                { id: "CAP-901", name: "محمود الشناوي", vehicle: "شيفورليه أوبترا - أسود", rating: 4.8, distanceMin: 3 },
-                { id: "CAP-902", name: "أحمد عبد التواب", vehicle: "هيوانداي النترا - أبيض", rating: 4.9, distanceMin: 1.5 },
-                { id: "CAP-903", name: "كريم البنهاوي", vehicle: "تويوتا كورولا - رمادي", rating: 4.7, distanceMin: 4 }
+                { id: "CAP-101", name: "محمود الشناوي", vehicle: "شيفورليه أوبترا - أسود", rating: 4.85, distanceMin: 2.1 },
+                { id: "CAP-102", name: "أحمد عبد التواب", vehicle: "هيوانداي النترا - أبيض", rating: 4.92, distanceMin: 1.4 },
+                { id: "CAP-103", name: "كريم البنهاوي", vehicle: "تويوتا كورولا - رمادي", rating: 4.78, distanceMin: 3.5 },
+                { id: "CAP-104", name: "إسلام متولي", vehicle: "كيا سيراتو - أحمر داكن", rating: 4.90, distanceMin: 4.2 }
             ];
 
             const generatedBids = simulatedCaptains.map(captain => {
-                const variance = Math.floor(Math.random() * 30) - 10;
-                const finalBidPrice = Math.max(25, Number(clientBaseOffer) + variance);
+                const variance = Math.floor(Math.random() * 35) - 12;
+                const finalBidPrice = Math.max(30, Number(clientBaseOffer) + variance);
                 return {
                     ...captain,
                     bidPrice: finalBidPrice,
@@ -165,7 +160,7 @@ class PricingAndBiddingEngine {
             });
 
             AppStore.setState({ bids: generatedBids });
-            DiagnosticsLogger.log(`Generated ${generatedBids.length} dynamic captain bids successfully.`);
+            DiagnosticsLogger.log(`Generated ${generatedBids.length} dynamic captain bids successfully through marketplace engine.`);
             RideWorkflowController.renderBidsList();
         } catch (error) {
             DiagnosticsLogger.log(`Bidding engine failure: ${error.message}`, "ERROR");
@@ -173,9 +168,7 @@ class PricingAndBiddingEngine {
     }
 }
 
-/* ==========================================================================
-   Map & Geolocation Simulation Engine
-   ========================================================================== */
+/* 6. Map & Geolocation Simulation Engine */
 class MapSimulationEngine {
     static initMap() {
         try {
@@ -195,18 +188,18 @@ class MapSimulationEngine {
             if (!pinLayer) return;
             
             const simulatedCoords = [
-                { x: 180, y: 140, name: "محمود" },
-                { x: 320, y: 220, name: "أحمد" },
-                { x: 480, y: 110, name: "كريم" },
-                { x: 650, y: 290, name: "هيثم" },
-                { x: 230, y: 350, name: "إسلام" }
+                { x: 190, y: 150, name: "محمود" },
+                { x: 340, y: 240, name: "أحمد" },
+                { x: 500, y: 120, name: "كريم" },
+                { x: 680, y: 310, name: "إسلام" },
+                { x: 250, y: 380, name: "سامح" }
             ];
 
             pinLayer.innerHTML = simulatedCoords.map((c) => `
                 <g class="captain-marker" transform="translate(${c.x}, ${c.y})" style="transition: transform 1.5s ease;">
-                    <circle r="12" fill="#00e676" fill-opacity="0.3" />
+                    <circle r="14" fill="#00e676" fill-opacity="0.25" />
                     <circle r="6" fill="#00e676" stroke="#ffffff" stroke-width="2" />
-                    <text x="15" y="4" fill="#f8fafc" font-size="10" font-weight="bold">${c.name}</text>
+                    <text x="18" y="4" fill="#f8fafc" font-size="11" font-weight="bold">${c.name}</text>
                 </g>
             `).join('');
 
@@ -226,8 +219,8 @@ class MapSimulationEngine {
                 const currentTransform = marker.getAttribute('transform');
                 const match = currentTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
                 if (match) {
-                    let x = parseFloat(match[1]) + (Math.random() * 10 - 5);
-                    let y = parseFloat(match[2]) + (Math.random() * 10 - 5);
+                    let x = parseFloat(match[1]) + (Math.random() * 12 - 6);
+                    let y = parseFloat(match[2]) + (Math.random() * 12 - 6);
                     marker.setAttribute('transform', `translate(${x}, ${y})`);
                 }
             });
@@ -237,9 +230,7 @@ class MapSimulationEngine {
     }
 }
 
-/* ==========================================================================
-   WebSocket Chat & Messaging Module
-   ========================================================================== */
+/* 7. WebSocket Chat & Real-Time Messaging Module */
 class WebSocketChatEngine {
     static sendMessage() {
         try {
@@ -264,11 +255,11 @@ class WebSocketChatEngine {
             setTimeout(() => {
                 const incomingBubble = document.createElement('div');
                 incomingBubble.className = 'chat-bubble incoming';
-                incomingBubble.textContent = "تم استلام رسالتك، أنا في الطريق إليك الآن خلال 3 دقائق.";
+                incomingBubble.textContent = "تحت أمرك يا فندم، أنا في الطريق لموقعك ومستعد للوصول خلال دقائق معدودة.";
                 container.appendChild(incomingBubble);
                 container.scrollTop = container.scrollHeight;
                 DiagnosticsLogger.log("Automated captain response received via WebSocket.");
-            }, 1500);
+            }, 1800);
 
         } catch (error) {
             DiagnosticsLogger.log(`WebSocket chat send error: ${error.message}`, "ERROR");
@@ -276,25 +267,8 @@ class WebSocketChatEngine {
     }
 }
 
-/* ==========================================================================
-   Enterprise UI & DOM Controller (Workflows & Modals)
-   ========================================================================== */
+/* 8. Enterprise UI & DOM Controller */
 class EnterpriseUIController {
-    static toggleDarkMode() {
-        try {
-            const htmlRoot = document.documentElement;
-            if (htmlRoot.classList.contains('dark-mode')) {
-                htmlRoot.classList.remove('dark-mode');
-                DiagnosticsLogger.log("Switched system UI mode to Light.");
-            } else {
-                htmlRoot.classList.add('dark-mode');
-                DiagnosticsLogger.log("Switched system UI mode to Dark.");
-            }
-        } catch (error) {
-            DiagnosticsLogger.log(`Toggle dark mode error: ${error.message}`, "ERROR");
-        }
-    }
-
     static openModal(title, bodyText, confirmCallback) {
         try {
             document.getElementById('modalTitle').textContent = title;
@@ -329,9 +303,7 @@ class EnterpriseUIController {
     }
 }
 
-/* ==========================================================================
-   Ride Workflow Coordination Engine
-   ========================================================================== */
+/* 9. Ride Workflow Coordination Engine */
 class RideWorkflowController {
     static submitRideRequest() {
         try {
@@ -339,7 +311,7 @@ class RideWorkflowController {
             const offerInput = document.getElementById('clientOfferPrice').value;
 
             if (!SecurityEngine.validateEgyptianPhone(phoneInput)) {
-                EnterpriseUIController.openModal("خطأ في بيانات الاتصال", "رقم الهاتف غير صحيح. يرجى إدخال رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015.", () => {});
+                EnterpriseUIController.openModal("خطأ في بيانات الاتصال", "رقم الهاتف غير صحيح. يرجى إدخال رقم هاتف مصري صحيح (مثال: 01012345678).", () => {});
                 return;
             }
 
@@ -354,8 +326,8 @@ class RideWorkflowController {
             DiagnosticsLogger.log(`Ride request submitted successfully for phone: ${sanitizedPhone} with offer: ${sanitizedOffer} EGP`);
 
             EnterpriseUIController.openModal(
-                "تأكيد طلب الرحلة والبدء",
-                `تم التحقق من بياناتك بنجاح. سيتم الآن إرسال طلبك لعرض السعر (${sanitizedOffer} ج.م) إلى جميع الكباتن المتاحين في محيط منطقتك.`,
+                "تأكيد إطلاق طلب الرحلة",
+                `تم التحقق من بيانات الاتصال بنجاح. سيتم الآن إرسال عرض السعر المقترح (${sanitizedOffer} ج.م) لشبكة الكباتن النشطين في النطاق الجغرافي.`,
                 () => {
                     PricingAndBiddingEngine.generateSimulatedBids(sanitizedOffer);
                 }
@@ -371,7 +343,7 @@ class RideWorkflowController {
             const bids = AppStore.getState().bids;
 
             if (!bids || bids.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1rem;">لا توجد عروض حالية.</div>`;
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1rem;">لا توجد عروض كباتن متاحة حالياً.</div>`;
                 return;
             }
 
@@ -381,14 +353,14 @@ class RideWorkflowController {
                         <h4>${bid.name} ⭐ ${bid.rating}</h4>
                         <p>${bid.vehicle} • يبعد ${bid.distanceMin} كم</p>
                     </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
                         <span class="bid-price">${bid.bidPrice} ${SystemConfig.CURRENCY}</span>
-                        <button class="btn-enterprise" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;" onclick="RideWorkflowController.acceptCaptainBid('${bid.name}', ${bid.bidPrice})">قبول العرض</button>
+                        <button class="btn-enterprise" style="padding: 0.35rem 0.85rem; font-size: 0.85rem;" onclick="RideWorkflowController.acceptCaptainBid('${bid.name}', ${bid.bidPrice})">قبول العرض</button>
                     </div>
                 </div>
             `).join('');
 
-            DiagnosticsLogger.log("Bids list rendered successfully in the UI marketplace.");
+            DiagnosticsLogger.log("Bids marketplace rendered successfully with live offers.");
         } catch (error) {
             DiagnosticsLogger.log(`Render bids list error: ${error.message}`, "ERROR");
         }
@@ -397,11 +369,11 @@ class RideWorkflowController {
     static acceptCaptainBid(captainName, price) {
         try {
             EnterpriseUIController.openModal(
-                "تأكيد قبول عرض الكابتن",
-                `لقد قمت باختيار الكابتن (${captainName}) بقيمة (${price} ج.م). سيتم الآن تأكيد الحجز وتوجيه الكابتن إلى نقطة التجمع.`,
+                "تأكيد التعاقد مع الكابتن",
+                `تمت الموافقة على عرض الكابتن (${captainName}) بقيمة (${price} ج.م). سيتم ربطك بالرحلة وتحديث مسار الخريطة اللحظي.`,
                 () => {
-                    DiagnosticsLogger.log(`Ride successfully contracted with Captain ${captainName} for ${price} EGP.`);
-                    alert(`تم تأكيد الرحلة مع الكابتن ${captainName} بنجاح!`);
+                    DiagnosticsLogger.log(`Contract finalized with Captain ${captainName} for ${price} EGP.`);
+                    alert(`مبروك يا شريكي! تم تأكيد الرحلة مع الكابتن ${captainName} بنجاح.`);
                 }
             );
         } catch (error) {
@@ -410,14 +382,12 @@ class RideWorkflowController {
     }
 }
 
-/* ==========================================================================
-   System Bootstrapping Initialization on DOMContentLoaded
-   ========================================================================== */
+/* 10. System Bootstrapping Sequence on DOMContentLoaded */
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        DiagnosticsLogger.log("DOM fully loaded and parsed. Executing system initialization sequence...");
+        DiagnosticsLogger.log("DOM fully loaded and parsed. Executing system enterprise bootstrapping sequence...");
         MapSimulationEngine.initMap();
-        DiagnosticsLogger.log("All enterprise modules loaded and operational without failure.");
+        DiagnosticsLogger.log("All architectural modules loaded and operational at peak performance.");
     } catch (error) {
         DiagnosticsLogger.log(`System bootstrap critical failure: ${error.message}`, "ERROR");
     }

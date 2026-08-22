@@ -1,29 +1,35 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark-mode">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة النقل الذكي المؤسسية - In-Drive Enterprise Engine</title>
-    <!-- ربط ملف الـ CSS المنفصل -->
-    <link rel="stylesheet" href="style.css">
+    <title>منصة النقل الذكي المؤسسية - In-Drive Enterprise Core</title>
+    <!-- ربط ملف الـ CSS الهندسي الضخم -->
+    <link rel="stylesheet" href="enterprise-design-system.css">
+    <!-- استيراد خط Cairo الاحترافي من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <!-- Enterprise Header -->
     <header class="enterprise-header">
-        <div class="brand-logo">
-            <span>🛡️</span> In-Drive Enterprise Core
+        <div class="brand-container">
+            <div class="brand-logo">
+                <span>🛡️</span> In-Drive Enterprise
+            </div>
+            <div class="system-status-badge" id="systemStatusIndicator">
+                <span>●</span> النظام نشط ومؤمن (Live EGY Engine)
+            </div>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <div class="system-status-badge" id="systemStatusIndicator">● النظام نشط ومؤمن (Live EGY)</div>
-            <button class="btn-enterprise btn-secondary" onclick="EnterpriseUIController.toggleDarkMode()">الوضع الليلي / المضيء</button>
+            <button class="btn-enterprise btn-secondary" onclick="DiagnosticsLogger.log('Manual telemetry ping executed by operator.', 'WARN')">فحص الاتصال (Ping)</button>
         </div>
     </header>
 
-    <!-- Main Workspace Layout -->
-    <div class="main-container">
+    <!-- Main Workspace Grid Architecture -->
+    <main class="enterprise-main-container">
 
-        <!-- Left Sidebar: Order Creation & Bidding Management -->
+        <!-- Left Sidebar: Ride Booking & Bidding Marketplace -->
         <aside class="enterprise-panel">
             <div class="panel-section">
                 <div class="panel-title">📍 طلب رحلة جديدة (Ride Booking)</div>
@@ -37,7 +43,7 @@
                         <option value="cairo_tahrir">ميدان التحرير، القاهرة</option>
                         <option value="cairo_nasr">مدينة نصر، الـ 7 عمارات</option>
                         <option value="giza_pyramids">هرم الجيزة، الأهرامات</option>
-                        <option value="alex_smouha">سموحة، الإسكندرية</option>
+                        <option value="beheira_abu">أبو المطامير، البحيرة</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -46,12 +52,12 @@
                         <option value="cairo_newcairo">التجمع الخامس، القاهرة الجديدة</option>
                         <option value="cairo_maadi">المعادي، كورنيش النيل</option>
                         <option value="giza_zayed">الشيخ زايد، الإستاد</option>
-                        <option value="alex_maamoura">المعمورة، الإسكندرية</option>
+                        <option value="alex_smouha">سموحة، الإسكندرية</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>السعر المقترح من العميل (ج.م)</label>
-                    <input type="number" id="clientOfferPrice" value="120" min="20" max="5000">
+                    <input type="number" id="clientOfferPrice" value="150" min="30" max="5000">
                 </div>
                 <button class="btn-enterprise" onclick="RideWorkflowController.submitRideRequest()">إرسال الطلب وإطلاق المزايدة</button>
             </div>
@@ -59,18 +65,19 @@
             <div class="panel-section">
                 <div class="panel-title">💰 سوق المزايدات اللحظية (Live Bids)</div>
                 <div class="bids-list" id="bidsListContainer">
-                    <div style="text-align: center; color: var(--text-muted); padding: 1rem;">في انتظار تقديم الكباتن لعروضهم...</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 1.5rem; font-size: 0.9rem;">في انتظار إرسال الطلب لعرض أسعار الكباتن...</div>
                 </div>
             </div>
         </aside>
 
-        <!-- Center Workspace: Interactive Simulation Map -->
-        <main class="workspace-center">
+        <!-- Center Workspace: GIS Interactive Simulation Map -->
+        <div class="workspace-center">
             <div class="map-overlay-controls">
-                <div class="map-chip">🗺️ نظام الخرائط الحية (GIS Engine)</div>
-                <div class="map-chip">🚗 الكباتن النشطون: <span id="activeCaptainsCount">12</span></div>
+                <div class="map-chip">🗺️ خريطة الملاحة الحية (GIS Vector Engine)</div>
+                <div class="map-chip">🚗 الكباتن النشطون: <span id="activeCaptainsCount" style="color: var(--primary-color);">18</span></div>
             </div>
             <div id="simulationMap">
+                <!-- SVG Vector Rendering Engine for Simulated City Grid & Captain Positions -->
                 <svg width="100%" height="100%" id="mapSvgEngine" style="position: absolute; top: 0; left: 0;">
                     <defs>
                         <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -78,32 +85,24 @@
                             <stop offset="100%" stop-color="#3b82f6" />
                         </linearGradient>
                     </defs>
-                    <g stroke="#2a3958" stroke-width="0.5" opacity="0.3">
-                        <line x1="0" y1="100" x2="100%" y2="100" />
-                        <line x1="0" y1="200" x2="100%" y2="200" />
-                        <line x1="0" y1="300" x2="100%" y2="300" />
-                        <line x1="0" y1="400" x2="100%" y2="400" />
-                        <line x1="100" y1="0" x2="100" y2="100%" />
-                        <line x1="300" y1="0" x2="300" y2="100%" />
-                        <line x1="500" y1="0" x2="500" y2="100%" />
-                        <line x1="700" y1="0" x2="700" y2="100%" />
-                    </g>
-                    <path id="svgActiveRoutePath" d="M 150 150 Q 300 50, 450 300 T 750 200" fill="none" stroke="url(#routeGrad)" stroke-width="4" stroke-dasharray="8 4" />
+                    <!-- Active Optimized Route Path -->
+                    <path id="svgActiveRoutePath" d="M 120 120 Q 320 60, 480 280 T 780 220" fill="none" stroke="url(#routeGrad)" stroke-width="5" stroke-dasharray="10 6" />
+                    <!-- Captain Pins Dynamic Layer -->
                     <g id="svgCaptainPinsLayer"></g>
                 </svg>
             </div>
-        </main>
+        </div>
 
-        <!-- Right Sidebar: Chat, Diagnostics & Telemetry -->
+        <!-- Right Sidebar: Secure Chat, Diagnostics & Telemetry -->
         <aside class="enterprise-panel">
             <div class="panel-section">
                 <div class="panel-title">💬 الشات الآمن مع الكابتن</div>
                 <div class="chat-container">
                     <div class="chat-messages" id="chatMessagesContainer">
-                        <div class="chat-bubble incoming">مرحباً بك، أنا في طريق لإنهاء قبول العرض وموقعك قيد التتبع.</div>
+                        <div class="chat-bubble incoming">مرحباً بك يا شريكي، أنا جاهز لتلقي تفاصيل رحلتك وموقعك قيد التتبع المباشر.</div>
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" id="chatInputText" placeholder="اكتب رسالة للكابتن...">
+                        <input type="text" id="chatInputText" placeholder="اكتب رسالة مشفرة للكابتن...">
                         <button class="btn-enterprise" onclick="WebSocketChatEngine.sendMessage()">إرسال</button>
                     </div>
                 </div>
@@ -118,13 +117,13 @@
             </div>
         </aside>
 
-    </div>
+    </main>
 
-    <!-- Enterprise Interactive Modal -->
+    <!-- Enterprise Interactive Modal System -->
     <div class="enterprise-modal-backdrop" id="enterpriseModalBackdrop">
         <div class="enterprise-modal" id="enterpriseModalContent">
-            <h2 id="modalTitle" style="color: var(--primary-color);">تأكيد العملية</h2>
-            <p id="modalBodyText" style="color: var(--text-muted);">جاري معالجة البيانات عبر الخوادم المؤمنة...</p>
+            <h2 id="modalTitle" style="color: var(--primary-color); font-weight: 900;">تأكيد العملية</h2>
+            <p id="modalBodyText" style="color: var(--text-muted); line-height: 1.6;">جاري معالجة البيانات عبر الخوادم المؤمنة...</p>
             <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                 <button class="btn-enterprise btn-secondary" onclick="EnterpriseUIController.closeModal()">إلغاء</button>
                 <button class="btn-enterprise" id="modalConfirmBtn" onclick="EnterpriseUIController.handleModalConfirm()">موافق ومتابعة</button>
@@ -132,7 +131,7 @@
         </div>
     </div>
 
-    <!-- ربط ملف الـ JavaScript المنفصل -->
-    <script src="script.js"></script>
+    <!-- ربط ملف الـ JavaScript الهندسي -->
+    <script src="enterprise-core.js"></script>
 </body>
 </html>
